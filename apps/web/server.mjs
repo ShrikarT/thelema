@@ -718,7 +718,7 @@ function createApp({ env = process.env, fetchImpl = fetch } = {}) {
         return json(res, 404, { error: "Not found." });
       }
       const resolved = path.resolve(publicDir, file);
-      if (!resolved.startsWith(publicDir) || ![".html", ".js", ".css", ".svg", ".woff", ".png"].includes(path.extname(resolved))) {
+      if (!resolved.startsWith(publicDir) || ![".html", ".js", ".css", ".svg", ".woff", ".woff2", ".webp", ".png"].includes(path.extname(resolved))) {
         return json(res, 404, { error: "Not found." });
       }
       let content;
@@ -733,6 +733,8 @@ function createApp({ env = process.env, fetchImpl = fetch } = {}) {
         ".css": "text/css; charset=utf-8",
         ".svg": "image/svg+xml",
         ".woff": "font/woff",
+        ".woff2": "font/woff2",
+        ".webp": "image/webp",
         ".png": "image/png"
       };
       res.writeHead(status, {

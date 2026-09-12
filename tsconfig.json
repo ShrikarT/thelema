@@ -29,6 +29,7 @@
     "packages/core/**/*.ts",
     "packages/arc/**/*.ts",
     "packages/graph/**/*.ts",
+    "packages/markets/**/*.ts",
     "packages/cre/index.ts",
     "packages/cre/policy.ts",
     "packages/cre/types.ts",

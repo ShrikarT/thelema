@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node apps/web/server.mjs",
-    "dev": "node scripts/build.mjs && node apps/web/server.mjs",
+    "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test --test-reporter=tap tests/*.test.mjs packages/graph/*.test.mjs packages/cre/*.test.mjs",
@@ -44,6 +44,9 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/node": "^24.0.0",
-    "playwright": "^1.58.0"
+    "playwright": "^1.58.0",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@foundry-rs/anvil": "1.7.1",
+    "@foundry-rs/forge": "1.7.1"
   }
 }
