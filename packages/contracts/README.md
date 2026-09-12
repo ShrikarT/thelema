@@ -1,4 +1,4 @@
-> Continuation note: consult root agenthanoff.md and current docs/CONTRACTS.md or docs/AUTOMATION.md first. Later source corrections supersede this imported draft.
+> Continuation note: consult current docs/CONTRACTS.md or docs/AUTOMATION.md first. Later source corrections supersede this imported draft.
 
 # THELEMA contracts
 

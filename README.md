@@ -79,7 +79,7 @@ A passing mock or sandbox test is **not** evidence of a public testnet deploymen
 
 ## Build workflow
 
-1. Read `CLAUDE.md`, the original specifications, and `agenthanoff.md`.
+1. Review the architecture and specifications in `docs/` and `ARCHITECTURE.md`.
 2. Implement a small task; run the relevant unit checks.
 3. Run `npm run build`, `npm run typecheck`, `npm test` and `npm run test:ui`.
 4. Inspect screenshots, including mobile and actual success/error states.
@@ -155,13 +155,15 @@ THELEMA-preview.html  Portable interactive sandbox
 
 See `LICENSES/` for third-party notices. No project-wide license was selected for your original specifications. Contract files retain their declared SPDX licenses; review the final licensing decision before publishing.
 
-## Continue with the included history
+## Repository and Verification
 
-The ZIP contains `thelema-history.bundle`. To get a working Git repository without a remote URL:
+Clone this repository:
 
 ```sh
-git clone thelema-history.bundle thelema-repo
-cd thelema-repo
+git clone https://github.com/ShrikarT/thelema.git
+cd thelema
+npm ci
+npm start
 ```
 
-The bundle reflects the final verified local snapshot. Intermediate checkpoint persistence was unreliable in this environment; nonexistent commits were not reconstructed or claimed as preserved. See agenthanoff.md.
+Open `http://127.0.0.1:3000` in your browser to view the interface. Run `npm test` to execute the full 232 test suite.
