@@ -1,8 +1,10 @@
 {
   "publicRepository": "https://github.com/ShrikarT/thelema",
-  "currentPublicCommit": "85289bf487c0e90513cbbe981e5cf134c2a6145e",
+  "deploymentEvidenceCommit": "85289bf487c0e90513cbbe981e5cf134c2a6145e",
+  "metadataCorrectionCommit": "3c576da9fa9a117d983424d9c02ffc4c23c72166",
+  "currentPublicCommit": "3c576da9fa9a117d983424d9c02ffc4c23c72166",
   "sourceEvidenceCommit": "0150c6ccdb992bd7ebdeb5250e7b9c57c501e303",
-  "gitSha": "85289bf487c0e90513cbbe981e5cf134c2a6145e",
+  "gitSha": "3c576da9fa9a117d983424d9c02ffc4c23c72166",
   "branch": "main",
   "evidenceTimestamps": {
     "arcDeployment": "2026-09-08T06:07:04.076Z",
@@ -43,5 +45,5 @@
     "status": "NOT_APPROVED",
     "reference": null
   },
-  "scope": "Arc deployment verified (6 contracts, 20 receipts, 86.343602 USDC historical demo spend; active submission market deployed with 86.357542 USDC spend and 1.005998 USDC demo trade, total cumulative spend 173.707142 USDC <= 180.000000 USDC ceiling). Graph spot and cross-protocol verified (Uniswap V3 + SushiSwap on Arbitrum One, 0.27% spread) in docs/evidence/graph-cross-protocol.json. CRE CLI simulation executed and halted at network callback boundary."
+  "scope": "Arc deployment verified (6 contracts, bytecode and parameters verified on-chain, 20 receipts, 86.343602 USDC historical demo spend; active submission market deployed with 86.357542 USDC spend and 1.005998 USDC demo trade, total cumulative spend 173.707142 USDC <= 180.000000 USDC ceiling). Graph spot and cross-protocol verified (Uniswap V3 + SushiSwap on Arbitrum One, approximately 0.28% spread) in docs/evidence/graph-cross-protocol.json. CRE CLI simulation executed and halted at network callback boundary."
 }

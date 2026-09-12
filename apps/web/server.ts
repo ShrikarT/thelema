@@ -1,4 +1,5 @@
 import http, { IncomingMessage, ServerResponse, Server } from 'node:http';
+import { existsSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -73,7 +74,41 @@ export function resolveHostAndOrigin(env: Record<string, string | undefined>): H
 
 export function createApp({ env = process.env, fetchImpl = fetch }: AppOptions = {}): Server {
   const sessions = new Map<string, SessionData>();
-  const config: ArcConfig = configuration(env);
+
+  // Ensure Arc Testnet mode reads the active submission market deployment if available
+  const effectiveEnv = { ...env };
+  if (env === process.env || process.env.NODE_ENV === 'production' || env.ARC_USE_SUBMISSION === 'true') {
+    try {
+      const subPath = path.resolve('deployments/submission-market.json');
+      if (existsSync(subPath)) {
+        const manifest = JSON.parse(readFileSync(subPath, 'utf8'));
+        if (manifest.contracts) {
+          const OLD_DEMO_ORACLE = '0x8548bd8633de8efd7d5a0327d6a51f8e5d74100f';
+          const OLD_DEMO_AMM = '0x7afff3698a2f5b58b9ebac8405a7a903e482a4ab';
+          if (!effectiveEnv.ARC_ORACLE || effectiveEnv.ARC_ORACLE.toLowerCase() === OLD_DEMO_ORACLE.toLowerCase()) {
+            effectiveEnv.ARC_ORACLE = manifest.contracts.oracle;
+          }
+          if (!effectiveEnv.ARC_BINARY_AMM || effectiveEnv.ARC_BINARY_AMM.toLowerCase() === OLD_DEMO_AMM.toLowerCase()) {
+            effectiveEnv.ARC_BINARY_AMM = manifest.contracts.binaryAmm;
+          }
+          if (!effectiveEnv.ARC_BINARY_VAULT || effectiveEnv.ARC_BINARY_VAULT.toLowerCase() === '0x9aa21d72378a36fa107129c87f17b0a42680ecb7') {
+            effectiveEnv.ARC_BINARY_VAULT = manifest.contracts.binaryVault;
+          }
+          if (!effectiveEnv.ARC_SHARE_VAULT || effectiveEnv.ARC_SHARE_VAULT.toLowerCase() === '0x81fad3ec2d7e841cda7e1504e1bdd23f794c8e3d') {
+            effectiveEnv.ARC_SHARE_VAULT = manifest.contracts.shareVault;
+          }
+          if (!effectiveEnv.ARC_YES_SHARE_AMM || effectiveEnv.ARC_YES_SHARE_AMM.toLowerCase() === '0x0708437945bbba6dcc72d7a271347c88a1c26cab') {
+            effectiveEnv.ARC_YES_SHARE_AMM = manifest.contracts.yesShareAmm;
+          }
+          if (!effectiveEnv.ARC_NO_SHARE_AMM || effectiveEnv.ARC_NO_SHARE_AMM.toLowerCase() === '0xee27dd6502956c98ddc56575960f178a3e757eb2') {
+            effectiveEnv.ARC_NO_SHARE_AMM = manifest.contracts.noShareAmm;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  const config: ArcConfig = configuration(effectiveEnv);
   const TTL = 4 * 60 * 60 * 1000;
   const { appHost, appOrigin } = resolveHostAndOrigin(env);
 
@@ -106,7 +141,14 @@ export function createApp({ env = process.env, fetchImpl = fetch }: AppOptions =
     }
 
     if (url.pathname === '/api/health') {
-      return json(res, 200, { status: 'ok', app: 'THELEMA', mode: 'local-research', liveEvidence: false });
+      return json(res, 200, {
+        status: 'ok',
+        app: 'THELEMA',
+        mode: 'local-research',
+        liveEvidence: false,
+        commit: env.RENDER_GIT_COMMIT || env.GIT_COMMIT || '3c576da',
+        deployedMarket: config.contracts.binaryAMM === '0x84fd754f3c10af24d5d4e38be1853f0cd14525a1' ? 'submission-market' : 'demo-manifest'
+      });
     }
 
     try {
