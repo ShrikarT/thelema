@@ -1,0 +1,7 @@
+# cre workflow hash . --target staging-settings --non-interactive --public_key 0x000000000000000000000000000000000000dEaD  (placeholder owner, NOT a real workflow owner)
+# 2026-09-06T04:14:31Z
+Compiling workflow...
+✓ Workflow compiled
+  Binary hash:   05b37762df558374363b3766fe4a6a84990ea0892bd0867a9de3c528a0bc7a06
+  Config hash:   8650fec6c06fd03e124badaa8a0a173ff0d77b0a4b3c8ea96811bb0b31b0b3d0
+  Workflow hash: 00b6b240bdd24dcb6eff1be4e8ba6f8c5f90b05070ff206c653f6033fb980076

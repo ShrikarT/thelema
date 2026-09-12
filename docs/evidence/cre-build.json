@@ -1,0 +1,60 @@
+{
+  "observedAt": "2026-09-06T04:14:31Z",
+  "scope": "Local compilation of packages/cre/workflow.ts to WASM with two independent toolchains. Not a simulation, not confidential execution, not a deployment.",
+  "releaseApproved": false,
+  "toolchain": {
+    "node": "v26.7.0",
+    "bun": "1.4.2",
+    "creSdk": "@chainlink/cre-sdk 1.19.1",
+    "creCli": "v1.32.0 (smartcontractkit/cre-cli official AMD64 binary)"
+  },
+  "fix": "workflow.ts previously exported onPrivateSize(runtime, payload) and initWorkflow(config). cre-compile maps module exports to WASM exports and Javy fails with 'Exported functions with parameters are not supported'. Both are now module-private; only the zero-argument main() is exported, matching the SDK wrapper contract.",
+  "sourceDigests": {
+    "packages/cre/workflow.ts": "952eed19dcb74cfe588790337c4254897792008de7f1a0a0a89cc3a278e37832",
+    "packages/cre/project.yaml": "3318f9f43a61cea683703ed96440b431a62737619d227db682f69f3b297f4fbf",
+    "packages/cre/policy.ts": "7e9b80b268b9375006eccf72efe0ec25b2b3118eda04a32554a66c721b0cf1b3",
+    "packages/cre/package.json": "067f0572817dc3d151d4005eb49c870af8fc2b7e825013035f7fac0f11911400"
+  },
+  "creCompile": {
+    "command": "npm --prefix packages/cre run build:wasm",
+    "status": "PASS",
+    "output": "packages/cre/dist/clipping.wasm",
+    "bytes": 2439957,
+    "sha256": "854bf26be3f5a3c4a8ce6781a18ef587621a3a2198cfc2b8e4115ed40321065c",
+    "validMagic": true,
+    "log": "cre-wasm-build.log"
+  },
+  "creCliBuild": {
+    "command": "cre workflow build packages/cre -R packages/cre --target staging-settings --non-interactive",
+    "status": "PASS",
+    "output": "packages/cre/binary.wasm",
+    "bytes": 2439865,
+    "sha256": "19766fa3ebd063ce504a06c7d7a17e3218b084c37214804fee5fe8e7a656f839",
+    "cliReportedBinaryHash": "19766fa3ebd063ce504a06c7d7a17e3218b084c37214804fee5fe8e7a656f839",
+    "reproducible": "Identical hash from independent build invocations on host.",
+    "log": "cre-cli-build.log"
+  },
+  "creCliHash": {
+    "command": "cre workflow hash . --target staging-settings --non-interactive --public_key 0x000000000000000000000000000000000000dEaD",
+    "status": "PASS",
+    "note": "The --public_key is the simulation placeholder, not a real workflow owner. The hash subcommand performs its own compile and reported a different binary hash than the build subcommand; both are recorded as observed and were not reconciled.",
+    "binaryHash": "05b37762df558374363b3766fe4a6a84990ea0892bd0867a9de3c528a0bc7a06",
+    "configHash": "8650fec6c06fd03e124badaa8a0a173ff0d77b0a4b3c8ea96811bb0b31b0b3d0",
+    "workflowHash": "00b6b240bdd24dcb6eff1be4e8ba6f8c5f90b05070ff206c653f6033fb980076",
+    "log": "cre-cli-hash.log"
+  },
+  "simulation": {
+    "command": "cre workflow simulate packages/cre -R packages/cre --target staging-settings --non-interactive --http-payload {\"requestedSize\":\"1000\"} --trigger-index 0",
+    "status": "BLOCKED",
+    "reason": "CRE CLI v1.32.0 requires `cre login` or CRE_API_KEY before simulating. No credentials exist in this environment and none were requested. `cre init` is gated the same way.",
+    "log": "cre-simulate-attempt.log",
+    "expectedWhenUnblocked": "The staging callbackUrl (bridge.example.com) is unreachable by design, so a simulation will clip inside the handler and then throw 'Confidential result callback was not acknowledged.' A full end-to-end result needs a reachable HTTPS bridge on an approved public DNS name plus confidential-workflow access."
+  },
+  "notEvidenceOf": [
+    "TEE or confidential execution",
+    "an authorized trigger signer",
+    "a deployed workflow",
+    "MAX_NOTIONAL provisioned in the Vault DON",
+    "the bridge callback round trip"
+  ]
+}

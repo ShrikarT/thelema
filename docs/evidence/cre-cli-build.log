@@ -1,0 +1,6 @@
+# cre workflow build packages/cre -R packages/cre --target staging-settings --non-interactive  (CRE CLI CRE CLI version v1.32.0)
+# 2026-09-06T04:14:31Z
+  Compiling workflow...
+✓ Workflow compiled successfully
+  Binary hash: 5865ae93d57c91409d91981c58c439e788d5c2f821278009fb2fb1a2b579fc6d
+✓ Build output written to /vercel/share/v0-project/packages/cre/binary.wasm

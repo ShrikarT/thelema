@@ -1,0 +1,4 @@
+{
+  "publicKey": "0x000000000000000000000000000000000000dEaD",
+  "callbackUrl": "https://bridge.example.com/v1/callback"
+}

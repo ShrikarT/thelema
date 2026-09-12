@@ -1,0 +1,4 @@
+{
+  "publicKey": "SET_AUTHORIZED_PUBLIC_SIGNER_ADDRESS",
+  "callbackUrl": "https://YOUR_APPROVED_BRIDGE_HOST/v1/callback"
+}
