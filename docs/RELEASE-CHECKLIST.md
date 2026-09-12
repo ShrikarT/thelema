@@ -4,7 +4,7 @@ This document tracks local verification status and remaining gates required befo
 
 ## 1. Verified Locally & Passing in CI
 
-- [x] **Core Math & Financial Invariants**: 232 passing unit tests in `npm test` covering BigInt fixed-point arithmetic, 30 bps fee deductions, complete-set conservation ($C \to Y + N + R$), API validation, HTTP/CSRF security, Graph mock adapters, cross-protocol DEX comparison, CRE policy, and mock wallet simulations.
+- [x] **Core Math & Financial Invariants**: 238 passing unit tests in `npm test` covering BigInt fixed-point arithmetic, 30 bps fee deductions, complete-set conservation ($C \to Y + N + R$), API validation, HTTP/CSRF security, Graph mock adapters, cross-protocol DEX comparison, CRE policy, mock wallet simulations, and sourced market specifications.
 - [x] **Smart Contracts & Invariants**: 24 passing Foundry tests (`packages/contracts`) covering binary and share collateral vaults, constant-product AMMs, two-stage settlement, and trading cutoff enforcement.
 - [x] **Real Cryptographic Signatures**: 2 passing crypto tests in `npm run test:bridge:crypto` validating dedicated EIP-191 ephemeral signer key recovery and single-use replay protection tokens.
 - [x] **Local EVM Full Lifecycle**: 15 TAP tests (1 parent + 14 nested tests) passing in `npm run test:evm` on Anvil (`chain-id: 5042002`) verifying complete deployment, seeding, trading, cutoff freezing, operator resolution, and two-stage collateral redemption.
@@ -12,7 +12,7 @@ This document tracks local verification status and remaining gates required befo
 - [x] **Read-Only Arc Address Preflight**: Validated against live Arc Testnet RPC (`https://rpc.testnet.arc.io`, Chain ID `5042002`). Confirms planned spending of 86.37 USDC $\le$ proposed 100.00 USDC hard ceiling with zero signer derivation.
 - [x] **CRE Sponsor Verification**: 4 distinct tiers audited in `npm run verify:cre` (Tier 1: Policy VERIFIED; Tier 2: Build & WASM bytecode hash VERIFIED; Tier 3: Simulation audited / standby; Tier 4: Live TEE bridge fail-closed standby).
 - [x] **The Graph Sponsor Verification**: Schema normalization, block timestamp freshness (< 900s), and sanitized live evidence logging audited in `npm run verify:graph`.
-- [x] **Production Hosting Automation**: Turnkey systemd service unit (`thelema.service`), Nginx reverse proxy (`nginx.conf`), setup script, and Docker configurations created in `deployments/hosting/`.
+- [x] **Production Hosting Configuration**: Turnkey Render configuration defined in `render.yaml` with standalone self-contained preview build fallback.
 - [x] **Full Typechecking**: React 19 type definitions installed and passing `npm run typecheck`.
 
 ---

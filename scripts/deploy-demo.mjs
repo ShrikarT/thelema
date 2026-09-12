@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -122,6 +123,13 @@ function getGitCommit() {
 
 function loadArtifact(contractName) {
   const p = path.resolve('packages/contracts/out', `${contractName}.sol`, `${contractName}.json`);
+  if (!existsSync(p)) {
+    try {
+      const foundryBin = path.join(os.homedir(), '.foundry', 'bin');
+      const env = { ...process.env, PATH: `${foundryBin}${path.delimiter}${process.env.PATH || ''}` };
+      execSync('forge build', { cwd: 'packages/contracts', env, stdio: 'ignore' });
+    } catch {}
+  }
   if (!existsSync(p)) {
     throw new Error(`Artifact ${contractName} not found at ${p}. Run "forge build" in packages/contracts.`);
   }
