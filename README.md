@@ -58,17 +58,28 @@ npm run dev            # Start development watch runner
 
 ### 1. Track 1: Arc — Best DeFi Stablecoin-Native Pool
 - **Network**: Arc Testnet (Chain ID `5042002`, RPC: `https://rpc.testnet.arc.io`)
-- **Deployed Contracts**: 6 contracts verified on-chain:
-  - `DemoOracle`: `0x8548bd8633de8efd7d5a0327d6a51f8e5d74100f`
-  - `BinaryVault`: `0x9aa21d72378a36fa107129c87f17b0a42680ecb7`
-  - `ShareVault`: `0x81fad3ec2d7e841cda7e1504e1bdd23f794c8e3d`
-  - `BinaryAMM`: `0x7afff3698a2f5b58b9ebac8405a7a903e482a4ab`
-  - `ShareAMM (YES)`: `0x0708437945bbba6dcc72d7a271347c88a1c26cab`
-  - `ShareAMM (NO)`: `0xee27dd6502956c98ddc56575960f178a3e757eb2`
+- **Active Submission Market (`deployments/submission-market.json`)**: Fully open, active, and tradeable with future timestamps:
+  - `DemoOracle`: [`0x648d135701667547e674b087f8b2c28adc053ee1`](https://testnet.arcscan.app/address/0x648d135701667547e674b087f8b2c28adc053ee1)
+  - `BinaryVault`: [`0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7`](https://testnet.arcscan.app/address/0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7)
+  - `ShareVault`: [`0x07e657d074e3b2e5a575b3bc30faf4c65f85edea`](https://testnet.arcscan.app/address/0x07e657d074e3b2e5a575b3bc30faf4c65f85edea)
+  - `BinaryAMM`: [`0x84fd754f3c10af24d5d4e38be1853f0cd14525a1`](https://testnet.arcscan.app/address/0x84fd754f3c10af24d5d4e38be1853f0cd14525a1)
+  - `ShareAMM (YES)`: [`0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a`](https://testnet.arcscan.app/address/0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a)
+  - `ShareAMM (NO)`: [`0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5`](https://testnet.arcscan.app/address/0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5)
+  - **Timestamps**: Event Deadline: 31 Dec 2026 23:59:59 UTC (`1798761599`), Trading Cutoff: 01 Jan 2027 00:59:59 UTC (`1798765199`).
+  - **Real Demonstration Trade Executed On-Chain**:
+    - Buy: 1.00 USDC collateral $\to$ 1.903610893880149131 tYES tokens
+    - Trade Hash: [`0xe4208cc844dbfec21d18e38c20630388c2a7c7083bb17583fbe6dfc5a55190a6`](https://testnet.arcscan.app/tx/0xe4208cc844dbfec21d18e38c20630388c2a7c7083bb17583fbe6dfc5a55190a6) (Block 61728406, Gas: 154,284)
+    - Approval Hash: [`0xdaf1cb7a46a6a5f989dfc2ff485a6a6c5408f79f4e1a8308ad40e76f05d155f7`](https://testnet.arcscan.app/tx/0xdaf1cb7a46a6a5f989dfc2ff485a6a6c5408f79f4e1a8308ad40e76f05d155f7) (Block 61728404, Gas: 55,438)
+    - Resulting On-Chain State: Probability moved from 50.0% to 54.7%, reserves updated to YES=9.0934, NO=10.9970.
+- **Historical Demo Deployment (`deployments/demo-manifest.json`)**: Preserved original historical deployment (10 Sep 2026 cutoff, now closed).
 - **Precompile Integration**: Direct interaction with Arc native USDC precompile (`0x3600000000000000000000000000000000000000`).
 - **Mathematical Vault Solvency**: Complete sets guarantee $C \to Y + N + R$. For payout cap $C = 500$ USDC and index $S \ge 0$, total payoff $X + 0 + (C - X) \equiv C$, eliminating insolvency risk without liquidation engines.
-- **Trading Window Lifecycle**: The deployed testnet market recorded a trading cutoff of 10 Sep 2026. Because the cutoff has passed on-chain, contracts enforce closed trading; market statistics, contract state, and historical receipts remain viewable on Arcscan in read-only mode.
-- **Deployment Evidence**: Public transaction receipts in `deployments/demo-manifest.json` (cumulative spend: 86.34 USDC $\le$ 100.00 USDC hard ceiling).
+- **Audited Financial Ceiling & Spending Reconciliation**:
+  - Historical demo deployment spend: `86.343602 TEST-USDC`
+  - Active submission market deployment: `86.357542 TEST-USDC` (86.021000 collateral seeded + 0.336542 gas)
+  - Live demonstration trade: `1.005998 TEST-USDC` (1.000000 collateral spent + 0.005998 gas)
+  - **Grand Total Cumulative Spend**: `173.707142 TEST-USDC` $\le$ **`180.000000 TEST-USDC`** hard authorized ceiling (remaining headroom: `6.292858 TEST-USDC`).
+  - Deployer / Trader Wallet: [`0x7eCdBAe811359ee95Dae97213EbEB48E99af920d`](https://testnet.arcscan.app/address/0x7eCdBAe811359ee95Dae97213EbEB48E99af920d)
 
 ### 2. Track 2: Chainlink — Best Confidential Workflow
 - **Subsystem**: Confidential Runtime Environment (CRE) in `packages/cre` & `services/cre-bridge`
