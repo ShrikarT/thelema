@@ -1,0 +1,18 @@
+PASS Server market initializes session and four reserve-derived numbers
+PASS Invalid input returns a visible error without a trade
+PASS Asset buy reviews and confirms an actual sandbox fill
+PASS Local clipping visibly changes a requested 1000 into a 50 fill
+PASS Binary NO fill changes the event probability
+PASS Stale quote fails without silently refilling
+PASS Split and merge asset pairs return the same whole-pair collateral
+PASS Local oracle resolution caps 700 at 500 and stops trading
+PASS Claim burns local positions and produces a real simulated payout
+PASS Reset is explicit and restores the original market
+PASS Unconfigured Arc mode clears all sandbox prices
+PASS Missing wallet has an actionable error, no fabricated connection
+PASS Landing CTA, product preview, FAQ and reduced-motion behavior
+PASS 390px mobile menu, market, quote and no horizontal overflow
+PASS 320px layout and custom 404 remain usable
+PASS Standalone file works without server calls and completes a trade
+PASS No uncaught JavaScript errors occurred
+{"passed":17,"failed":0}

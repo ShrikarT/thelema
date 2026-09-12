@@ -1,0 +1,5 @@
+
+> thelema@0.2.0 build
+> node scripts/build.mjs
+
+Built browser assets and an explicitly local, self-contained THELEMA-preview.html
