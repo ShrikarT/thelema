@@ -44,13 +44,14 @@ THELEMA builds an autonomous two-stage prediction-and-impact market native to Ar
 - **Target Subsystem**: Chainlink Confidential Runtime Environment (CRE) in `packages/cre`
 
 ### Submission Description
-High-value orders in synthetic and prediction markets are notoriously vulnerable to front-running, toxic MEV, and adverse selection. THELEMA integrates Chainlink CRE (Confidential Runtime Environment) to execute confidential size-clipping policies inside a hardware-isolated Trusted Execution Environment (TEE).
+High-value orders in synthetic and prediction markets are sensitive to large slippage and adverse selection. THELEMA integrates a Chainlink CRE (Confidential Runtime Environment) confidential workflow design to evaluate private size-clipping policies off-chain. The workflow is designed for confidential CRE execution. The recorded official simulator attempt was not a real production TEE and did not complete end-to-end.
 
-**Confidential Architecture & TEE Workflow**:
-1. **Confidential Policy (`packages/cre/policy.ts`)**: The trader's requested order size is submitted into the confidential enclave. Inside the TEE, a private threshold (`MAX_NOTIONAL`) evaluates the trade. If the trade exceeds the confidential cap, the enclave clips the size to the authorized boundary, returning an attested authorization envelope.
-2. **Enclave Entry (`handlerInTee` in `packages/cre/workflow.ts`)**: Built with `@chainlink/cre-sdk` following the official confidential workflow TypeScript template. Uses `HTTPClient` with `TeeRuntime` for secure execution.
-3. **Bytecode Verification**: Compiled to WASM (`packages/cre/dist/clipping.wasm`), validated with WebAssembly bytecode checks, and verified against SHA-256 source digests.
-4. **Authenticity & Replay Protection**: Enclave callbacks are authenticated via dedicated ephemeral EIP-191 signer recovery, HMAC-SHA256 integrity checks, and single-use replay protection tokens.
+**Confidential Workflow Design**:
+1. **Confidential Policy (`packages/cre/policy.ts`)**: The trader's requested order size is evaluated against private threshold `MAX_NOTIONAL`. If the order exceeds the cap, the policy clips the size to the authorized boundary (`clipNotional(1000, 50)` -> `allowed: true, clippedSize: 50`).
+2. **Workflow Entry (`handlerInTee` in `packages/cre/workflow.ts`)**: Built with `@chainlink/cre-sdk` following the official confidential workflow TypeScript template. Uses `HTTPClient` with `TeeRuntime` for confidential workflow simulation.
+3. **Bytecode Verification**: Compiled to WASM (`packages/cre/dist/clipping.wasm`), validated with WebAssembly bytecode checks, and verified against SHA-256 source digests (`854bf26be3f5a3c4a8ce6781a18ef587621a3a2198cfc2b8e4115ed40321065c`).
+4. **Authenticity & Replay Protection**: Callbacks are authenticated via dedicated ephemeral EIP-191 signer recovery, canonical JSON SHA-256 digest validation, and single-use replay protection tokens.
+5. **Simulation & Deployment Status**: The official CRE CLI simulator was executed against compiled WASM (`packages/cre/cre-sim.txt`), validating clipping arithmetic and halting at the staging callback DNS boundary (`bridge.example.com`, exit=1). Live deployment remains on standby pending Chainlink organization Deploy Access.
 
 ---
 
@@ -85,8 +86,9 @@ THELEMA unifies prediction and continuous payoff into a single synthetic market:
 3. Collateral is strictly bounded and conserved ($C \to Y + N + R$), allowing instant settlement on Arc Testnet without counterparty risk.
 
 ### Exact Test Metrics & Verification Suite
-- **238 Node Tests** (`npm test`): BigInt invariant math, fee deductions (30 bps), ceiling clamps, API validation, HTTP/CSRF security, Graph mock adapters, cross-protocol DEX comparison, CRE policy, mock wallet simulations, and sourced market specifications.
+- **238 Node Tests** (`npm test`): BigInt invariant math, fee deductions (30 bps), ceiling clamps, API validation, HTTP/CSRF security, Graph mock adapters, cross-protocol DEX comparison, CRE policy, mock wallet simulations, sourced market specifications, and 37 CRE bridge lifecycle tests.
 - **24 Foundry Contract Tests** (`packages/contracts`): Solidity unit and invariant tests covering complete-set conservation, AMM pricing, fee bounds, and oracle lifecycle.
+- **37 CRE Bridge Tests** (`npm run test:bridge`): Dedicated suite for HTTP bridge request lifecycle and gateway error handling (included within the 238 `npm test` suite).
 - **2 Real Cryptographic Tests** (`npm run test:bridge:crypto`): EIP-191 ephemeral key recovery and single-use replay protection tokens.
 - **15 TAP Tests on Local EVM** (`npm run test:evm`): 1 parent + 14 nested tests verifying full contract lifecycles on Anvil (`chain-id: 5042002`).
 - **18 Playwright UI Tests** (`tests/browser.mjs`): Responsive viewports (1440px desktop, 390px mobile, 320px ultra-compact), accessibility, keyboard navigation.
