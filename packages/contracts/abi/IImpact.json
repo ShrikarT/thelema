@@ -1,0 +1,1115 @@
+{
+  "_notice": "Static frontend ABI mirror of source; not compiler-generated because solc/forge were unavailable. Regenerate from build artifacts before deployment.",
+  "ImpactToken": [
+    {
+      "type": "function",
+      "name": "name",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "symbol",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "decimals",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "totalSupply",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "balanceOf",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "allowance",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "approve",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "transfer",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "transferFrom",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "Transfer",
+      "anonymous": false,
+      "inputs": [
+        {
+          "name": "from",
+          "type": "address",
+          "indexed": true
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "indexed": true
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "Approval",
+      "anonymous": false,
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "indexed": true
+        },
+        {
+          "name": "spender",
+          "type": "address",
+          "indexed": true
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    }
+  ],
+  "BinaryVault": [
+    {
+      "type": "function",
+      "name": "collateral",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "oracle",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "yesToken",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "noToken",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "settled",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "eventYes",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "split",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "collateral6",
+          "type": "uint256"
+        },
+        {
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tokenAmount18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "merge",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "tokenAmount18",
+          "type": "uint256"
+        },
+        {
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "collateral6",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "redeem",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "name": "tokenAmount18",
+          "type": "uint256"
+        },
+        {
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "collateral6",
+          "type": "uint256"
+        }
+      ]
+    }
+  ],
+  "ShareVault": [
+    {
+      "type": "function",
+      "name": "collateral",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "oracle",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "yesShare",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "noShare",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "settled",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "eventYes",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "settlementValue6",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "residualLocked6",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "totalPairs18",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "collateralForPairs",
+      "stateMutability": "pure",
+      "inputs": [
+        {
+          "name": "pairs18",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "split",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "pairs18",
+          "type": "uint256"
+        },
+        {
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "collateral6",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "merge",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "pairs18",
+          "type": "uint256"
+        },
+        {
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "collateral6",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "redeem",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "name": "shares18",
+          "type": "uint256"
+        },
+        {
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "collateral6",
+          "type": "uint256"
+        }
+      ]
+    }
+  ],
+  "BinaryAMM": [
+    {
+      "type": "function",
+      "name": "vault",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "yesToken",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "noToken",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "feeBps",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "accruedFees6",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "lpToken",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "reserves",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reserveYes18",
+          "type": "uint256"
+        },
+        {
+          "name": "reserveNo18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "binaryPriceUSDC6",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "priceYes",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "quoteBuy",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "buyYes",
+          "type": "bool"
+        },
+        {
+          "name": "collateralIn6",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "outcomeOut18",
+          "type": "uint256"
+        },
+        {
+          "name": "fee6",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "buyOutcome",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "buyYes",
+          "type": "bool"
+        },
+        {
+          "name": "collateralIn6",
+          "type": "uint256"
+        },
+        {
+          "name": "minOutcomeOut18",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "outcomeOut18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "addLiquidity",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "maxYes18",
+          "type": "uint256"
+        },
+        {
+          "name": "maxNo18",
+          "type": "uint256"
+        },
+        {
+          "name": "minLp18",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "yesIn18",
+          "type": "uint256"
+        },
+        {
+          "name": "noIn18",
+          "type": "uint256"
+        },
+        {
+          "name": "lpOut18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "removeLiquidity",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "lpIn18",
+          "type": "uint256"
+        },
+        {
+          "name": "minYes18",
+          "type": "uint256"
+        },
+        {
+          "name": "minNo18",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "yesOut18",
+          "type": "uint256"
+        },
+        {
+          "name": "noOut18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "withdrawFees",
+      "stateMutability": "nonpayable",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "amount6",
+          "type": "uint256"
+        }
+      ]
+    }
+  ],
+  "ShareAMM": [
+    {
+      "type": "function",
+      "name": "stable",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "shareToken",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "settlementVault",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "feeBps",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "lpToken",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "reserves",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "stableReserve6",
+          "type": "uint256"
+        },
+        {
+          "name": "tokenReserve18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "sharePriceUSDC6",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "quoteBuyShares",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "stableIn6",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sharesOut18",
+          "type": "uint256"
+        },
+        {
+          "name": "fee6",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "quoteSellShares",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "sharesIn18",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "stableOut6",
+          "type": "uint256"
+        },
+        {
+          "name": "feeShares18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "buyShares",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "stableIn6",
+          "type": "uint256"
+        },
+        {
+          "name": "minSharesOut18",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sharesOut18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "sellShares",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "sharesIn18",
+          "type": "uint256"
+        },
+        {
+          "name": "minStableOut6",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "stableOut6",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "addLiquidity",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "maxStable6",
+          "type": "uint256"
+        },
+        {
+          "name": "maxShares18",
+          "type": "uint256"
+        },
+        {
+          "name": "minLp18",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lpOut18",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "removeLiquidity",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "lpIn18",
+          "type": "uint256"
+        },
+        {
+          "name": "minStable6",
+          "type": "uint256"
+        },
+        {
+          "name": "minShares18",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "stableOut6",
+          "type": "uint256"
+        },
+        {
+          "name": "sharesOut18",
+          "type": "uint256"
+        }
+      ]
+    }
+  ],
+  "DemoOracle": [
+    {
+      "type": "function",
+      "name": "owner",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "published",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "eventYes",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "settlementValue6",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "publishAndSettle",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "name": "binaryVault",
+          "type": "address"
+        },
+        {
+          "name": "shareVault",
+          "type": "address"
+        },
+        {
+          "name": "eventYes_",
+          "type": "bool"
+        },
+        {
+          "name": "settlementValue6_",
+          "type": "uint256"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "event",
+      "name": "OutcomePublished",
+      "anonymous": false,
+      "inputs": [
+        {
+          "name": "eventYes",
+          "type": "bool",
+          "indexed": true
+        },
+        {
+          "name": "settlementValue6",
+          "type": "uint256",
+          "indexed": false
+        }
+      ]
+    }
+  ]
+}
