@@ -327,7 +327,7 @@ export async function api<T = unknown>(
     if (route === '/api/config') return { ...defaults, preview: true } as unknown as T;
     if (route === '/api/market') {
       if (path.includes('mode=arc')) {
-        throw new Error('Arc mode needs the local server, deployed contracts and a connected wallet.');
+        return null as unknown as T;
       }
       return sandbox.snapshot() as unknown as T;
     }

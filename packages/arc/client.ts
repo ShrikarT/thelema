@@ -318,7 +318,7 @@ export async function quoteArc(
   const now = Date.now();
   const cutoffMs = toTimestampMs(state.timing?.tradingCutoff ?? 0);
   if (cutoffMs > 0 && now > cutoffMs) {
-    throw new MarketError('Trading cutoff has passed for this market.', 'TRADING_FROZEN', 409);
+    throw new MarketError('Testnet demo trading window closed.', 'TRADING_FROZEN', 409);
   }
 
   const { book, side, amount, slippageBps = 50 } = input;

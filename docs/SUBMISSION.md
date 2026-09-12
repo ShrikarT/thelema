@@ -85,7 +85,7 @@ THELEMA unifies prediction and continuous payoff into a single synthetic market:
 3. Collateral is strictly bounded and conserved ($C \to Y + N + R$), allowing instant settlement on Arc Testnet without counterparty risk.
 
 ### Exact Test Metrics & Verification Suite
-- **232 Node Tests** (`npm test`): BigInt invariant math, fee deductions (30 bps), ceiling clamps, API validation, HTTP/CSRF security, Graph mock adapters, cross-protocol DEX comparison, CRE policy, and mock wallet simulations.
+- **238 Node Tests** (`npm test`): BigInt invariant math, fee deductions (30 bps), ceiling clamps, API validation, HTTP/CSRF security, Graph mock adapters, cross-protocol DEX comparison, CRE policy, mock wallet simulations, and sourced market specifications.
 - **24 Foundry Contract Tests** (`packages/contracts`): Solidity unit and invariant tests covering complete-set conservation, AMM pricing, fee bounds, and oracle lifecycle.
 - **2 Real Cryptographic Tests** (`npm run test:bridge:crypto`): EIP-191 ephemeral key recovery and single-use replay protection tokens.
 - **15 TAP Tests on Local EVM** (`npm run test:evm`): 1 parent + 14 nested tests verifying full contract lifecycles on Anvil (`chain-id: 5042002`).

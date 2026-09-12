@@ -5,7 +5,19 @@
 
 **Trade the impact. Not just the odds.**
 
-An autonomous synthetic prediction-and-impact market application for Arc Testnet (Chain ID `5042002`), coupling binary world-event outcomes with continuous asset payoff curves within a conserved collateral vault ($C \to Y + N + R$). Features Chainlink CRE confidential order-size clipping in hardware-isolated TEE enclaves and The Graph decentralized market intelligence across standardized DEX protocols.
+An autonomous synthetic prediction-and-impact market application for Arc Testnet (Chain ID `5042002`), coupling binary world-event outcomes with continuous asset payoff curves within a conserved collateral vault ($C \to Y + N + R$). Features Chainlink CRE confidential order-size clipping workflow design (@chainlink/cre-sdk WASM build, simulated via CLI) and The Graph decentralized market intelligence across standardized DEX protocols.
+
+---
+
+## Limitations & Research Boundaries
+
+Judges and evaluators should note the following explicit boundaries:
+- **Unaudited Research Prototype**: Contracts and circuits are unaudited research code; not a production financial service.
+- **Arc Testnet Trading Window Closed**: The deployed demo market recorded a trading cutoff of 10 Sep 2026 (`1789020327`). Because this cutoff has passed on-chain, contracts enforce closed trading; market statistics, contract state, and historical receipts remain viewable on Arcscan in read-only mode.
+- **Chainlink CRE Execution Boundary**: The official CRE CLI simulator was executed against compiled WASM (`packages/cre/cre-sim.txt`), validating size-clipping arithmetic and halting at the staging callback DNS boundary (`bridge.example.com`, exit=1). No live production TEE enclave exists; organization deploy authorization is pending.
+- **The Graph Reference Context**: Standardized dual-DEX comparison queries WETH on Arbitrum One across Uniswap V3 and SushiSwap as external market context; it does not price synthetic sNVDA, and is not a settlement oracle.
+- **Synthetic Asset Index**: sNVDA is a synthetic prediction-and-impact index, not NVIDIA stock, equity custody, or an investment product.
+- **Zero-Installation Standalone Preview**: `THELEMA-preview.html` runs an in-memory client-side sandbox; Arc transactions require running the application server with RPC connectivity.
 
 ---
 
@@ -55,19 +67,21 @@ npm run dev            # Start development watch runner
   - `ShareAMM (NO)`: `0xee27dd6502956c98ddc56575960f178a3e757eb2`
 - **Precompile Integration**: Direct interaction with Arc native USDC precompile (`0x3600000000000000000000000000000000000000`).
 - **Mathematical Vault Solvency**: Complete sets guarantee $C \to Y + N + R$. For payout cap $C = 500$ USDC and index $S \ge 0$, total payoff $X + 0 + (C - X) \equiv C$, eliminating insolvency risk without liquidation engines.
+- **Trading Window Lifecycle**: The deployed testnet market recorded a trading cutoff of 10 Sep 2026. Because the cutoff has passed on-chain, contracts enforce closed trading; market statistics, contract state, and historical receipts remain viewable on Arcscan in read-only mode.
 - **Deployment Evidence**: Public transaction receipts in `deployments/demo-manifest.json` (cumulative spend: 86.34 USDC $\le$ 100.00 USDC hard ceiling).
 
 ### 2. Track 2: Chainlink — Best Confidential Workflow
 - **Subsystem**: Confidential Runtime Environment (CRE) in `packages/cre` & `services/cre-bridge`
-- **TEE Size Clipping**: Large synthetic market orders are evaluated inside a hardware-isolated Trusted Execution Environment (AWS Nitro Enclave) against private threshold `MAX_NOTIONAL` to prevent front-running and toxic MEV.
+- **Confidential Size Clipping Design**: Large synthetic market orders are evaluated against private threshold `MAX_NOTIONAL` inside a confidential workflow (`@chainlink/cre-sdk`) compiled to WASM. In production, this executes inside a Nitro TEE enclave to keep threshold policies private.
 - **Cryptographic Security**: Authenticated callbacks via dedicated ephemeral EIP-191 signer recovery, single-use replay protection tokens, and HMAC-SHA256 integrity checks.
-- **Status**: Official CRE CLI simulator executed in AWS Nitro TEE mode (`packages/cre/cre-sim.txt`); compiled to validated WASM (`packages/cre/dist/clipping.wasm`). Remote live deployment is pending Chainlink org deploy authorization.
+- **Status**: The official CRE CLI simulator was executed against compiled WASM (`packages/cre/cre-sim.txt`). The simulation validated size-clipping arithmetic and halted at the staging callback DNS boundary (`bridge.example.com`, exit=1). No live production TEE deployment exists; organization deploy authorization is pending.
 
 ### 3. Track 3: The Graph — From Scratch (AI Use Case)
 - **Subsystem**: `packages/graph`
 - **Standardized Cross-Protocol DEX Comparison**: Queries two independent DEX protocols — **Uniswap V3** (`FQ6JYszEKApsBpAmiHesRsd9Ygc6mzmpNRANeVQFYoVX`) and **SushiSwap** (`9tSS5FaePZnjmnXnSKCCqKVLAqA6eGg6jA2oRojsXUbP`) — on Arbitrum One using the shared **Messari DEX AMM Standardized Schema** (`liquidityPool` entities).
 - **Consensus & Disagreement Engine**: Computes real-time consensus prices and percentage spread (verified live at 0.27% spread).
 - **Honest Freshness Bounds**: Block age $\le 900$s enforced; fails closed to `unavailable` if unconfigured or stale. Live audit logs in `docs/evidence/graph-cross-protocol.json`.
+- **Contextual Asset Reference**: The Graph provides standardized WETH price comparisons across Uniswap V3 and SushiSwap as external market context; it does not price synthetic sNVDA, and is not a settlement oracle.
 
 ---
 
