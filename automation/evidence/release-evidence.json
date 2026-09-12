@@ -1,6 +1,15 @@
 {
-  "gitSha": "0150c6ccdb992bd7ebdeb5250e7b9c57c501e303",
+  "publicRepository": "https://github.com/ShrikarT/thelema",
+  "currentPublicCommit": "2c781dad54c290d70ede9da0e018c4983946f5ee",
+  "sourceEvidenceCommit": "0150c6ccdb992bd7ebdeb5250e7b9c57c501e303",
+  "gitSha": "2c781dad54c290d70ede9da0e018c4983946f5ee",
   "branch": "main",
+  "evidenceTimestamps": {
+    "arcDeployment": "2026-09-08T06:07:04.076Z",
+    "graphCrossProtocol": "2026-09-08T07:40:44.602Z",
+    "creSimulationAttempt": "2026-09-08T05:51:30.000Z",
+    "recordedBaseline": "2026-09-12T09:20:00.000Z"
+  },
   "unitStatus": "PASS",
   "buildStatus": "PASS",
   "uiStatus": "PASS",
@@ -15,7 +24,7 @@
   "cre": {
     "simulationStatus": "SIMULATION_BOUNDARY",
     "evidenceUrl": "https://raw.githubusercontent.com/ShrikarT/thelema/main/packages/cre/cre-sim.txt",
-    "note": "Official CRE CLI simulation executed; compiled WASM verified; halted at callback DNS boundary (bridge.example.com). Full transcript: packages/cre/cre-sim.txt. Live TEE deployment requires Chainlink org Deploy Access."
+    "note": "The workflow is designed for confidential CRE execution. The recorded official simulator attempt was not a real production TEE and did not complete end-to-end (halted at callback DNS boundary bridge.example.com, exit=1). Live deployment requires Chainlink org Deploy Access."
   },
   "humanApproval": {
     "status": "NOT_APPROVED",

@@ -72,9 +72,9 @@ npm run dev            # Start development watch runner
 
 ### 2. Track 2: Chainlink — Best Confidential Workflow
 - **Subsystem**: Confidential Runtime Environment (CRE) in `packages/cre` & `services/cre-bridge`
-- **Confidential Size Clipping Design**: Large synthetic market orders are evaluated against private threshold `MAX_NOTIONAL` inside a confidential workflow (`@chainlink/cre-sdk`) compiled to WASM. In production, this executes inside a Nitro TEE enclave to keep threshold policies private.
-- **Cryptographic Security**: Authenticated callbacks via dedicated ephemeral EIP-191 signer recovery, single-use replay protection tokens, and HMAC-SHA256 integrity checks.
-- **Status**: The official CRE CLI simulator was executed against compiled WASM (`packages/cre/cre-sim.txt`). The simulation validated size-clipping arithmetic and halted at the staging callback DNS boundary (`bridge.example.com`, exit=1). No live production TEE deployment exists; organization deploy authorization is pending.
+- **Confidential Size Clipping Design**: Large synthetic market orders are evaluated against private threshold `MAX_NOTIONAL` inside a confidential workflow (`@chainlink/cre-sdk`) compiled to WASM. The workflow is designed for confidential CRE execution. The recorded official simulator attempt was not a real production TEE and did not complete end-to-end.
+- **Cryptographic Security**: Authenticated callbacks via dedicated ephemeral EIP-191 signer recovery, single-use replay protection tokens, and canonical JSON SHA-256 digest validation.
+- **Status**: The official CRE CLI simulator was executed against compiled WASM (`packages/cre/cre-sim.txt`). The simulation validated size-clipping arithmetic and halted at the staging callback DNS boundary (`bridge.example.com`, exit=1). Live deployment remains on standby pending Chainlink organization Deploy Access.
 
 ### 3. Track 3: The Graph — From Scratch (AI Use Case)
 - **Subsystem**: `packages/graph`
@@ -87,15 +87,16 @@ npm run dev            # Start development watch runner
 
 ## Test Verification Summary
 
-| Suite | Metric | Verification Command |
-|---|---|---|
-| Node Core, Invariants & Markets | **238 / 238 PASS** | `npm test` |
-| Solidity Contract Invariants | **24 / 24 PASS** | `npm run test:contracts` |
-| CRE Bridge Lifecycle & Security | **37 / 37 PASS** | `npm run test:bridge` |
-| Real EIP-191 Signer Recovery | **2 / 2 PASS** | `npm run test:bridge:crypto` |
-| Browser UI & Responsive Layouts | **18 / 18 PASS** | `npm run test:ui` |
-| Connected Wallet EVM Journey | **13 / 13 Steps PASS** | `npm run test:ui:evm` |
-| Strict TypeScript Typecheck | **PASS (0 errors)** | `npm run typecheck` |
+| Suite | Metric | Verification Command | Notes |
+|---|---|---|---|
+| Node Core, Invariants & Markets | **238 / 238 PASS** | `npm test` | Includes core math, markets catalog, and 37 bridge tests |
+| Solidity Contract Invariants | **24 / 24 PASS** | `npm run test:contracts` | 24 Foundry invariant & unit tests |
+| CRE Confidential Bridge Lifecycle | **37 / 37 PASS** | `npm run test:bridge` | HTTP bridge & gateway tests (also run in `npm test`) |
+| Real EIP-191 Signer Recovery | **2 / 2 PASS** | `npm run test:bridge:crypto` | Ephemeral key recovery and replay digest isolation |
+| Local EVM Lifecycle (TAP) | **15 / 15 PASS** | `npm run test:evm` | Full deployment, seeding, and settlement on Anvil |
+| Browser UI & Responsive Layouts | **18 / 18 PASS** | `npm run test:ui` | Playwright checks at 1440px, 390px, and 320px |
+| Connected Wallet EVM Journey | **13 / 13 Steps PASS** | `npm run test:ui:evm` | End-to-end browser consumer trades and claims |
+| Strict TypeScript Typecheck | **PASS (0 errors)** | `npm run typecheck` | Strict compiler validation |
 
 ---
 

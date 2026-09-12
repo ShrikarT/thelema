@@ -78,7 +78,7 @@ THELEMA is an autonomous prediction-and-impact market application designed for A
 
 ### C. Core Math & Financial Invariants (`npm test`)
 - **Execution Command**: `npm test`
-- **Results**: 212 tests (0 suites, 212 passing).
+- **Results**: 238 tests (0 suites, 238 passing), including core math, markets catalog, and 37 CRE bridge tests.
 - **Verified Functions**: BigInt fixed-point arithmetic, ceiling clamps, fee deductions (30 bps), strict decimal conversion (6 vs 18 decimals), API response schemas, HTTP security headers, CSRF guards, Graph mock adapters, sanitized live Graph evidence logging, and CRE policy logic.
 
 ### D. Foundry Smart Contracts (`packages/contracts`)
@@ -88,8 +88,8 @@ THELEMA is an autonomous prediction-and-impact market application designed for A
 
 ### E. CRE Bridge & Crypto Verifications (`tests/bridge.test.mjs`, `services/cre-bridge/crypto.test.mjs`)
 - **Execution Command**: `npm run test:bridge; npm run test:bridge:crypto`
-- **Results**: 37 bridge tests and 2 real cryptographic signature tests passing.
-- **Verified Features**: EIP-191 JWT recovery of dedicated ephemeral signer key, single-use replay protection tokens, HMAC-SHA256 callback integrity, constant-time token comparisons, and fail-closed timeout cleanup.
+- **Results**: 37 bridge tests (also included in `npm test`) and 2 real cryptographic signature tests passing.
+- **Verified Features**: EIP-191 JWT recovery of dedicated ephemeral signer key, single-use replay protection tokens, canonical JSON SHA-256 digest validation, constant-time token comparisons, and fail-closed timeout cleanup.
 
 ---
 
@@ -103,17 +103,17 @@ Chainlink Confidential Runtime Environment (CRE) verification is categorized int
 1. **Tier 1: Deterministic Policy Tests** (`policy`): **VERIFIED**
    - Verified via pure unit tests in `packages/cre/policy.test.mjs`. Confirms confidential clip arithmetic, bounds checking, and JSON envelope serialization without external dependencies.
 2. **Tier 2: Source-Linked Enclave Build Evidence** (`build`): **RECORDED / NOT REBUILT**
-   - Verified via `docs/evidence/cre-build.json` and on-disk `packages/cre/dist/workflow.wasm`.
-   - Validates that the WASM binary exists, passes `WebAssembly.validate()`, matches the recorded SHA-256 hash (`2ff6...8b8b`), exports a 0-argument `main` function, and matches the recorded `sourceDigests` of `packages/cre/workflow.ts`, `packages/cre/project.yaml`, `packages/cre/policy.ts`, and `packages/cre/package.json`.
+   - Verified via `docs/evidence/cre-build.json` and compiled `clipping.wasm`.
+   - Validates that the WASM binary exists, passes `WebAssembly.validate()`, matches the recorded SHA-256 hash (`854bf26be3f5a3c4a8ce6781a18ef587621a3a2198cfc2b8e4115ed40321065c`), exports a 0-argument `main` function, and matches the recorded `sourceDigests` of `packages/cre/workflow.ts`, `packages/cre/project.yaml`, `packages/cre/policy.ts`, and `packages/cre/package.json`.
    - Explicitly notes that the WASM artifact is recorded in repository source control and is not freshly recompiled locally during test execution.
-3. **Tier 3: Official CRE Simulation Transcript** (`simulation`): **NOT_RUN**
-   - Evaluates `packages/cre/cre-sim.txt`. Fails closed if the transcript contains `NOT RUN` markers, failed simulation logs, missing artifacts, or malformed evidence.
-   - Accurately reports `NOT_RUN` because official simulation requires authenticated Chainlink CRE CLI credentials.
+3. **Tier 3: Official CRE Simulation Transcript** (`simulation`): **AUDITED / STANDBY**
+   - Evaluates `packages/cre/cre-sim.txt`. The workflow is designed for confidential CRE execution. The recorded official simulator attempt was not a real production TEE and did not complete end-to-end (halted at callback DNS boundary `bridge.example.com`, exit=1).
 4. **Tier 4: Live Execution Bridge Connectivity** (`live`): **UNCONFIGURED / STANDBY**
    - Requires explicit operator opt-in (`--execute-live`). The mere presence of credentials (`CRE_CLIP_URL`, `CRE_CLIP_TOKEN`) does not automatically trigger network requests.
    - When opt-in is provided, performs health checks and signed test clips against the authenticated HTTPS bridge. Standby when unconfigured.
 
 **Trust Boundary Assumptions for CRE HTTP Bridge**:
+- The workflow is designed for confidential CRE execution. The recorded official simulator attempt was not a real production TEE and did not complete end-to-end.
 - The client/consumer verifies the dedicated ephemeral signer's EIP-191 signature on callbacks.
 - The client does **NOT** directly verify hardware enclave attestation measurements (SGX/TDX quote verification). Trust in enclave execution relies on the authenticated bridge boundary.
 
