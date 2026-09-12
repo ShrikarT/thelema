@@ -25,17 +25,17 @@ services:
       - key: ARC_USDC
         value: "0x3600000000000000000000000000000000000000"
       - key: ARC_ORACLE
-        value: "0x8548bd8633de8efd7d5a0327d6a51f8e5d74100f"
+        value: "0x648d135701667547e674b087f8b2c28adc053ee1"
       - key: ARC_BINARY_VAULT
-        value: "0x9aa21d72378a36fa107129c87f17b0a42680ecb7"
+        value: "0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7"
       - key: ARC_SHARE_VAULT
-        value: "0x81fad3ec2d7e841cda7e1504e1bdd23f794c8e3d"
+        value: "0x07e657d074e3b2e5a575b3bc30faf4c65f85edea"
       - key: ARC_BINARY_AMM
-        value: "0x7afff3698a2f5b58b9ebac8405a7a903e482a4ab"
+        value: "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1"
       - key: ARC_YES_SHARE_AMM
-        value: "0x0708437945bbba6dcc72d7a271347c88a1c26cab"
+        value: "0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a"
       - key: ARC_NO_SHARE_AMM
-        value: "0xee27dd6502956c98ddc56575960f178a3e757eb2"
+        value: "0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5"
       - key: CRE_CLIP_URL
         value: https://thelema-bridge.onrender.com/v1/clip
       - key: CRE_CLIP_ALLOWED_HOST

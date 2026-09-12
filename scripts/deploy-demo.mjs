@@ -19,18 +19,21 @@ const ARC_TESTNET_RPC = 'https://rpc.testnet.arc.io';
 const ARC_USDC = '0x3600000000000000000000000000000000000000';
 const ANVIL_DEV_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 
-if (existsSync('.env')) {
-  try {
-    const rawEnv = readFileSync('.env', 'utf8');
-    for (const line of rawEnv.split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
-      const idx = trimmed.indexOf('=');
-      const k = trimmed.slice(0, idx).trim();
-      const v = trimmed.slice(idx + 1).trim();
-      if (!process.env[k]) process.env[k] = v;
-    }
-  } catch {}
+const candidateEnvPaths = ['.env', path.resolve('../thelema/.env')];
+for (const envPath of candidateEnvPaths) {
+  if (existsSync(envPath)) {
+    try {
+      const rawEnv = readFileSync(envPath, 'utf8');
+      for (const line of rawEnv.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
+        const idx = trimmed.indexOf('=');
+        const k = trimmed.slice(0, idx).trim();
+        const v = trimmed.slice(idx + 1).trim();
+        if (!process.env[k]) process.env[k] = v;
+      }
+    } catch {}
+  }
 }
 
 const ERC20_ABI = parseAbi([
@@ -480,7 +483,7 @@ export async function runDeploy({
     noShareSeedShares18: 100_000_000_000_000_000n, // 0.1 noShare ($43.66 implied initial price)
     totalUSDCRequired: '86.021 USDC (collateral)',
     totalUSDCRequired6: 86_021_000n,
-    proposedCeilingUSDC: '100.00 USDC (total collateral + dynamic gas budget)',
+    proposedCeilingUSDC: `${process.env.PROPOSED_CEILING_USDC || '100'}.00 USDC (total collateral + dynamic gas budget)`,
     deployerRetains: '10 YES, 10 NO, 0.1 residualShare (R max payout $50.00: R <= q * cap), LP tokens'
   };
 
@@ -506,7 +509,8 @@ export async function runDeploy({
     no_share_seed: 350_000n
   };
 
-  const PROPOSED_CEILING_USDC_WEI = 100n * 10n ** 18n; // 100.00 USDC hard ceiling
+  const ceilingUsdc = BigInt(process.env.PROPOSED_CEILING_USDC || 100);
+  const PROPOSED_CEILING_USDC_WEI = ceilingUsdc * 10n ** 18n;
 
   // Resolve target address and address-only preflight mode
   let targetAddress = address;
@@ -1463,9 +1467,15 @@ export async function runDeploy({
   }
 
   // Timings: keep previously recorded timing or establish fresh timing
-  const eventDeadline = BigInt(manifest.timing?.eventDeadline || blockTime + eventDeadlineOffset);
-  const tradingCutoff = BigInt(manifest.timing?.tradingCutoff || blockTime + cutoffOffset);
-  const earliestPriceFixTime = BigInt(manifest.timing?.earliestPriceFixTime || blockTime + earliestPriceFixOffset);
+  const eventDeadline = process.env.DEMO_EVENT_DEADLINE
+    ? BigInt(process.env.DEMO_EVENT_DEADLINE)
+    : BigInt(manifest.timing?.eventDeadline || blockTime + eventDeadlineOffset);
+  const tradingCutoff = process.env.DEMO_TRADING_CUTOFF
+    ? BigInt(process.env.DEMO_TRADING_CUTOFF)
+    : BigInt(manifest.timing?.tradingCutoff || blockTime + cutoffOffset);
+  const earliestPriceFixTime = process.env.DEMO_PRICE_FIX_TIME
+    ? BigInt(process.env.DEMO_PRICE_FIX_TIME)
+    : BigInt(manifest.timing?.earliestPriceFixTime || blockTime + earliestPriceFixOffset);
 
   manifest.timing = {
     deployedAtBlockTime: manifest.timing?.deployedAtBlockTime || blockTime,
@@ -1875,10 +1885,20 @@ if (isDirectExecution()) {
     if (eqArg) addressArg = eqArg.split('=')[1];
   }
 
+  let manifestArg = process.env.DEPLOYMENT_MANIFEST_PATH;
+  const manifestIdx = process.argv.indexOf('--manifest');
+  if (manifestIdx !== -1 && process.argv[manifestIdx + 1]) {
+    manifestArg = process.argv[manifestIdx + 1];
+  } else {
+    const eqArg = process.argv.find(a => a.startsWith('--manifest='));
+    if (eqArg) manifestArg = eqArg.split('=')[1];
+  }
+
   runDeploy({
     dryRun: isDryRun,
     isLocal: isLocalArg,
     address: addressArg,
+    manifestPath: manifestArg ? path.resolve(manifestArg) : undefined,
     preflightOnly: isPreflightArg
   })
     .then((result) => {

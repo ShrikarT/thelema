@@ -109,7 +109,10 @@ function loadArtifact(contractName) {
 }
 
 export function loadConfig() {
-  const manifestPath = path.resolve('deployments/demo-manifest.json');
+  const defaultManifest = existsSync(path.resolve('deployments/submission-market.json'))
+    ? path.resolve('deployments/submission-market.json')
+    : path.resolve('deployments/demo-manifest.json');
+  const manifestPath = process.env.MANIFEST_PATH ? path.resolve(process.env.MANIFEST_PATH) : defaultManifest;
   let manifest = {};
   if (existsSync(manifestPath)) {
     try {
@@ -298,7 +301,12 @@ Configuration:
       }
     }
 
-    const manifestPath = config.manifestPath ? path.resolve(config.manifestPath) : path.resolve('deployments/demo-manifest.json');
+    const defaultManifest = existsSync(path.resolve('deployments/submission-market.json'))
+      ? path.resolve('deployments/submission-market.json')
+      : path.resolve('deployments/demo-manifest.json');
+    const manifestPath = config.manifestPath ? path.resolve(config.manifestPath) : (
+      process.env.MANIFEST_PATH ? path.resolve(process.env.MANIFEST_PATH) : defaultManifest
+    );
     if (existsSync(manifestPath)) {
       try {
         const raw = readFileSync(manifestPath, 'utf8').trim();

@@ -1,0 +1,591 @@
+{
+  "status": "ACTIVE_DEMO",
+  "sourceCommit": "ef76db8ed20e2c8a1d89461fefb2f86e5f8b6c20",
+  "network": {
+    "name": "Arc Testnet",
+    "chainId": 5042002,
+    "rpcUrl": "https://rpc.testnet.arc.io"
+  },
+  "contracts": {
+    "oracle": "0x648d135701667547e674b087f8b2c28adc053ee1",
+    "binaryVault": "0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7",
+    "shareVault": "0x07e657d074e3b2e5a575b3bc30faf4c65f85edea",
+    "binaryAmm": "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1",
+    "yesShare": "0x853bc2B2694BF695F7B698D72480a60813aCF4b5",
+    "noShare": "0xF04838fD15c024a2A6995F8bE19d1020907BaB8C",
+    "residualShare": "0xb7152b74124867BAb9eFe21e5639A88C3a50bBFA",
+    "yesShareAmm": "0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a",
+    "noShareAmm": "0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5",
+    "yesToken": "0x049A09e3F24Fd5586D324c716F233f70BE8e8398",
+    "noToken": "0x6E29A2d748378C7C709d338C77ED9f1dEF7D63c9",
+    "usdc": "0x3600000000000000000000000000000000000000"
+  },
+  "timing": {
+    "deployedAtBlockTime": 1789215415,
+    "eventDeadline": 1798761599,
+    "tradingCutoff": 1798765199,
+    "earliestPriceFixTime": 1798765199,
+    "capUSD": "$500.00"
+  },
+  "steps": {
+    "oracle": {
+      "status": "COMPLETED",
+      "txHash": "0x219a2a16ff88f9d11aa96677f9d96d11dbf2a1b7c925058d38f03737ac1c7f64",
+      "receipt": {
+        "blockNumber": 61727963,
+        "gasUsed": "533360",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x648d135701667547e674b087f8b2c28adc053ee1"
+      },
+      "contractAddress": "0x648d135701667547e674b087f8b2c28adc053ee1",
+      "completedAt": "2026-09-12T12:16:57.853Z"
+    },
+    "binaryVault": {
+      "status": "COMPLETED",
+      "txHash": "0xde82073cadb2ec4b18b7002bb60cce1c47dd8a381f71b911064b061af58f1a41",
+      "receipt": {
+        "blockNumber": 61727966,
+        "gasUsed": "1893217",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7"
+      },
+      "contractAddress": "0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7",
+      "completedAt": "2026-09-12T12:16:59.561Z"
+    },
+    "shareVault": {
+      "status": "COMPLETED",
+      "txHash": "0x22e27e473fb3def9fd2465d3543d62e443c7eadd55864313cf5eceb1c148b24a",
+      "receipt": {
+        "blockNumber": 61727970,
+        "gasUsed": "3046008",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x07e657d074e3b2e5a575b3bc30faf4c65f85edea"
+      },
+      "contractAddress": "0x07e657d074e3b2e5a575b3bc30faf4c65f85edea",
+      "completedAt": "2026-09-12T12:17:01.294Z"
+    },
+    "binaryAmm": {
+      "status": "COMPLETED",
+      "txHash": "0x5acb71bfb6db8f8911adab428e46c8735058be8b8ff922f6426282aeb045bfaf",
+      "receipt": {
+        "blockNumber": 61727973,
+        "gasUsed": "1747111",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1"
+      },
+      "contractAddress": "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1",
+      "completedAt": "2026-09-12T12:17:03.076Z"
+    },
+    "yesShareAmm": {
+      "status": "COMPLETED",
+      "txHash": "0x6ffc58c962726f8abeca21e1a9764bfe478da4a18e6d9639f8b9c9f31ce7274f",
+      "receipt": {
+        "blockNumber": 61727978,
+        "gasUsed": "1626609",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a"
+      },
+      "contractAddress": "0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a",
+      "completedAt": "2026-09-12T12:17:05.352Z"
+    },
+    "noShareAmm": {
+      "status": "COMPLETED",
+      "txHash": "0x51aa7eeea257de6192e2ca5f106429069f16b112bba892198673a5836fff00ec",
+      "receipt": {
+        "blockNumber": 61727981,
+        "gasUsed": "1626609",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5"
+      },
+      "contractAddress": "0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5",
+      "completedAt": "2026-09-12T12:17:07.208Z"
+    },
+    "verify_bindings": {
+      "status": "COMPLETED",
+      "verifiedAt": "2026-09-12T12:17:07.992Z"
+    },
+    "approve_usdc_bin_split": {
+      "status": "COMPLETED",
+      "txHash": "0xa63a150be710138f7ea87f38745efb16de4a4512463dcec7b4c06d58c63f756f",
+      "receipt": {
+        "blockNumber": 61727986,
+        "gasUsed": "55438",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:09.700Z"
+    },
+    "binary_split": {
+      "status": "COMPLETED",
+      "txHash": "0xd494840a0ce6333de0d8ab16a877f61d9b4f29772ea8a5342a862ccc0d3fcea7",
+      "receipt": {
+        "blockNumber": 61727989,
+        "gasUsed": "157985",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:11.213Z"
+    },
+    "approve_yes_bin_amm": {
+      "status": "COMPLETED",
+      "txHash": "0x889ac991c027dedb6c37cf305600fbe298a6cc0c824c1fb34af5fee81154d739",
+      "receipt": {
+        "blockNumber": 61727993,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:16.993Z"
+    },
+    "approve_no_bin_amm": {
+      "status": "COMPLETED",
+      "txHash": "0x8e093302031726f4d8718d7a887c5f79868121468b5a93c30d390fd0f0bed6e6",
+      "receipt": {
+        "blockNumber": 61728003,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:18.526Z"
+    },
+    "binary_seed": {
+      "status": "COMPLETED",
+      "txHash": "0x92ab73027af0e00d37f39050d9780052e12f72f1efa9d41446ff2fb2e81507e2",
+      "receipt": {
+        "blockNumber": 61728006,
+        "gasUsed": "152668",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:20.123Z"
+    },
+    "approve_usdc_share_split": {
+      "status": "COMPLETED",
+      "txHash": "0x7aa169e4e5658aacdb6c89909576580debbb11731a89a122a85978779bfeec87",
+      "receipt": {
+        "blockNumber": 61728010,
+        "gasUsed": "55450",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:21.879Z"
+    },
+    "share_split": {
+      "status": "COMPLETED",
+      "txHash": "0xde3204d43e0ce9c6c6b57e44fa962dbfbf381ea514d3dfd9d381669503243392",
+      "receipt": {
+        "blockNumber": 61728013,
+        "gasUsed": "252375",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:23.554Z"
+    },
+    "approve_usdc_yes_amm": {
+      "status": "COMPLETED",
+      "txHash": "0xe3548e402060053cafd3366366464f08f5af801f337cdd060bb08fb0d90e84d6",
+      "receipt": {
+        "blockNumber": 61728017,
+        "gasUsed": "55438",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:29.405Z"
+    },
+    "approve_yes_share_amm": {
+      "status": "COMPLETED",
+      "txHash": "0xc78804d37f57f7a23d1195bb6086939d0500bb72609a3049d5b235cbb59a1adc",
+      "receipt": {
+        "blockNumber": 61728028,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:31.018Z"
+    },
+    "yes_share_seed": {
+      "status": "COMPLETED",
+      "txHash": "0x1aaa49dee37a71aea3b818d00c4697550634b7914d005b8d3909e266ab30a341",
+      "receipt": {
+        "blockNumber": 61728031,
+        "gasUsed": "162509",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:32.533Z"
+    },
+    "approve_usdc_no_amm": {
+      "status": "COMPLETED",
+      "txHash": "0xb608770c5eae0741b8dcb1481e0579fc1b72a35dd05f255d5ef25c54ef84d9f1",
+      "receipt": {
+        "blockNumber": 61728035,
+        "gasUsed": "55438",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:34.332Z"
+    },
+    "approve_no_share_amm": {
+      "status": "COMPLETED",
+      "txHash": "0x0408bc9fe1c2287a5b608eb411a2723bd13f7d80a18b7c6562d30990c74c6c56",
+      "receipt": {
+        "blockNumber": 61728038,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:35.853Z"
+    },
+    "no_share_seed": {
+      "status": "COMPLETED",
+      "txHash": "0xe2e20dce410d7baf18d6ff34f4283b914a56cda0e3139c5aec2bcb046c90c035",
+      "receipt": {
+        "blockNumber": 61728041,
+        "gasUsed": "162307",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      },
+      "contractAddress": null,
+      "completedAt": "2026-09-12T12:17:41.477Z"
+    }
+  },
+  "journal": [
+    {
+      "step": "oracle",
+      "description": "Deploy DemoOracle",
+      "status": "MINED",
+      "nonce": 20,
+      "startedAt": "2026-09-12T12:16:56.394Z",
+      "hash": "0x219a2a16ff88f9d11aa96677f9d96d11dbf2a1b7c925058d38f03737ac1c7f64",
+      "receipt": {
+        "blockNumber": 61727963,
+        "gasUsed": "533360",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x648d135701667547e674b087f8b2c28adc053ee1"
+      }
+    },
+    {
+      "step": "binaryVault",
+      "description": "Deploy BinaryVault",
+      "status": "MINED",
+      "nonce": 21,
+      "startedAt": "2026-09-12T12:16:58.234Z",
+      "hash": "0xde82073cadb2ec4b18b7002bb60cce1c47dd8a381f71b911064b061af58f1a41",
+      "receipt": {
+        "blockNumber": 61727966,
+        "gasUsed": "1893217",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7"
+      }
+    },
+    {
+      "step": "shareVault",
+      "description": "Deploy ShareVault",
+      "status": "MINED",
+      "nonce": 22,
+      "startedAt": "2026-09-12T12:16:59.946Z",
+      "hash": "0x22e27e473fb3def9fd2465d3543d62e443c7eadd55864313cf5eceb1c148b24a",
+      "receipt": {
+        "blockNumber": 61727970,
+        "gasUsed": "3046008",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x07e657d074e3b2e5a575b3bc30faf4c65f85edea"
+      }
+    },
+    {
+      "step": "binaryAmm",
+      "description": "Deploy BinaryAMM",
+      "status": "MINED",
+      "nonce": 23,
+      "startedAt": "2026-09-12T12:17:01.700Z",
+      "hash": "0x5acb71bfb6db8f8911adab428e46c8735058be8b8ff922f6426282aeb045bfaf",
+      "receipt": {
+        "blockNumber": 61727973,
+        "gasUsed": "1747111",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1"
+      }
+    },
+    {
+      "step": "yesShareAmm",
+      "description": "Deploy ShareAMM (YES)",
+      "status": "MINED",
+      "nonce": 24,
+      "startedAt": "2026-09-12T12:17:04.020Z",
+      "hash": "0x6ffc58c962726f8abeca21e1a9764bfe478da4a18e6d9639f8b9c9f31ce7274f",
+      "receipt": {
+        "blockNumber": 61727978,
+        "gasUsed": "1626609",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a"
+      }
+    },
+    {
+      "step": "noShareAmm",
+      "description": "Deploy ShareAMM (NO)",
+      "status": "MINED",
+      "nonce": 25,
+      "startedAt": "2026-09-12T12:17:05.748Z",
+      "hash": "0x51aa7eeea257de6192e2ca5f106429069f16b112bba892198673a5836fff00ec",
+      "receipt": {
+        "blockNumber": 61727981,
+        "gasUsed": "1626609",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": "0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5"
+      }
+    },
+    {
+      "step": "approve_usdc_bin_split",
+      "description": "Approve USDC for BinaryVault",
+      "status": "MINED",
+      "nonce": 26,
+      "startedAt": "2026-09-12T12:17:08.556Z",
+      "hash": "0xa63a150be710138f7ea87f38745efb16de4a4512463dcec7b4c06d58c63f756f",
+      "receipt": {
+        "blockNumber": 61727986,
+        "gasUsed": "55438",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "binary_split",
+      "description": "Split Binary sets",
+      "status": "MINED",
+      "nonce": 27,
+      "startedAt": "2026-09-12T12:17:10.075Z",
+      "hash": "0xd494840a0ce6333de0d8ab16a877f61d9b4f29772ea8a5342a862ccc0d3fcea7",
+      "receipt": {
+        "blockNumber": 61727989,
+        "gasUsed": "157985",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "approve_yes_bin_amm",
+      "description": "Approve YES for BinaryAMM",
+      "status": "MINED",
+      "nonce": 28,
+      "startedAt": "2026-09-12T12:17:11.775Z",
+      "hash": "0x889ac991c027dedb6c37cf305600fbe298a6cc0c824c1fb34af5fee81154d739",
+      "receipt": {
+        "blockNumber": 61727993,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "approve_no_bin_amm",
+      "description": "Approve NO for BinaryAMM",
+      "status": "MINED",
+      "nonce": 29,
+      "startedAt": "2026-09-12T12:17:17.385Z",
+      "hash": "0x8e093302031726f4d8718d7a887c5f79868121468b5a93c30d390fd0f0bed6e6",
+      "receipt": {
+        "blockNumber": 61728003,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "binary_seed",
+      "description": "Add Liquidity BinaryAMM",
+      "status": "MINED",
+      "nonce": 30,
+      "startedAt": "2026-09-12T12:17:18.962Z",
+      "hash": "0x92ab73027af0e00d37f39050d9780052e12f72f1efa9d41446ff2fb2e81507e2",
+      "receipt": {
+        "blockNumber": 61728006,
+        "gasUsed": "152668",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "approve_usdc_share_split",
+      "description": "Approve USDC for ShareVault",
+      "status": "MINED",
+      "nonce": 31,
+      "startedAt": "2026-09-12T12:17:20.733Z",
+      "hash": "0x7aa169e4e5658aacdb6c89909576580debbb11731a89a122a85978779bfeec87",
+      "receipt": {
+        "blockNumber": 61728010,
+        "gasUsed": "55450",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "share_split",
+      "description": "Split Share sets",
+      "status": "MINED",
+      "nonce": 32,
+      "startedAt": "2026-09-12T12:17:22.306Z",
+      "hash": "0xde3204d43e0ce9c6c6b57e44fa962dbfbf381ea514d3dfd9d381669503243392",
+      "receipt": {
+        "blockNumber": 61728013,
+        "gasUsed": "252375",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "approve_usdc_yes_amm",
+      "description": "Approve USDC for YesShareAMM",
+      "status": "MINED",
+      "nonce": 33,
+      "startedAt": "2026-09-12T12:17:24.216Z",
+      "hash": "0xe3548e402060053cafd3366366464f08f5af801f337cdd060bb08fb0d90e84d6",
+      "receipt": {
+        "blockNumber": 61728017,
+        "gasUsed": "55438",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "approve_yes_share_amm",
+      "description": "Approve yesShare for YesShareAMM",
+      "status": "MINED",
+      "nonce": 34,
+      "startedAt": "2026-09-12T12:17:29.832Z",
+      "hash": "0xc78804d37f57f7a23d1195bb6086939d0500bb72609a3049d5b235cbb59a1adc",
+      "receipt": {
+        "blockNumber": 61728028,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "yes_share_seed",
+      "description": "Add Liquidity YesShareAMM",
+      "status": "MINED",
+      "nonce": 35,
+      "startedAt": "2026-09-12T12:17:31.391Z",
+      "hash": "0x1aaa49dee37a71aea3b818d00c4697550634b7914d005b8d3909e266ab30a341",
+      "receipt": {
+        "blockNumber": 61728031,
+        "gasUsed": "162509",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "approve_usdc_no_amm",
+      "description": "Approve USDC for NoShareAMM",
+      "status": "MINED",
+      "nonce": 36,
+      "startedAt": "2026-09-12T12:17:33.152Z",
+      "hash": "0xb608770c5eae0741b8dcb1481e0579fc1b72a35dd05f255d5ef25c54ef84d9f1",
+      "receipt": {
+        "blockNumber": 61728035,
+        "gasUsed": "55438",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "approve_no_share_amm",
+      "description": "Approve noShare for NoShareAMM",
+      "status": "MINED",
+      "nonce": 37,
+      "startedAt": "2026-09-12T12:17:34.724Z",
+      "hash": "0x0408bc9fe1c2287a5b608eb411a2723bd13f7d80a18b7c6562d30990c74c6c56",
+      "receipt": {
+        "blockNumber": 61728038,
+        "gasUsed": "46174",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    },
+    {
+      "step": "no_share_seed",
+      "description": "Add Liquidity NoShareAMM",
+      "status": "MINED",
+      "nonce": 38,
+      "startedAt": "2026-09-12T12:17:36.282Z",
+      "hash": "0xe2e20dce410d7baf18d6ff34f4283b914a56cda0e3139c5aec2bcb046c90c035",
+      "receipt": {
+        "blockNumber": 61728041,
+        "gasUsed": "162307",
+        "effectiveGasPrice": "28600000000",
+        "contractAddress": null
+      }
+    }
+  ],
+  "owner": "0x7eCdBAe811359ee95Dae97213EbEB48E99af920d",
+  "deploymentDate": "2026-09-12T12:17:41.478Z",
+  "demonstrationTrade": {
+    "executedAt": "2026-09-12T12:20:44.244Z",
+    "network": {
+      "name": "Arc Testnet",
+      "chainId": 5042002,
+      "rpcUrl": "https://rpc.testnet.arc.io"
+    },
+    "trader": "0x7eCdBAe811359ee95Dae97213EbEB48E99af920d",
+    "targetAmm": "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1",
+    "marketType": "binary",
+    "outcomeSide": "YES",
+    "collateralAmountUSDC": "1.000000",
+    "collateralAmountMicroUSDC": "1000000",
+    "quote": {
+      "expectedTokensOut18": "1.903610893880149131",
+      "minTokensOut18": "1.865538676002546148",
+      "feeUSDC": "0.003"
+    },
+    "tokensReceived18": "1.903610893880149131",
+    "approval": {
+      "txHash": "0xdaf1cb7a46a6a5f989dfc2ff485a6a6c5408f79f4e1a8308ad40e76f05d155f7",
+      "explorerUrl": "https://testnet.arcscan.app/tx/0xdaf1cb7a46a6a5f989dfc2ff485a6a6c5408f79f4e1a8308ad40e76f05d155f7",
+      "blockNumber": 61728404,
+      "gasUsed": "55438",
+      "effectiveGasPrice": "28600000000",
+      "gasCostUSDC": "0.0015855268"
+    },
+    "trade": {
+      "txHash": "0xe4208cc844dbfec21d18e38c20630388c2a7c7083bb17583fbe6dfc5a55190a6",
+      "explorerUrl": "https://testnet.arcscan.app/tx/0xe4208cc844dbfec21d18e38c20630388c2a7c7083bb17583fbe6dfc5a55190a6",
+      "blockNumber": 61728406,
+      "gasUsed": "154284",
+      "effectiveGasPrice": "28600000000",
+      "gasCostUSDC": "0.0044125224"
+    },
+    "totalGasCostUSDC": "0.0059980492",
+    "totalCollateralSpentUSDC": "1.000000",
+    "totalTradeSpendUSDC": "1.0059980492",
+    "preState": {
+      "ammReserves": {
+        "yes": "10",
+        "no": "10"
+      },
+      "traderCollateralUSDC": "23.298855",
+      "traderYesTokens": "10",
+      "traderNativeUSDC": "23.2988555127"
+    },
+    "postState": {
+      "ammReserves": {
+        "yes": "9.093389106119850869",
+        "no": "10.997"
+      },
+      "traderCollateralUSDC": "22.292857",
+      "traderYesTokens": "11.903610893880149131",
+      "traderNativeUSDC": "22.2928574635"
+    }
+  }
+}
