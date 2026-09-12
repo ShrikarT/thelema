@@ -1,0 +1,95 @@
+services:
+  - type: web
+    name: thelema
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: node apps/web/server.mjs
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.2
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: APP_HOST
+        value: thelema.onrender.com
+      - key: APP_ORIGIN
+        value: https://thelema.onrender.com
+      - key: ARC_RPC_URL
+        value: https://rpc.testnet.arc.io
+      - key: ARC_USDC
+        value: "0x3600000000000000000000000000000000000000"
+      - key: ARC_ORACLE
+        value: "0x8548bd8633de8efd7d5a0327d6a51f8e5d74100f"
+      - key: ARC_BINARY_VAULT
+        value: "0x9aa21d72378a36fa107129c87f17b0a42680ecb7"
+      - key: ARC_SHARE_VAULT
+        value: "0x81fad3ec2d7e841cda7e1504e1bdd23f794c8e3d"
+      - key: ARC_BINARY_AMM
+        value: "0x7afff3698a2f5b58b9ebac8405a7a903e482a4ab"
+      - key: ARC_YES_SHARE_AMM
+        value: "0x0708437945bbba6dcc72d7a271347c88a1c26cab"
+      - key: ARC_NO_SHARE_AMM
+        value: "0xee27dd6502956c98ddc56575960f178a3e757eb2"
+      - key: CRE_CLIP_URL
+        value: https://thelema-bridge.onrender.com/v1/clip
+      - key: CRE_CLIP_ALLOWED_HOST
+        value: thelema-bridge.onrender.com
+      - key: CRE_CLIP_TOKEN
+        sync: false
+      - key: GRAPH_API_KEY
+        sync: false
+      - key: GRAPH_PROBABILITY_SUBGRAPH_ID
+        value: Bx1W4S7kDVxs9gC3s2G6DS8kdNBJNVhMviCtin2DiBp
+      - key: GRAPH_SPOT_SUBGRAPH_ID
+        value: 5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV
+      - key: GRAPH_SPOT_POOL_ID
+        value: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
+      - key: GRAPH_SPOT_TOKEN_SYMBOL
+        value: WETH
+      - key: GRAPH_SPOT_ASSET
+        value: ETH
+      - key: GRAPH_SPOT_SCHEMA
+        value: uniswap3
+      - key: GRAPH_MAX_AGE_SECONDS
+        value: 900
+      - key: GRAPH_CROSS_PROTOCOL_ENABLED
+        value: "true"
+
+  - type: web
+    name: thelema-bridge
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: node services/cre-bridge/server.mjs
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.2
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BRIDGE_PORT
+        value: 10000
+      - key: BRIDGE_BIND
+        value: 0.0.0.0
+      - key: BRIDGE_AUTH_TOKEN
+        sync: false
+      - key: CRE_CALLBACK_URL
+        value: https://thelema-bridge.onrender.com/v1/callback
+      - key: CRE_GATEWAY_REGISTRY
+        value: private
+      - key: CRE_WORKFLOW_ID
+        sync: false
+      - key: CRE_TRIGGER_SIGNER
+        sync: false
+      - key: CRE_TRIGGER_PRIVATE_KEY
+        sync: false
+
