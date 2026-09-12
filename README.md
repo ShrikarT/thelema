@@ -7,8 +7,6 @@ THELEMA is an impact-market protocol on Arc. It prices what an event does to an 
 Live Web Application: [https://thelema.onrender.com](https://thelema.onrender.com)  
 Target Network: **Arc Testnet** (Chain ID `5042002`)
 
-![THELEMA ticket](docs/evidence/readme-ticket.png)
-
 ---
 
 ## What is THELEMA?
