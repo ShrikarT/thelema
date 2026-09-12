@@ -1,0 +1,13 @@
+{
+  "stagedArchiveChecksums": "PASS",
+  "unpackedAppSmoke": "PASS",
+  "dependenciesInstalledForSmoke": false,
+  "excludes": [
+    ".env",
+    "node_modules",
+    ".git",
+    "runtime logs",
+    "private keys"
+  ],
+  "liveRelease": "NO_GO"
+}

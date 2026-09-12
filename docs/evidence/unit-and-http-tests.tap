@@ -1,0 +1,962 @@
+
+> thelema@0.2.0 test
+> node --test --test-reporter=tap tests/*.test.mjs packages/graph/*.test.mjs packages/cre/*.test.mjs
+
+TAP version 13
+# Subtest: LOCAL simulation: request 1000 clips to 50
+ok 1 - LOCAL simulation: request 1000 clips to 50
+  ---
+  duration_ms: 6.179774
+  type: 'test'
+  ...
+# Subtest: LOCAL simulation: small request passes and zero cap disallows
+ok 2 - LOCAL simulation: small request passes and zero cap disallows
+  ---
+  duration_ms: 0.301978
+  type: 'test'
+  ...
+# Subtest: LOCAL clipping rejects malformed or zero input -1
+ok 3 - LOCAL clipping rejects malformed or zero input -1
+  ---
+  duration_ms: 0.347012
+  type: 'test'
+  ...
+# Subtest: LOCAL clipping rejects malformed or zero input 1e3
+ok 4 - LOCAL clipping rejects malformed or zero input 1e3
+  ---
+  duration_ms: 0.143271
+  type: 'test'
+  ...
+# Subtest: LOCAL clipping rejects malformed or zero input 0
+ok 5 - LOCAL clipping rejects malformed or zero input 0
+  ---
+  duration_ms: 0.135543
+  type: 'test'
+  ...
+# Subtest: LOCAL clipping rejects malformed or zero input NaN
+ok 6 - LOCAL clipping rejects malformed or zero input NaN
+  ---
+  duration_ms: 0.102952
+  type: 'test'
+  ...
+# Subtest: LOCAL clipping rejects malformed or zero input 1.1234567
+ok 7 - LOCAL clipping rejects malformed or zero input 1.1234567
+  ---
+  duration_ms: 0.119831
+  type: 'test'
+  ...
+# Subtest: Live adapter fails closed without configuration
+ok 8 - Live adapter fails closed without configuration
+  ---
+  duration_ms: 0.587977
+  type: 'test'
+  ...
+# Subtest: Live adapter returns exactly two safe fields and sends no cap
+ok 9 - Live adapter returns exactly two safe fields and sends no cap
+  ---
+  duration_ms: 0.619423
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":"1001"}
+ok 10 - Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":"1001"}
+  ---
+  duration_ms: 0.539103
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects invalid clipped response {"allowed":false,"clippedSize":"50"}
+ok 11 - Live adapter rejects invalid clipped response {"allowed":false,"clippedSize":"50"}
+  ---
+  duration_ms: 0.187281
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":"0"}
+ok 12 - Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":"0"}
+  ---
+  duration_ms: 0.244777
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":50}
+ok 13 - Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":50}
+  ---
+  duration_ms: 0.199518
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":"1.0000001"}
+ok 14 - Live adapter rejects invalid clipped response {"allowed":true,"clippedSize":"1.0000001"}
+  ---
+  duration_ms: 0.169853
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects unsafe endpoint http://clip.example.org/clip
+ok 15 - Live adapter rejects unsafe endpoint http://clip.example.org/clip
+  ---
+  duration_ms: 1.552666
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects unsafe endpoint https://evil.example.org/clip
+ok 16 - Live adapter rejects unsafe endpoint https://evil.example.org/clip
+  ---
+  duration_ms: 0.160108
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects unsafe endpoint https://user:pass@clip.example.org/clip
+ok 17 - Live adapter rejects unsafe endpoint https://user:pass@clip.example.org/clip
+  ---
+  duration_ms: 0.155858
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects unsafe endpoint https://clip.example.org/clip?token=x
+ok 18 - Live adapter rejects unsafe endpoint https://clip.example.org/clip?token=x
+  ---
+  duration_ms: 0.096503
+  type: 'test'
+  ...
+# Subtest: Live adapter never replaces an endpoint failure with demo clipping
+ok 19 - Live adapter never replaces an endpoint failure with demo clipping
+  ---
+  duration_ms: 0.254467
+  type: 'test'
+  ...
+# Subtest: Live adapter requires authenticated bridge configuration
+ok 20 - Live adapter requires authenticated bridge configuration
+  ---
+  duration_ms: 0.273372
+  type: 'test'
+  ...
+# Subtest: Live adapter rejects short bearer tokens
+ok 21 - Live adapter rejects short bearer tokens
+  ---
+  duration_ms: 0.159209
+  type: 'test'
+  ...
+# Subtest: Graph missing configuration is unavailable, never a fabricated reference
+ok 22 - Graph missing configuration is unavailable, never a fabricated reference
+  ---
+  duration_ms: 1.300215
+  type: 'test'
+  ...
+# Subtest: Graph mock normalization distinguishes ETH analog from sNVDA
+ok 23 - Graph mock normalization distinguishes ETH analog from sNVDA
+  ---
+  duration_ms: 2.442026
+  type: 'test'
+  ...
+# Subtest: Graph queries use variables and only the trusted gateway
+ok 24 - Graph queries use variables and only the trusted gateway
+  ---
+  duration_ms: 0.608025
+  type: 'test'
+  ...
+# Subtest: Graph endpoint and provider messages do not leak key or raw errors
+ok 25 - Graph endpoint and provider messages do not leak key or raw errors
+  ---
+  duration_ms: 0.338226
+  type: 'test'
+  ...
+# Subtest: Graph rejects stale block timestamps
+ok 26 - Graph rejects stale block timestamps
+  ---
+  duration_ms: 0.33135
+  type: 'test'
+  ...
+# Subtest: Graph rejects missing metadata and out-of-range probability
+ok 27 - Graph rejects missing metadata and out-of-range probability
+  ---
+  duration_ms: 0.596507
+  type: 'test'
+  ...
+# Subtest: Graph network failure is explicit and contains no fallback price
+ok 28 - Graph network failure is explicit and contains no fallback price
+  ---
+  duration_ms: 0.40595
+  type: 'test'
+  ...
+# Subtest: Comparability requires explicit same-asset opt-in
+ok 29 - Comparability requires explicit same-asset opt-in
+  ---
+  duration_ms: 0.356885
+  type: 'test'
+  ...
+# Subtest: Graph does not silently choose another token in the pool
+ok 30 - Graph does not silently choose another token in the pool
+  ---
+  duration_ms: 0.388067
+  type: 'test'
+  ...
+# Subtest: Graph rejects unsafe freshness limit 0
+ok 31 - Graph rejects unsafe freshness limit 0
+  ---
+  duration_ms: 0.417437
+  type: 'test'
+  ...
+# Subtest: Graph rejects unsafe freshness limit -1
+ok 32 - Graph rejects unsafe freshness limit -1
+  ---
+  duration_ms: 0.160817
+  type: 'test'
+  ...
+# Subtest: Graph rejects unsafe freshness limit NaN
+ok 33 - Graph rejects unsafe freshness limit NaN
+  ---
+  duration_ms: 0.131589
+  type: 'test'
+  ...
+# Subtest: Graph rejects unsafe freshness limit Infinity
+ok 34 - Graph rejects unsafe freshness limit Infinity
+  ---
+  duration_ms: 0.129556
+  type: 'test'
+  ...
+# Subtest: Graph rejects unsafe freshness limit 3601
+ok 35 - Graph rejects unsafe freshness limit 3601
+  ---
+  duration_ms: 0.955263
+  type: 'test'
+  ...
+# Subtest: Graph rejects unsafe freshness limit 1.5
+ok 36 - Graph rejects unsafe freshness limit 1.5
+  ---
+  duration_ms: 0.08564
+  type: 'test'
+  ...
+# Subtest: Keccak empty string known vector
+ok 37 - Keccak empty string known vector
+  ---
+  duration_ms: 1.959482
+  type: 'test'
+  ...
+# Subtest: Keccak abc known vector
+ok 38 - Keccak abc known vector
+  ---
+  duration_ms: 1.485093
+  type: 'test'
+  ...
+# Subtest: Known selector transfer(address,uint256)
+ok 39 - Known selector transfer(address,uint256)
+  ---
+  duration_ms: 0.447996
+  type: 'test'
+  ...
+# Subtest: Known selector balanceOf(address)
+ok 40 - Known selector balanceOf(address)
+  ---
+  duration_ms: 0.514313
+  type: 'test'
+  ...
+# Subtest: Known selector approve(address,uint256)
+ok 41 - Known selector approve(address,uint256)
+  ---
+  duration_ms: 0.488641
+  type: 'test'
+  ...
+# Subtest: Known selector decimals()
+ok 42 - Known selector decimals()
+  ---
+  duration_ms: 0.418171
+  type: 'test'
+  ...
+# Subtest: Known selector allowance(address,address)
+ok 43 - Known selector allowance(address,address)
+  ---
+  duration_ms: 0.64413
+  type: 'test'
+  ...
+# Subtest: Static ABI exact encoding and decoding
+ok 44 - Static ABI exact encoding and decoding
+  ---
+  duration_ms: 1.939803
+  type: 'test'
+  ...
+# Subtest: Static ABI rejects unsupported, negative, malformed and unsafe values
+ok 45 - Static ABI rejects unsupported, negative, malformed and unsafe values
+  ---
+  duration_ms: 2.450252
+  type: 'test'
+  ...
+# Subtest: Arc absent config refuses to substitute sandbox
+ok 46 - Arc absent config refuses to substitute sandbox
+  ---
+  duration_ms: 0.870799
+  type: 'test'
+  ...
+# Subtest: Arc MOCK reads use one block and derive the initial four numbers
+ok 47 - Arc MOCK reads use one block and derive the initial four numbers
+  ---
+  duration_ms: 14.528147
+  type: 'test'
+  ...
+# Subtest: Arc MOCK rejects invalid chain/collateral/pool {"chain":1}
+ok 48 - Arc MOCK rejects invalid chain/collateral/pool {"chain":1}
+  ---
+  duration_ms: 0.205744
+  type: 'test'
+  ...
+# Subtest: Arc MOCK rejects invalid chain/collateral/pool {"decimals":18}
+ok 49 - Arc MOCK rejects invalid chain/collateral/pool {"decimals":18}
+  ---
+  duration_ms: 13.083294
+  type: 'test'
+  ...
+# Subtest: Arc MOCK rejects invalid chain/collateral/pool {"fee":50}
+ok 50 - Arc MOCK rejects invalid chain/collateral/pool {"fee":50}
+  ---
+  duration_ms: 9.345034
+  type: 'test'
+  ...
+# Subtest: Arc MOCK rejects invalid chain/collateral/pool {"empty":true}
+ok 51 - Arc MOCK rejects invalid chain/collateral/pool {"empty":true}
+  ---
+  duration_ms: 9.046179
+  type: 'test'
+  ...
+# Subtest: Arc MOCK quotes preserve decimal units and a positive slippage bound
+ok 52 - Arc MOCK quotes preserve decimal units and a positive slippage bound
+  ---
+  duration_ms: 10.686805
+  type: 'test'
+  ...
+# Subtest: Arc MOCK settled market refuses quotes
+ok 53 - Arc MOCK settled market refuses quotes
+  ---
+  duration_ms: 9.254871
+  type: 'test'
+  ...
+# Subtest: Arc network failures are sanitized
+ok 54 - Arc network failures are sanitized
+  ---
+  duration_ms: 0.546384
+  type: 'test'
+  ...
+# Subtest: Bridge: authenticated request waits for a one-time callback and returns only two fields
+ok 55 - Bridge: authenticated request waits for a one-time callback and returns only two fields
+  ---
+  duration_ms: 52.208766
+  type: 'test'
+  ...
+# Subtest: Bridge: master bearer token cannot impersonate the confidential callback
+ok 56 - Bridge: master bearer token cannot impersonate the confidential callback
+  ---
+  duration_ms: 11.42301
+  type: 'test'
+  ...
+# Subtest: Bridge: duplicate callbacks cannot change an accepted decision
+ok 57 - Bridge: duplicate callbacks cannot change an accepted decision
+  ---
+  duration_ms: 8.447461
+  type: 'test'
+  ...
+# Subtest: Bridge: acknowledged invocation without callback times out closed
+ok 58 - Bridge: acknowledged invocation without callback times out closed
+  ---
+  duration_ms: 34.436698
+  type: 'test'
+  ...
+# Subtest: Bridge: a hung gateway cannot keep an order pending indefinitely
+ok 59 - Bridge: a hung gateway cannot keep an order pending indefinitely
+  ---
+  duration_ms: 36.253903
+  type: 'test'
+  ...
+# Subtest: Bridge: callback cannot override a rejected gateway invocation
+ok 60 - Bridge: callback cannot override a rejected gateway invocation
+  ---
+  duration_ms: 4.606863
+  type: 'test'
+  ...
+# Subtest: Bridge: denial has a zero size and no local fallback
+ok 61 - Bridge: denial has a zero size and no local fallback
+  ---
+  duration_ms: 3.931638
+  type: 'test'
+  ...
+# Subtest: Bridge: invalid callback result is rejected before resolving the request
+ok 62 - Bridge: invalid callback result is rejected before resolving the request
+  ---
+  duration_ms: 9.169712
+  type: 'test'
+  ...
+# Subtest: Bridge: authentication is required before invoking CRE
+ok 63 - Bridge: authentication is required before invoking CRE
+  ---
+  duration_ms: 2.590992
+  type: 'test'
+  ...
+# Subtest: Bridge: invalid size is rejected: 0
+ok 64 - Bridge: invalid size is rejected: 0
+  ---
+  duration_ms: 2.2854
+  type: 'test'
+  ...
+# Subtest: Bridge: invalid size is rejected: -1
+ok 65 - Bridge: invalid size is rejected: -1
+  ---
+  duration_ms: 2.255509
+  type: 'test'
+  ...
+# Subtest: Bridge: invalid size is rejected: NaN
+ok 66 - Bridge: invalid size is rejected: NaN
+  ---
+  duration_ms: 1.931896
+  type: 'test'
+  ...
+# Subtest: Bridge: invalid size is rejected: 1e3
+ok 67 - Bridge: invalid size is rejected: 1e3
+  ---
+  duration_ms: 3.751201
+  type: 'test'
+  ...
+# Subtest: Bridge: invalid size is rejected: 1.1234567
+ok 68 - Bridge: invalid size is rejected: 1.1234567
+  ---
+  duration_ms: 1.771332
+  type: 'test'
+  ...
+# Subtest: Bridge: invalid size is rejected: 1000
+ok 69 - Bridge: invalid size is rejected: 1000
+  ---
+  duration_ms: 1.779901
+  type: 'test'
+  ...
+# Subtest: Bridge: request cannot select a workflow, callback destination or cap
+ok 70 - Bridge: request cannot select a workflow, callback destination or cap
+  ---
+  duration_ms: 4.357053
+  type: 'test'
+  ...
+# Subtest: Bridge: browser-origin requests, non-JSON bodies and oversized bodies are rejected
+ok 71 - Bridge: browser-origin requests, non-JSON bodies and oversized bodies are rejected
+  ---
+  duration_ms: 4.527615
+  type: 'test'
+  ...
+# Subtest: Bridge: hostile Host is rejected using a real native HTTP request
+ok 72 - Bridge: hostile Host is rejected using a real native HTTP request
+  ---
+  duration_ms: 3.915843
+  type: 'test'
+  ...
+# Subtest: Bridge: public health contains no workflow IDs or configuration
+ok 73 - Bridge: public health contains no workflow IDs or configuration
+  ---
+  duration_ms: 2.579565
+  type: 'test'
+  ...
+# Subtest: Bridge: global authenticated quota is enforced
+ok 74 - Bridge: global authenticated quota is enforced
+  ---
+  duration_ms: 5.144047
+  type: 'test'
+  ...
+# Subtest: Bridge: concurrent request bound and caller-abort cleanup
+ok 75 - Bridge: concurrent request bound and caller-abort cleanup
+  ---
+  duration_ms: 16.344703
+  type: 'test'
+  ...
+# Subtest: Bridge: incomplete or weak configuration cannot start
+ok 76 - Bridge: incomplete or weak configuration cannot start
+  ---
+  duration_ms: 0.410973
+  type: 'test'
+  ...
+# Subtest: Gateway: canonical JSON is recursively sorted without changing array order
+ok 77 - Gateway: canonical JSON is recursively sorted without changing array order
+  ---
+  duration_ms: 0.225627
+  type: 'test'
+  ...
+# Subtest: Gateway: JWT binds the exact body, expiry and signer; recovery byte is normalized
+ok 78 - Gateway: JWT binds the exact body, expiry and signer; recovery byte is normalized
+  ---
+  duration_ms: 0.563255
+  type: 'test'
+  ...
+# Subtest: Gateway: malformed signatures are rejected
+ok 79 - Gateway: malformed signatures are rejected
+  ---
+  duration_ms: 0.412636
+  type: 'test'
+  ...
+# Subtest: Gateway: sends only to the fixed registry gateway and validates acknowledgement
+ok 80 - Gateway: sends only to the fixed registry gateway and validates acknowledgement
+  ---
+  duration_ms: 1.495274
+  type: 'test'
+  ...
+# Subtest: Gateway: rejects mismatched or failed acknowledgement: requestId
+ok 81 - Gateway: rejects mismatched or failed acknowledgement: requestId
+  ---
+  duration_ms: 0.703772
+  type: 'test'
+  ...
+# Subtest: Gateway: rejects mismatched or failed acknowledgement: workflowId
+ok 82 - Gateway: rejects mismatched or failed acknowledgement: workflowId
+  ---
+  duration_ms: 0.355696
+  type: 'test'
+  ...
+# Subtest: Gateway: rejects mismatched or failed acknowledgement: status
+ok 83 - Gateway: rejects mismatched or failed acknowledgement: status
+  ---
+  duration_ms: 0.328466
+  type: 'test'
+  ...
+# Subtest: Gateway: rejects mismatched or failed acknowledgement: error
+ok 84 - Gateway: rejects mismatched or failed acknowledgement: error
+  ---
+  duration_ms: 0.348
+  type: 'test'
+  ...
+# Subtest: Gateway: rejects mismatched or failed acknowledgement: method
+ok 85 - Gateway: rejects mismatched or failed acknowledgement: method
+  ---
+  duration_ms: 0.310969
+  type: 'test'
+  ...
+# Subtest: Gateway: network or signer failures never leak exception text
+ok 86 - Gateway: network or signer failures never leak exception text
+  ---
+  duration_ms: 0.430183
+  type: 'test'
+  ...
+# Subtest: Gateway: oversized JSON cannot be accepted
+ok 87 - Gateway: oversized JSON cannot be accepted
+  ---
+  duration_ms: 0.509998
+  type: 'test'
+  ...
+# Subtest: Gateway: hung signer is bounded before making a network request
+ok 88 - Gateway: hung signer is bounded before making a network request
+  ---
+  duration_ms: 10.758566
+  type: 'test'
+  ...
+# Subtest: TEE shared policy: integer clipping and valid zero-cap denial
+ok 89 - TEE shared policy: integer clipping and valid zero-cap denial
+  ---
+  duration_ms: 0.310447
+  type: 'test'
+  ...
+# Subtest: TEE shared policy: exact HTTPS callback endpoint only
+ok 90 - TEE shared policy: exact HTTPS callback endpoint only
+  ---
+  duration_ms: 0.525315
+  type: 'test'
+  ...
+# Subtest: TEE shared policy: exact fresh correlation envelope and per-request token
+ok 91 - TEE shared policy: exact fresh correlation envelope and per-request token
+  ---
+  duration_ms: 0.448265
+  type: 'test'
+  ...
+# Subtest: USDC parsing is exactly six decimals, shares eighteen
+ok 92 - USDC parsing is exactly six decimals, shares eighteen
+  ---
+  duration_ms: 1.284603
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "-1"
+ok 93 - reject malformed decimal "-1"
+  ---
+  duration_ms: 0.275862
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "1e6"
+ok 94 - reject malformed decimal "1e6"
+  ---
+  duration_ms: 0.100311
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "NaN"
+ok 95 - reject malformed decimal "NaN"
+  ---
+  duration_ms: 0.111053
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "Infinity"
+ok 96 - reject malformed decimal "Infinity"
+  ---
+  duration_ms: 0.099646
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "+1"
+ok 97 - reject malformed decimal "+1"
+  ---
+  duration_ms: 0.098981
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "01"
+ok 98 - reject malformed decimal "01"
+  ---
+  duration_ms: 0.096169
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "1.1234567"
+ok 99 - reject malformed decimal "1.1234567"
+  ---
+  duration_ms: 0.09447
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal ""
+ok 100 - reject malformed decimal ""
+  ---
+  duration_ms: 0.093205
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal ".5"
+ok 101 - reject malformed decimal ".5"
+  ---
+  duration_ms: 0.185326
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "0"
+ok 102 - reject malformed decimal "0"
+  ---
+  duration_ms: 1.06533
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "1..1"
+ok 103 - reject malformed decimal "1..1"
+  ---
+  duration_ms: 0.104625
+  type: 'test'
+  ...
+# Subtest: reject malformed decimal "<script>"
+ok 104 - reject malformed decimal "<script>"
+  ---
+  duration_ms: 0.063208
+  type: 'test'
+  ...
+# Subtest: decimal formatter preserves cents and sign without floating point
+ok 105 - decimal formatter preserves cents and sign without floating point
+  ---
+  duration_ms: 0.198112
+  type: 'test'
+  ...
+# Subtest: starting stats come from reserves, not four UI constants
+ok 106 - starting stats come from reserves, not four UI constants
+  ---
+  duration_ms: 0.350962
+  type: 'test'
+  ...
+# Subtest: binary YES buy moves P and all conditional outputs without changing share mids
+ok 107 - binary YES buy moves P and all conditional outputs without changing share mids
+  ---
+  duration_ms: 2.453907
+  type: 'test'
+  ...
+# Subtest: binary NO buy reduces P
+ok 108 - binary NO buy reduces P
+  ---
+  duration_ms: 0.361558
+  type: 'test'
+  ...
+# Subtest: asset YES buy moves share price and implied spot
+ok 109 - asset YES buy moves share price and implied spot
+  ---
+  duration_ms: 0.291257
+  type: 'test'
+  ...
+# Subtest: asset NO buy moves no-world price
+ok 110 - asset NO buy moves no-world price
+  ---
+  duration_ms: 0.186055
+  type: 'test'
+  ...
+# Subtest: identity holds for interior probabilities
+ok 111 - identity holds for interior probabilities
+  ---
+  duration_ms: 0.099048
+  type: 'test'
+  ...
+# Subtest: division guards do not show unstable conditional values
+ok 112 - division guards do not show unstable conditional values
+  ---
+  duration_ms: 0.078163
+  type: 'test'
+  ...
+# Subtest: invalid prices cannot become displayable numbers
+ok 113 - invalid prices cannot become displayable numbers
+  ---
+  duration_ms: 0.130025
+  type: 'test'
+  ...
+# Subtest: binary split and merge is an exact whole-pair roundtrip
+ok 114 - binary split and merge is an exact whole-pair roundtrip
+  ---
+  duration_ms: 0.33433
+  type: 'test'
+  ...
+# Subtest: asset split and merge is an exact whole-pair roundtrip
+ok 115 - asset split and merge is an exact whole-pair roundtrip
+  ---
+  duration_ms: 0.140945
+  type: 'test'
+  ...
+# Subtest: sub-micro pair amounts cannot extract rounding value
+ok 116 - sub-micro pair amounts cannot extract rounding value
+  ---
+  duration_ms: 0.216213
+  type: 'test'
+  ...
+# Subtest: merge requires both legs and is atomic on failure
+ok 117 - merge requires both legs and is atomic on failure
+  ---
+  duration_ms: 0.205604
+  type: 'test'
+  ...
+# Subtest: balance checks reject overspend without mutation
+ok 118 - balance checks reject overspend without mutation
+  ---
+  duration_ms: 0.463291
+  type: 'test'
+  ...
+# Subtest: stale quote fails after another trade
+ok 119 - stale quote fails after another trade
+  ---
+  duration_ms: 0.248635
+  type: 'test'
+  ...
+# Subtest: slippage violation fails atomically
+ok 120 - slippage violation fails atomically
+  ---
+  duration_ms: 0.167322
+  type: 'test'
+  ...
+# Subtest: minimum output must be positive and integer
+ok 121 - minimum output must be positive and integer
+  ---
+  duration_ms: 0.257561
+  type: 'test'
+  ...
+# Subtest: expired or fabricated distant-future quote rejected
+ok 122 - expired or fabricated distant-future quote rejected
+  ---
+  duration_ms: 0.188682
+  type: 'test'
+  ...
+# Subtest: slippage configuration is bounded
+ok 123 - slippage configuration is bounded
+  ---
+  duration_ms: 0.18899
+  type: 'test'
+  ...
+# Subtest: settlement pays only YES for both books
+ok 124 - settlement pays only YES for both books
+  ---
+  duration_ms: 0.592426
+  type: 'test'
+  ...
+# Subtest: settlement pays only NO for both books
+ok 125 - settlement pays only NO for both books
+  ---
+  duration_ms: 0.258225
+  type: 'test'
+  ...
+# Subtest: oracle S above cap pays cap and discloses residual
+ok 126 - oracle S above cap pays cap and discloses residual
+  ---
+  duration_ms: 0.319899
+  type: 'test'
+  ...
+# Subtest: oracle S below cap keeps disclosed residual locked
+ok 127 - oracle S below cap keeps disclosed residual locked
+  ---
+  duration_ms: 0.30114
+  type: 'test'
+  ...
+# Subtest: zero asset settlement pays nothing
+ok 128 - zero asset settlement pays nothing
+  ---
+  duration_ms: 0.229601
+  type: 'test'
+  ...
+# Subtest: settlement is final and closes mint, merge and trade
+ok 129 - settlement is final and closes mint, merge and trade
+  ---
+  duration_ms: 0.243652
+  type: 'test'
+  ...
+# Subtest: oracle rejects malformed outcome and negative prices
+ok 130 - oracle rejects malformed outcome and negative prices
+  ---
+  duration_ms: 0.111099
+  type: 'test'
+  ...
+# Subtest: cannot claim before resolution
+ok 131 - cannot claim before resolution
+  ---
+  duration_ms: 0.082114
+  type: 'test'
+  ...
+# Subtest: 1000 alternating pure binary fills preserve or increase k
+ok 132 - 1000 alternating pure binary fills preserve or increase k
+  ---
+  duration_ms: 3.161393
+  type: 'test'
+  ...
+# Subtest: 1000 asset fills preserve k and never drain token reserve
+ok 133 - 1000 asset fills preserve k and never drain token reserve
+  ---
+  duration_ms: 0.938733
+  type: 'test'
+  ...
+# Subtest: mixed executed fills conserve all sandbox USDC and binary tokens
+ok 134 - mixed executed fills conserve all sandbox USDC and binary tokens
+  ---
+  duration_ms: 24.160883
+  type: 'test'
+  ...
+# Subtest: Health is honest about local scope
+ok 135 - Health is honest about local scope
+  ---
+  duration_ms: 30.443437
+  type: 'test'
+  ...
+# Subtest: Session cookie and browser security headers are set
+ok 136 - Session cookie and browser security headers are set
+  ---
+  duration_ms: 5.135533
+  type: 'test'
+  ...
+# Subtest: Mutations require initialized session and CSRF
+ok 137 - Mutations require initialized session and CSRF
+  ---
+  duration_ms: 11.765564
+  type: 'test'
+  ...
+# Subtest: Cross-origin POST is blocked even with a token
+ok 138 - Cross-origin POST is blocked even with a token
+  ---
+  duration_ms: 10.754954
+  type: 'test'
+  ...
+# Subtest: Session isolation and actual quote/trade/position flow
+ok 139 - Session isolation and actual quote/trade/position flow
+  ---
+  duration_ms: 19.307922
+  type: 'test'
+  ...
+# Subtest: HTTP split, settle, cap and claim flow
+ok 140 - HTTP split, settle, cap and claim flow
+  ---
+  duration_ms: 11.307468
+  type: 'test'
+  ...
+# Subtest: Bad input is a safe client error
+ok 141 - Bad input is a safe client error
+  ---
+  duration_ms: 6.342492
+  type: 'test'
+  ...
+# Subtest: JSON required, methods and body limits enforced
+ok 142 - JSON required, methods and body limits enforced
+  ---
+  duration_ms: 4.903745
+  type: 'test'
+  ...
+# Subtest: No .env, source file or traversal exposure
+ok 143 - No .env, source file or traversal exposure
+  ---
+  duration_ms: 4.372641
+  type: 'test'
+  ...
+# Subtest: App routes, static assets and genuine 404
+ok 144 - App routes, static assets and genuine 404
+  ---
+  duration_ms: 11.14257
+  type: 'test'
+  ...
+# Subtest: Arc unavailable is not fake live data
+ok 145 - Arc unavailable is not fake live data
+  ---
+  duration_ms: 4.614318
+  type: 'test'
+  ...
+# Subtest: Clipping explicitly distinguishes local simulation from live
+ok 146 - Clipping explicitly distinguishes local simulation from live
+  ---
+  duration_ms: 6.382349
+  type: 'test'
+  ...
+# Subtest: Clip enumeration is rate limited
+ok 147 - Clip enumeration is rate limited
+  ---
+  duration_ms: 15.197242
+  type: 'test'
+  ...
+# Subtest: Host header blocks DNS rebinding targets
+ok 148 - Host header blocks DNS rebinding targets
+  ---
+  duration_ms: 4.488153
+  type: 'test'
+  ...
+# Subtest: MOCK wallet connection checks Arc and six-decimal balance
+ok 149 - MOCK wallet connection checks Arc and six-decimal balance
+  ---
+  duration_ms: 4.655248
+  type: 'test'
+  ...
+# Subtest: MOCK wallet rejects wrong network before any transaction
+ok 150 - MOCK wallet rejects wrong network before any transaction
+  ---
+  duration_ms: 0.682956
+  type: 'test'
+  ...
+# Subtest: MOCK wallet rejects wrong decimals before approval
+ok 151 - MOCK wallet rejects wrong decimals before approval
+  ---
+  duration_ms: 1.430292
+  type: 'test'
+  ...
+# Subtest: MOCK wallet creates only exact allowance and simulates each transaction
+ok 152 - MOCK wallet creates only exact allowance and simulates each transaction
+  ---
+  duration_ms: 5.763779
+  type: 'test'
+  ...
+# Subtest: MOCK wallet resets a smaller existing allowance before exact approval
+ok 153 - MOCK wallet resets a smaller existing allowance before exact approval
+  ---
+  duration_ms: 4.781073
+  type: 'test'
+  ...
+# Subtest: MOCK wallet does not request unnecessary new approval
+ok 154 - MOCK wallet does not request unnecessary new approval
+  ---
+  duration_ms: 2.517395
+  type: 'test'
+  ...
+# Subtest: MOCK wallet rejects stale or zero-minimum quotes before signing
+ok 155 - MOCK wallet rejects stale or zero-minimum quotes before signing
+  ---
+  duration_ms: 1.405237
+  type: 'test'
+  ...
+# Subtest: MOCK wallet acknowledges an approval can remain after quote expiry
+ok 156 - MOCK wallet acknowledges an approval can remain after quote expiry
+  ---
+  duration_ms: 2.42795
+  type: 'test'
+  ...
+# Subtest: MOCK wallet guards account changes between approval and fill
+ok 157 - MOCK wallet guards account changes between approval and fill
+  ---
+  duration_ms: 2.632162
+  type: 'test'
+  ...
+# Subtest: MOCK wallet does not report a reverted receipt as success
+ok 158 - MOCK wallet does not report a reverted receipt as success
+  ---
+  duration_ms: 2.424594
+  type: 'test'
+  ...
+1..158
+# tests 158
+# suites 0
+# pass 158
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1039.533736

@@ -1,0 +1,80 @@
+{
+  "scope": "Local UI and standalone preview only; wallet absence is simulated; no live integrations executed",
+  "passed": 18,
+  "failed": 0,
+  "results": [
+    {
+      "name": "Server market initializes session and four reserve-derived numbers",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid input returns a visible error without a trade",
+      "status": "PASS"
+    },
+    {
+      "name": "Asset buy reviews and confirms an actual sandbox fill",
+      "status": "PASS"
+    },
+    {
+      "name": "Local clipping visibly changes a requested 1000 into a 50 fill",
+      "status": "PASS"
+    },
+    {
+      "name": "Binary NO fill changes the event probability",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale quote fails without silently refilling",
+      "status": "PASS"
+    },
+    {
+      "name": "Split pairs create binary and asset complete sets",
+      "status": "PASS"
+    },
+    {
+      "name": "Two-stage flow: resolve event freezes binary and losing leg while allowing surviving leg trade",
+      "status": "PASS"
+    },
+    {
+      "name": "Binary-first claims succeed while preserving asset and residual positions",
+      "status": "PASS"
+    },
+    {
+      "name": "Fix price settles market, stops trading, and unlocks final asset and residual payouts",
+      "status": "PASS"
+    },
+    {
+      "name": "Reset is explicit and restores the original market",
+      "status": "PASS"
+    },
+    {
+      "name": "Unconfigured Arc mode clears all sandbox prices",
+      "status": "PASS"
+    },
+    {
+      "name": "Missing wallet has an actionable error, no fabricated connection",
+      "status": "PASS"
+    },
+    {
+      "name": "Landing CTA, product preview, FAQ and reduced-motion behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "390px mobile menu, market, quote and no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "320px layout and custom 404 remain usable",
+      "status": "PASS"
+    },
+    {
+      "name": "Standalone file works without server calls and completes a trade",
+      "status": "PASS"
+    },
+    {
+      "name": "No uncaught JavaScript errors occurred",
+      "status": "PASS"
+    }
+  ],
+  "exceptions": []
+}

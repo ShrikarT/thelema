@@ -1,0 +1,25 @@
+{
+  "gitSha": "0150c6ccdb992bd7ebdeb5250e7b9c57c501e303",
+  "branch": "main",
+  "unitStatus": "PASS",
+  "buildStatus": "PASS",
+  "uiStatus": "PASS",
+  "typecheckStatus": "PASS",
+  "foundryStatus": "PASS",
+  "arc": {
+    "receiptUrl": "https://testnet.arcscan.app/tx/0x94a0178ed7fda5ca9cc43b08017cc46226e3381c8f3670fb4e9c3dc041d15f76"
+  },
+  "graph": {
+    "liveEvidenceUrl": "https://raw.githubusercontent.com/ShrikarT/thelema/main/docs/evidence/graph-live.json"
+  },
+  "cre": {
+    "simulationStatus": "SIMULATION_BOUNDARY",
+    "evidenceUrl": "https://raw.githubusercontent.com/ShrikarT/thelema/main/packages/cre/cre-sim.txt",
+    "note": "Official CRE CLI simulation executed; compiled WASM verified; halted at callback DNS boundary (bridge.example.com). Full transcript: packages/cre/cre-sim.txt. Live TEE deployment requires Chainlink org Deploy Access."
+  },
+  "humanApproval": {
+    "status": "NOT_APPROVED",
+    "reference": null
+  },
+  "scope": "Arc deployment verified (6 contracts, 20 receipts, 86.343602 USDC spend). Graph spot and cross-protocol verified (Uniswap V3 + SushiSwap on Arbitrum One, 0.27% spread) in docs/evidence/graph-cross-protocol.json. CRE CLI simulation executed and halted at network callback boundary."
+}

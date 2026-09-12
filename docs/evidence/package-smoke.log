@@ -1,0 +1,1 @@
+PASS: unpacked app serves assets, initializes safe sessions and completes a sandbox trade; no dependency installation used.
