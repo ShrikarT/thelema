@@ -1,0 +1,49 @@
+{
+  "name": "thelema",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Synthetic impact-market research app for Arc Testnet. Unaudited.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node apps/web/server.mjs",
+    "dev": "node scripts/build.mjs && node apps/web/server.mjs",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --test-reporter=tap tests/*.test.mjs packages/graph/*.test.mjs packages/cre/*.test.mjs",
+    "test:core": "node --test --test-reporter=tap tests/core.test.mjs",
+    "test:ui": "node tests/browser.mjs && node tests/arc-evm-browser.integration.mjs",
+    "test:ui:evm": "node tests/arc-evm-browser.integration.mjs",
+    "test:contracts": "cd packages/contracts && forge test -vvv",
+    "test:evm": "node --test tests/arc-evm.integration.mjs",
+    "check": "npm run build && npm run typecheck && npm test",
+    "release:check": "node scripts/check-release.mjs",
+    "bridge:start": "node services/cre-bridge/server.mjs",
+    "test:bridge": "node --test --test-reporter=tap tests/bridge.test.mjs",
+    "test:bridge:crypto": "node --test --test-reporter=tap services/cre-bridge/crypto.test.mjs",
+    "typecheck:cre": "npm --prefix packages/cre run typecheck",
+    "build:cre": "npm --prefix packages/cre run build:wasm",
+    "validate:live": "node scripts/validate-live.mjs",
+    "preflight": "node scripts/deploy-demo.mjs --preflight",
+    "verify:graph": "node scripts/verify-graph.mjs",
+    "verify:cre": "node scripts/verify-cre.mjs",
+    "deploy:demo": "node scripts/deploy-demo.mjs",
+    "demo:operator": "node scripts/demo-operator.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-icons": "5.7.0",
+    "viem": "2.54.2"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.0",
+    "typescript": "^5.9.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/node": "^24.0.0",
+    "playwright": "^1.58.0"
+  }
+}
