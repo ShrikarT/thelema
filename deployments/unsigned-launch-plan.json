@@ -1,0 +1,46 @@
+{
+  "status": "PENDING_APPROVAL",
+  "timestamp": "2026-09-08T06:04:59.099Z",
+  "network": {
+    "name": "Arc Testnet",
+    "chainId": 5042002,
+    "rpcUrl": "https://rpc.testnet.arc.io",
+    "explorer": "https://testnet.arcscan.app",
+    "usdcCollateralPrecompile": "0x3600000000000000000000000000000000000000",
+    "gasCurrency": "USDC (gas) [18 decimals native]"
+  },
+  "sourceCommit": "9e97e557b68fa313c2d5fb330f4b494731edc21e",
+  "marketSpecification": {
+    "title": "NVDA US-China Semiconductor Export Restrictions (Synthetic Demo)",
+    "description": "Will US export policy restrict advanced GPU shipments further before deadline?",
+    "cap6": 500000000,
+    "capUSD": "$500.00",
+    "feeBps": 30,
+    "syntheticDemoCalendar": {
+      "eventOffsetSec": 86400,
+      "cutoffOffsetSec": 172800,
+      "earliestPriceFixOffsetSec": 172800
+    }
+  },
+  "budgetRequirements": {
+    "proposedCeiling": "100.00 USDC (proposed hard maximum ceiling for collateral + dynamic gas budget)",
+    "totalCollateralRequired": "86.021 USDC (collateral)",
+    "dynamicGasBudgetEstimate": "0.34671 USDC (dynamic gas estimate with 30% safety reserve)",
+    "breakdown": {
+      "binarySplit": "20.00 USDC (collateral) -> 20 YES + 20 NO; seeds pool with 10 YES + 10 NO",
+      "shareSplit": "50.00 USDC (collateral) -> 0.1 complete sets (0.1 yes, 0.1 no, 0.1 residual)",
+      "yesSharePool": "11.655 USDC (collateral) + 0.1 yesShare ($116.55 initial implied price)",
+      "noSharePool": "4.366 USDC (collateral) + 0.1 noShare ($43.66 initial implied price)",
+      "ownerReserve": "10 YES, 10 NO, 0.1 residualShare (R max payout $50.00: R <= q * cap), LP tokens"
+    }
+  },
+  "ownerActionRequired": [
+    "1. Run read-only preflight: node scripts/deploy-demo.mjs --address <approved-wallet-address>",
+    "2. Confirm wallet balance satisfies total required funds under 100.00 USDC ceiling.",
+    "3. Provide ephemeral credentials securely (interactive prompt or session env; never commit or store in persistent shell history):",
+    "   - APPROVED_DEPLOYER_ADDRESS=<approved-wallet-address>",
+    "   - RELEASE_APPROVED=true",
+    "   - DEPLOYER_KEY=<approved-private-key>",
+    "4. Execute deployment: npm run deploy:demo"
+  ]
+}
