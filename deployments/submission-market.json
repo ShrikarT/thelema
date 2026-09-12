@@ -1,6 +1,6 @@
 {
   "status": "ACTIVE_DEMO",
-  "sourceCommit": "ef76db8ed20e2c8a1d89461fefb2f86e5f8b6c20",
+  "sourceCommit": "85289bf487c0e90513cbbe981e5cf134c2a6145e",
   "network": {
     "name": "Arc Testnet",
     "chainId": 5042002,

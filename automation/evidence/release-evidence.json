@@ -1,8 +1,8 @@
 {
   "publicRepository": "https://github.com/ShrikarT/thelema",
-  "currentPublicCommit": "2c781dad54c290d70ede9da0e018c4983946f5ee",
+  "currentPublicCommit": "85289bf487c0e90513cbbe981e5cf134c2a6145e",
   "sourceEvidenceCommit": "0150c6ccdb992bd7ebdeb5250e7b9c57c501e303",
-  "gitSha": "2c781dad54c290d70ede9da0e018c4983946f5ee",
+  "gitSha": "85289bf487c0e90513cbbe981e5cf134c2a6145e",
   "branch": "main",
   "evidenceTimestamps": {
     "arcDeployment": "2026-09-08T06:07:04.076Z",
