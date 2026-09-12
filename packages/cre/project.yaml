@@ -1,0 +1,13 @@
+# CRE project settings. The workflow folder and project root are both packages/cre;
+# run CLI commands with `-R packages/cre` from the repository root.
+# The clip handler makes no EVM calls; the RPC entry exists only because the CLI requires one.
+staging-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://ethereum-sepolia-rpc.publicnode.com
+
+# Production requires an operator-approved target. Do not copy staging values here blindly.
+production-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: ${CRE_PRODUCTION_RPC_URL}

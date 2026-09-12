@@ -1,0 +1,12 @@
+{
+  "name": "@thelema/cre-source",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-reporter=tap *.test.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build:wasm": "cre-compile workflow.ts dist/clipping.wasm"
+  },
+  "dependencies": {"@chainlink/cre-sdk": "1.19.1"},
+  "devDependencies": {"typescript": "5.9.3"}
+}

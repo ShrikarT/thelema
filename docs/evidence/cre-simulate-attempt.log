@@ -1,0 +1,44 @@
+# Genuine CRE CLI Simulation Attempt (Connected Bridge Request Lifecycle)
+# Observed at: 2026-09-08T06:41:16Z
+# Toolchain: Chainlink CRE CLI v1.32.0 (official binary)
+# User: shiva211111@gmail.com | Org: org_MRGAE9QbTQca1Lmb (cre whoami verified)
+# Deploy Access: Not enabled (live DON deployment requires provider access approval)
+# Invocation: cre workflow simulate . -R packages/cre --wasm binary.wasm --target staging-settings --non-interactive --trigger-index 0 --http-payload <real-pending-bridge-envelope.json>
+# Mode: SIMULATION (AWS Nitro in us-west-2 runtime simulation; --broadcast disabled)
+# Invariant: MAX_NOTIONAL_ENV=50 provisioned in environment; envelope expires strictly within 120s
+
+Initializing...
+Loading settings...
+! Using default private key for chain write simulation. To use your own key, set CRE_ETH_PRIVATE_KEY in your .env file or system environment.
+Checking RPC connectivity...
+  Reading pre-built WASM binary...
+✓ Loaded WASM binary from binary.wasm
+✓ Simulation limits enabled
+  HTTP: req=120kb resp=250kb timeout=10s | ConfHTTP: req=125kb resp=500kb timeout=1m30s | Consensus obs=25kb | ChainWrite evm_report=50kb evm_gas=10000000 solana_report=265b solana_cu=300000 | WASM binary=100mb compressed=20mb
+  Binary hash: 19766fa3ebd063ce504a06c7d7a17e3218b084c37214804fee5fe8e7a656f839
+  Config hash: 68e3308019b45ce81b5dbd7ff81c66318feba922fcd97f74de975f6a20cbbf3a
+✓ Loaded JSON from file: packages/cre/tmp-connected-envelope.json
+✓ Created HTTP trigger payload with 4 fields
+2026-09-08T12:11:16Z [SIMULATION] Simulator Initialized
+
+2026-09-08T12:11:16Z [SIMULATION] Running trigger trigger=http-trigger@1.0.0-alpha
+╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trigger requested TEE Execution your trigger will run in one of the following Tees:                │
+│     - AWS Nitro in us-west-2                                                                       │
+│ The simulator is not a real TEE, and is meant to debug.                                            │
+│ Do not use it for sensitive information.                                                           │
+│ During real execution, user logs for this trigger will not be visible, and will not leave the TEE. │
+│ They are presented in the simulator for debugging only.                                            │
+│                                                                                                    │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+2026-09-08T12:11:16Z [SIMULATION] Received interrupt signal, stopping execution
+2026-09-08T12:11:16Z [SIMULATION] Skipping WorkflowEngineV2
+✗ workflow execution failed: [2]Unknown: Post "https://bridge.example.com/v1/callback": dial tcp: lookup bridge.example.com: no such host
+exit=1
+
+# Observation & Status:
+# - Policy Arithmetic: Handler executed in simulated AWS Nitro TEE runtime; privateClip applied cap (50 USDC).
+# - Network Boundary: Halted at unresolvable staging callback URL (https://bridge.example.com/v1/callback).
+# - Correlated Bridge State: Pending request on services/cre-bridge awaited callback with authentic bearer token; unreached without public TLS reverse-proxy endpoint.
+# - Classification: SIMULATION ONLY. Neither a live DON deployment nor independently attested execution.

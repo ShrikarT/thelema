@@ -1,0 +1,29 @@
+# npm --prefix packages/cre run build:wasm  (cre-compile from @chainlink/cre-sdk 1.19.1, bun 1.4.0, node v24.16.0)
+# 2026-09-06T04:14:24Z
+
+> build:wasm
+> cre-compile workflow.ts dist/clipping.wasm
+
+🚀 Compiling workflow
+📁 Input:   /vercel/share/v0-project/packages/cre/workflow.ts
+🧪 JS out:  /vercel/share/v0-project/packages/cre/dist/clipping.js
+🎯 WASM out:/vercel/share/v0-project/packages/cre/dist/clipping.wasm
+
+📦 Step 1: Compiling JS...
+📁 Using input file: /vercel/share/v0-project/packages/cre/workflow.ts
+Bundled 1 module in 35ms
+
+  clipping.js  0.73 MB  (entry point)
+
+✅ Built: /vercel/share/v0-project/packages/cre/dist/clipping.js
+
+🔨 Step 2: Compiling to WASM...
+🔨 Compiling to WASM
+📁 Input:  /vercel/share/v0-project/packages/cre/dist/clipping.js
+🎯 Output: /vercel/share/v0-project/packages/cre/dist/clipping.wasm
+[cre-sdk-javy-plugin] Detected platform: linux, arch: x64
+[cre-sdk-javy-plugin] Using cached binary: /home/vercel-sandbox/.cache/javy/v8.1.0/linux-x64/javy
+✅ Compiled: /vercel/share/v0-project/packages/cre/dist/clipping.wasm
+
+✅ Workflow built: /vercel/share/v0-project/packages/cre/dist/clipping.wasm
+exit=0

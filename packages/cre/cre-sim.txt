@@ -1,0 +1,18 @@
+SIMULATION BLOCKED — NETWORK CALLBACK BOUNDARY UNREACHED
+(THIS RECORD REFLECTS AN ATTEMPTED OFFICIAL CLI SIMULATION, NOT AN END-TO-END VERIFIED LIVE EXECUTION)
+
+Status as of 2026-09-08:
+- AUTHENTICATED: Operator verified via `cre whoami` (user: shiva211111@gmail.com, org: org_MRGAE9QbTQca1Lmb, Deploy Access: Not enabled).
+- COMPILED: packages/cre/workflow.ts builds to valid WASM with cre-compile (SDK 1.19.1) and cre workflow build (CLI v1.32.0). Hash: 19766fa3ebd063ce504a06c7d7a17e3218b084c37214804fee5fe8e7a656f839.
+- SIMULATION ATTEMPTED: The official CRE CLI simulator (`cre workflow simulate . -R packages/cre --wasm binary.wasm --target staging-settings --non-interactive --trigger-index 0 --http-payload <real-pending-bridge-envelope.json>`) runs, enforces AWS Nitro TEE runtime simulation in us-west-2, decodes the request-bound trigger envelope, evaluates the clipping invariant with MAX_NOTIONAL_ENV=50, and halts at the callback network boundary:
+  `Post "https://bridge.example.com/v1/callback": dial tcp: lookup bridge.example.com: no such host (exit=1)`.
+  Full transcript: docs/evidence/cre-simulate-attempt.log.
+- ISOLATION: Local bridge unit tests (`tests/bridge.test.mjs`) verify the real `services/cre-bridge` request/callback lifecycle in isolation; they are NOT substituted as CRE enclave execution evidence.
+- CLASSIFICATION: SIMULATION ONLY. Neither a live DON deployment nor independently attested execution. Live TEE deployment requires Chainlink provider deploy access.
+
+Continuation for End-to-End Live Callback Execution:
+1. Host `services/cre-bridge` on an approved public HTTPS domain with valid public TLS.
+2. Ensure `/v1/callback` routes directly to the real bridge service.
+3. Configure `packages/cre/config.json` with the approved public callback URL and authorized signer address.
+4. Execute with `--target production-settings`.
+5. Obtain Chainlink organization Deploy Access for remote TEE DON deployment.

@@ -1,0 +1,19 @@
+# staging-settings compiles and simulates with a placeholder signer and unreachable callback.
+# It cannot authorize a real trigger and its callback is expected to fail. Simulation only.
+staging-settings:
+  user-workflow:
+    workflow-name: "thelema-clip-staging"
+  workflow-artifacts:
+    workflow-path: "./workflow.ts"
+    config-path: "./config.simulation.json"
+    secrets-path: "./secrets.yaml"
+
+# production-settings expects an untracked ./config.json created from config.example.json
+# with the real authorized signer address and the exact approved HTTPS /v1/callback endpoint.
+production-settings:
+  user-workflow:
+    workflow-name: "thelema-clip-production"
+  workflow-artifacts:
+    workflow-path: "./workflow.ts"
+    config-path: "./config.json"
+    secrets-path: "./secrets.yaml"
