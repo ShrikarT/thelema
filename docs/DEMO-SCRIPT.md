@@ -36,5 +36,5 @@ Navigate to the Independent Reference Check in the UI.
 - Explain that this reference proves live decentralized gateway connectivity, but is an ETH analog labeled "non-comparable context only"—it is not confused with the synthetic Nvidia index.
 
 **2:45–3:00 — Verification & Delivery.**
-Show the terminal running `npm test` (224 passing tests), the verified Arcscan deployment receipts within the 100 TEST-USDC ceiling, and the honest documentation in `docs/ACCESS-AND-APPROVAL.md`.
+Show the terminal running `npm test` (224 passing tests), the verified Arcscan deployment receipts within the 100 TEST-USDC ceiling, and the honest documentation in `docs/RUNBOOK.md`.
 - Conclude by stating the exact remaining live gates: production TLS bridge hosting, provider TEE deploy authorization, and video submission.

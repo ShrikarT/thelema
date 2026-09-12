@@ -12,7 +12,7 @@ Render is the recommended hosting platform for THELEMA because it natively runs 
 1. Push your changes to GitHub (`ShrikarT/thelema`).
 2. Log in to [Render Dashboard](https://dashboard.render.com/).
 3. Click **New +** -> **Blueprint**.
-4. Select your `thelema-validation` repository.
+4. Select your `thelema` repository.
 5. Render will automatically detect `render.yaml` with two web services:
    - **`thelema`** (Web Application & Client API):
      - **Build Command**: `npm ci --include=dev && npm run build`
