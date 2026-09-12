@@ -149,7 +149,6 @@ packages/graph/       Server-only Graph query templates and mocked tests
 packages/cre/         Clip adapter, pure demo policy and grounded CRE source scaffold
 automation/           n8n exports, fixtures, evidence schema and CI template
 docs/                 Architecture, boundaries, continuation and test evidence
-agenthanoff.md         Canonical handoff (intentional requested spelling)
 THELEMA-preview.html  Portable interactive sandbox
 ```
 
