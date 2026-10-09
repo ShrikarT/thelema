@@ -1,0 +1,116 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: BinaryVault
+    network: arc
+    source:
+      abi: BinaryVault
+      address: "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1"
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Market
+        - UserPosition
+      abis:
+        - name: BinaryVault
+          file: ../contracts/out/BinaryVault.sol/BinaryVault.json
+      eventHandlers:
+        - event: Split(indexed address,indexed address,uint256,uint256)
+          handler: handleBinarySplit
+        - event: Merge(indexed address,indexed address,uint256,uint256)
+          handler: handleBinaryMerge
+        - event: Settled(bool)
+          handler: handleBinarySettled
+        - event: Redeemed(indexed address,indexed address,address,uint256,uint256)
+          handler: handleBinaryRedeemed
+      file: ./src/mapping.ts
+
+  - kind: ethereum
+    name: ShareVault
+    network: arc
+    source:
+      abi: ShareVault
+      address: "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Market
+        - UserPosition
+        - SettlementEvent
+      abis:
+        - name: ShareVault
+          file: ../contracts/out/ShareVault.sol/ShareVault.json
+      eventHandlers:
+        - event: Split(indexed address,indexed address,uint256,uint256)
+          handler: handleShareSplit
+        - event: Merge(indexed address,indexed address,uint256,uint256)
+          handler: handleShareMerge
+        - event: EventResolved(bool)
+          handler: handleEventResolved
+        - event: PriceFixed(uint256,uint256,uint256)
+          handler: handlePriceFixed
+        - event: Redeemed(indexed address,indexed address,address,uint256,uint256)
+          handler: handleShareRedeemed
+      file: ./src/mapping.ts
+
+  - kind: ethereum
+    name: BinaryAMM
+    network: arc
+    source:
+      abi: BinaryAMM
+      address: "0x0165878a594ca255338adfa4d48449f69242eb8f"
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Trade
+        - LiquidityEvent
+      abis:
+        - name: BinaryAMM
+          file: ../contracts/out/BinaryAMM.sol/BinaryAMM.json
+      eventHandlers:
+        - event: BinaryBought(indexed address,uint256,uint256,uint256,bool)
+          handler: handleBinaryBought
+        - event: LiquidityAdded(indexed address,uint256,uint256,uint256)
+          handler: handleBinaryLiquidityAdded
+        - event: LiquidityRemoved(indexed address,uint256,uint256,uint256)
+          handler: handleBinaryLiquidityRemoved
+      file: ./src/mapping.ts
+
+  - kind: ethereum
+    name: ShareAMM
+    network: arc
+    source:
+      abi: ShareAMM
+      address: "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853"
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Trade
+        - LiquidityEvent
+      abis:
+        - name: ShareAMM
+          file: ../contracts/out/ShareAMM.sol/ShareAMM.json
+      eventHandlers:
+        - event: SharesBought(indexed address,uint256,uint256,uint256)
+          handler: handleSharesBought
+        - event: SharesSold(indexed address,uint256,uint256,uint256)
+          handler: handleSharesSold
+        - event: LiquidityAdded(indexed address,uint256,uint256,uint256)
+          handler: handleShareLiquidityAdded
+        - event: LiquidityRemoved(indexed address,uint256,uint256,uint256)
+          handler: handleShareLiquidityRemoved
+      file: ./src/mapping.ts

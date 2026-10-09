@@ -1,24 +1,16 @@
 # THELEMA
 
-**Trade the impact. Not just the odds.**
+> **What does an event do to an asset's price? Trade the impact, not just the odds — trade both worlds in one conserved vault.**
 
-THELEMA is an impact-market protocol on Arc. It prices what an event does to an asset — a chip export rule, a rate decision, a statute — not only whether the event happens. Binary probability and conditional asset payoffs live in the same conserved USDC vault.
+THELEMA is an on-chain synthetic impact-market protocol and futarchy research infrastructure built for Arc. It formalizes conditional decision markets: pricing what an event does to an asset (a chip export rule, a regulatory ruling, a macro announcement) rather than solely whether the binary headline occurs. Binary probability \(P(\text{event})\) and conditional asset expectations \(\mathbb{E}[S \mid \text{YES}]\) and \(\mathbb{E}[S \mid \text{NO}]\) are traded against the same conserved, 100% fully-collateralized USDC vault.
+
+THELEMA is pure **futarchy and conditional market research infrastructure**:
+- **Zero Leverage & Zero House Edge**: Not a gambling venue, betting exchange, or leveraged CFD platform.
+- **Strict Conservation**: Depositing \(C\) USDC mints complete sets \(C \to 1\text{ YES} + 1\text{ NO} + 1\,R\). Total liabilities strictly equal collateral across every possible state: \(X + 0 + (C - X) \equiv C\).
+- **Arc Native Currency**: Powered by Arc's native 6-decimal USDC precompile (`0x3600000000000000000000000000000000000000`).
 
 Live Web Application: [https://thelema.onrender.com](https://thelema.onrender.com)  
-Target Network: **Arc Testnet** (Chain ID `5042002`)
-
----
-
-## What is THELEMA?
-
-THELEMA is an on-chain market where **one event produces two world prices for the same asset**, and **settlement is a conserved payout**, not a discretionary oracle print.
-
-Prediction markets force a choice between two incomplete products:
-
-1. **Yes/No books**, which tell you if something happens and stop there.
-2. **Cash oracles and CFDs**, which guess the move after the fact and require a trusted feed.
-
-THELEMA lists both books against the same collateral: a binary pool for \(P(\text{event})\), and an impact pool for \(\mathbb{E}[S \mid \text{YES}]\) and \(\mathbb{E}[S \mid \text{NO}]\).
+Target Networks: **Arc Mainnet** (Chain ID `5042`) & **Arc Testnet** (Chain ID `5042002`)
 
 ---
 
@@ -29,10 +21,10 @@ THELEMA lists both books against the same collateral: a binary pool for \(P(\tex
 | **Payoff** | $1 if the event happens, $0 if not. | **Impact shares** pay \(\min(S, C)\) in the winning world. Residual holds the rest of the cap. |
 | **What you trade** | Probability of a headline. | **Two world prices** for the same index — If happens / If not. |
 | **Collateral** | Mixed stables, wrapped synthetics, or off-chain cash. | **Arc native USDC** precompile `0x3600…0000`. Complete-set conservation \(C \to Y + N + R\). |
-| **Liquidity** | Order books or ad-hoc AMM. | **Constant-product AMMs** for the binary pair and each world share. |
+| **Liquidity** | Order books or ad-hoc AMM. | **Constant-product AMMs** with tracked internal reserves immune to donation skew. |
+| **Security** | Centralized owner keys, front-runnable settlements. | **24h timelocked settlement**, dispute guardian challenge, atomic execution, multisig Safe requirement. |
 | **Size policy** | Public notional; large fills leak on-chain immediately. | **Chainlink CRE clip** against a private `MAX_NOTIONAL` before the fill is signed. |
 | **Market context** | Homegrown price widgets. | **The Graph** Messari DEX schema across Uniswap V3 and SushiSwap. Fails closed if stale. |
-| **Honesty** | Inflated volume, placeholder books, “live” oracles that aren’t. | Seed liquidity labeled. Session volume starts at zero. No invented trader counts. |
 
 ---
 
@@ -204,7 +196,23 @@ Health states: `agreeing`, `disagreeing`, `single_source`, `unavailable`. Block 
 | **Chainlink — Best Confidential Workflow** | CRE size-clip WASM, authenticated bridge, simulator evidence. |
 | **The Graph — Standardized Cross-Protocol** | Dual Messari DEX query, consensus/disagreement, fail-closed freshness. |
 
-Contracts and circuits are **unaudited research code**. Not a production financial service.
+---
+
+## Security Audit Hardening & Arc Mainnet Readiness
+
+Following the October 8 comprehensive audit, the smart contract suite and system architecture underwent full defense-in-depth hardening:
+
+- **C1 & L3 (Critical / Low — Oracle Governance)**: Single-step EOA ownership replaced with two-step ownership transfer (`Ownable.sol`). Settlement moved to a mandatory **24-hour timelock queue** (`queueSettlement` $\to$ `executeSettlement`) with an authorized `disputeGuardian` cancellation path. Arc Mainnet requires a verified multisig Safe owner.
+- **H1 & M2 (High / Medium — Front-Running & Insider Window)**: Atomic settlement only (`publishAndSettle`); direct external `resolveEvent` and `fixPrice` disabled. All share trading freezes immediately upon event resolution (`ShareVault.assertShareTradingAllowed`).
+- **H2 (High — Vault Parameter Integrity)**: Vault addresses bound immutably in `DemoOracle` constructor with bytecode existence checks (`code.length > 0`).
+- **H3 (High — Settlement Failure Escape Hatch)**: 180-day post-cutoff par refund escape hatch (`refundAfter = tradingCutoff + 180 days`) in `BinaryVault` and `ShareVault`, preserving complete-set conservation ($C \to Y + N + R$) if the oracle ever fails.
+- **M1 (Medium — Chain Unification)**: Single centralized source of truth in `packages/core/chain.ts` supporting Arc Mainnet (`5042`) and Arc Testnet (`5042002`) with the native USDC precompile `0x3600000000000000000000000000000000000000`.
+- **M3 & L4 (Medium / Low — AMM Controls)**: Emergency pause guardian multisig (`paused`, `setPaused`, `setGuardian`) on AMMs halting trading/deposits while strictly preserving LP withdrawals and par redemptions. Stray collateral sweep via `sweep(token, to)`.
+- **M4 (Medium — Lossless Rounding)**: Exact rounding with `InexactAmount` revert on dust in binary & share split/merge; zero skim accumulation.
+- **L1 (Low — Price Distortion Immunity)**: Tracked internal reserves (`reserveYes18`, `reserveNo18`, `reserveStable6`, `reserveShares18`) render pricing completely immune to direct token donation skew.
+- **L2 (Low — Safe Transfer Check)**: `SafeTransferLib.sol` enforces contract existence (`code.length > 0`) against silent EOA no-ops.
+- **Chainlink Data Streams Adapter**: Added `DataStreamsAdapter.sol` and `IDataStreamsVerifier.sol` for pull-based low-latency settlement oracle report verification.
+- **Goldsky Indexer**: Added `packages/graph/schema.graphql` and `packages/graph/subgraph.yaml` for Arc indexing.
 
 ---
 

@@ -69,6 +69,11 @@ interface IBinaryAMM {
     function addLiquidity(uint256 maxYes18,uint256 maxNo18,uint256 minLp18,uint256 deadline) external returns(uint256 yesIn18,uint256 noIn18,uint256 lpOut18);
     function removeLiquidity(uint256 lpIn18,uint256 minYes18,uint256 minNo18,uint256 deadline) external returns(uint256 yesOut18,uint256 noOut18);
     function withdrawFees() external returns(uint256 amount6);
+    function sweep(address token, address to) external returns(uint256 amount);
+    function setPaused(bool paused) external;
+    function setGuardian(address newGuardian) external;
+    function paused() external view returns(bool);
+    function guardian() external view returns(address);
 }
 
 interface IShareAMM {
@@ -80,6 +85,11 @@ interface IShareAMM {
     function sellShares(uint256 sharesIn18,uint256 minStableOut6,uint256 deadline) external returns(uint256 stableOut6);
     function addLiquidity(uint256 maxStable6,uint256 maxShares18,uint256 minLp18,uint256 deadline) external returns(uint256 lpOut18);
     function removeLiquidity(uint256 lpIn18,uint256 minStable6,uint256 minShares18,uint256 deadline) external returns(uint256 stableOut6,uint256 sharesOut18);
+    function sweep(address token, address to) external returns(uint256 amount);
+    function setPaused(bool paused) external;
+    function setGuardian(address newGuardian) external;
+    function paused() external view returns(bool);
+    function guardian() external view returns(address);
 }
 
 interface IDemoOracle {
@@ -91,6 +101,8 @@ interface IDemoOracle {
     function TIMELOCK_DELAY() external view returns(uint256);
     function binaryVault() external view returns(address);
     function shareVault() external view returns(address);
+    function disputeGuardian() external view returns(address);
+    function setDisputeGuardian(address guardian) external;
     function isSettlementPending() external view returns(bool);
     function queueSettlement(bool eventYes,uint256 settlementValue6) external;
     function cancelSettlement() external;

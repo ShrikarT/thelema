@@ -344,8 +344,16 @@ async function main() {
       noShareAmm: deployed.contracts.noShareAmm,
       privateKey: deployerKey
     };
-    await runOperator(['resolve-event', 'YES'], operatorConfig);
-    console.log('9. Operator resolved event to YES on-chain');
+    await runOperator(['queue-settlement', 'YES', '200.00'], operatorConfig);
+    const curBlock = await client.getBlock({ blockTag: 'latest' });
+    const targetTime = Math.max(Number(deployed.timing.earliestPriceFixTime || 0), Number(curBlock.timestamp)) + 86400 + 100;
+    const timeDelta = targetTime - Number(curBlock.timestamp);
+    if (timeDelta > 0) {
+      await client.request({ method: 'evm_increaseTime', params: [timeDelta] });
+      await client.request({ method: 'evm_mine', params: [] });
+    }
+    await runOperator(['publish-and-settle', 'YES', '200.00'], operatorConfig);
+    console.log('9. Operator queued, timelocked, and settled market on-chain (YES @ $200.00)');
 
     // Pre-binary-claim checks: read on-chain balances
     const preBinYes = await client.readContract({
@@ -379,171 +387,86 @@ async function main() {
       args: [traderAddress]
     });
 
-    // 10. Verify binary claim in browser (reactive refresh without page reload)
+    // 10. Verify atomic claim in browser (reactive refresh without page reload)
     const claimBtn = page.getByRole('button', { name: 'Claim on Arc', exact: true });
     await claimBtn.waitFor({ state: 'visible', timeout: 15000 });
 
-    const binClaimTxIndex = recordedTxs.length;
-    await claimBtn.click();
-    const { receipt: binClaimReceipt } = await waitForTransaction(binClaimTxIndex, 'Binary claim');
-    assert.equal(binClaimReceipt.status, 'success');
-    assert.equal(
-      binClaimReceipt.to?.toLowerCase(),
-      deployed.contracts.binaryVault.toLowerCase(),
-      'Binary claim receipt must interact directly with BinaryVault'
-    );
-    console.log(`10. Binary claim confirmed with receipt: ${binClaimReceipt.transactionHash}`);
-
-    // Wait for browser claim action to finish
-    await page.waitForFunction(() => !document.querySelector('.claim-button')?.textContent?.includes('Claiming'));
-    await page.waitForFunction(() => document.querySelector('.toast')?.textContent?.includes('Arc claim confirmed'));
-
-    // Verify on-chain binary YES tokens redeemed
-    const postBinYes = await client.readContract({
+    // Pre-claim on-chain reads & exact payout calculations
+    const preClaimYes = await client.readContract({
       address: deployed.contracts.yesToken,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [traderAddress]
     });
-    assert.equal(postBinYes, 0n, 'Binary YES tokens must be 0 after binary claim redemption');
-
-    // Verify on-chain collateral increased
-    const postBinCollateral = await client.readContract({
-      address: ARC_USDC,
-      abi: ERC20_ABI,
-      functionName: 'balanceOf',
-      args: [traderAddress]
-    });
-    assert.ok(postBinCollateral > preBinCollateral, 'Collateral balance must increase after binary claim');
-
-    // Verify asset and R balances strictly untouched!
-    const postBinShares = await client.readContract({
+    const preClaimShares = await client.readContract({
       address: deployed.contracts.yesShare,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [traderAddress]
     });
-    assert.equal(postBinShares, preBinShares, 'Asset shares must remain strictly untouched during binary claim');
-
-    const postBinR = await client.readContract({
+    const preClaimR = await client.readContract({
       address: deployed.contracts.residualShare,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [traderAddress]
     });
-    assert.equal(postBinR, preBinR, 'Residual claim (R) tokens must remain strictly untouched during binary claim');
-
-    // Wait for UI reactive refresh: binary row disappears, BOTH sNVDA share AND Residual claim (R) rows remain
-    await page.waitForFunction(
-      () => {
-        const text = document.querySelector('.portfolio-layout table')?.textContent || '';
-        return text.includes('sNVDA share') && text.includes('Residual claim (R)') && !text.includes('Event share');
-      },
-      { timeout: 15000 }
-    );
-    const tableAfterBin = await page.locator('.portfolio-layout table').innerText();
-    assert.match(tableAfterBin, /sNVDA share/, 'Asset row (sNVDA share) must remain in table after binary claim');
-    assert.match(tableAfterBin, /Residual claim \(R\)/, 'Residual row must remain in table after binary claim');
-    assert.doesNotMatch(tableAfterBin, /Event share/, 'Binary row must no longer appear after binary claim');
-    console.log('    Verified: Binary redeemed while asset and R balances remain strictly unchanged');
-
-    // 11. Operator fixes price to $200.00 (strictly below $500.00 cap)
-    await runOperator(['fix-price', '200.00'], operatorConfig);
-    console.log('11. Operator fixed price to $200.00 on-chain (below-cap fixing: $200 index + $300 residual = $500 cap)');
-
-    // Reload Positions to update state to PRICE_FIXED
-    await page.locator('.desktop-nav').getByRole('link', { name: 'Market', exact: true }).click();
-    await page.locator('.desktop-nav').getByRole('link', { name: 'Positions', exact: true }).click();
-    await page.waitForFunction(
-      () => document.querySelector('.portfolio-layout table')?.textContent?.includes('Residual claim (R)')
-    );
-
-    // Pre-asset-claim on-chain reads & exact payout calculations
-    const preAssetShares = await client.readContract({
-      address: deployed.contracts.yesShare,
-      abi: ERC20_ABI,
-      functionName: 'balanceOf',
-      args: [traderAddress]
-    });
-    const preAssetR = await client.readContract({
-      address: deployed.contracts.residualShare,
-      abi: ERC20_ABI,
-      functionName: 'balanceOf',
-      args: [traderAddress]
-    });
-    const preAssetCollateral = await client.readContract({
+    const preClaimCollateral = await client.readContract({
       address: ARC_USDC,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [traderAddress]
     });
 
-    assert.ok(preAssetShares > 0n, 'Trader must hold yesShare tokens before settlement claim');
-    assert.ok(preAssetR > 0n, 'Trader must hold residualShare (R) tokens before settlement claim');
+    assert.ok(preClaimYes > 0n, 'Trader must hold binary YES tokens before claim');
+    assert.ok(preClaimShares > 0n, 'Trader must hold yesShare tokens before claim');
+    assert.ok(preClaimR > 0n, 'Trader must hold residualShare (R) tokens before claim');
 
-    // Settlement payouts:
-    // cap = 500.00 USDC, price = 200.00 USDC
-    // yesShare unit payout = 200.00 USDC (200_000_000 micro-USDC per 10^18 shares)
-    // residualShare unit payout = 300.00 USDC (300_000_000 micro-USDC per 10^18 shares)
-    const expectedYesPayout = (preAssetShares * 200_000_000n) / 10n**18n;
-    const expectedRPayout = (preAssetR * 300_000_000n) / 10n**18n;
-    const expectedTotalPayout = expectedYesPayout + expectedRPayout;
-    console.log(`    Expected asset payout: ${expectedYesPayout} micro-USDC`);
-    console.log(`    Expected R payout:     ${expectedRPayout} micro-USDC`);
-    console.log(`    Expected total payout: ${expectedTotalPayout} micro-USDC`);
+    const expectedBinPayout = preClaimYes / 10n ** 12n;
+    const expectedYesPayout = (preClaimShares * 200_000_000n) / 10n**18n;
+    const expectedRPayout = (preClaimR * 300_000_000n) / 10n**18n;
+    const expectedTotalPayout = expectedBinPayout + expectedYesPayout + expectedRPayout;
 
-    // 12. Verify asset & residual claim in browser (two separate redemptions on ShareVault)
-    await claimBtn.waitFor({ state: 'visible', timeout: 15000 });
-    const assetClaimTxIndex = recordedTxs.length;
+    console.log(`    Expected binary payout: ${expectedBinPayout} micro-USDC`);
+    console.log(`    Expected asset payout:  ${expectedYesPayout} micro-USDC`);
+    console.log(`    Expected R payout:      ${expectedRPayout} micro-USDC`);
+    console.log(`    Expected total payout:  ${expectedTotalPayout} micro-USDC`);
+
+    const claimTxStart = recordedTxs.length;
     await claimBtn.click();
 
-    const { receipt: yesClaimReceipt } = await waitForTransaction(assetClaimTxIndex, 'yesShare settlement claim');
-    assert.equal(yesClaimReceipt.status, 'success');
-    assert.equal(
-      yesClaimReceipt.to?.toLowerCase(),
-      deployed.contracts.shareVault.toLowerCase(),
-      'yesShare claim receipt must interact directly with ShareVault'
-    );
+    // Verify all 3 redemptions executed with distinct receipts
+    const { receipt: binClaimReceipt } = await waitForTransaction(claimTxStart, 'Binary claim');
+    assert.equal(binClaimReceipt.status, 'success');
+    assert.equal(binClaimReceipt.to?.toLowerCase(), deployed.contracts.binaryVault.toLowerCase());
 
-    const { receipt: rClaimReceipt } = await waitForTransaction(assetClaimTxIndex + 1, 'residualShare settlement claim');
+    const { receipt: yesClaimReceipt } = await waitForTransaction(claimTxStart + 1, 'yesShare settlement claim');
+    assert.equal(yesClaimReceipt.status, 'success');
+    assert.equal(yesClaimReceipt.to?.toLowerCase(), deployed.contracts.shareVault.toLowerCase());
+
+    const { receipt: rClaimReceipt } = await waitForTransaction(claimTxStart + 2, 'residualShare settlement claim');
     assert.equal(rClaimReceipt.status, 'success');
-    assert.equal(
-      rClaimReceipt.to?.toLowerCase(),
-      deployed.contracts.shareVault.toLowerCase(),
-      'residualShare claim receipt must interact directly with ShareVault'
-    );
-    console.log(`12. Asset & R claims confirmed with receipts: ${yesClaimReceipt.transactionHash}, ${rClaimReceipt.transactionHash}`);
+    assert.equal(rClaimReceipt.to?.toLowerCase(), deployed.contracts.shareVault.toLowerCase());
+
+    console.log(`10. All 3 claims confirmed with receipts: ${binClaimReceipt.transactionHash}, ${yesClaimReceipt.transactionHash}, ${rClaimReceipt.transactionHash}`);
 
     await page.waitForFunction(() => !document.querySelector('.claim-button')?.textContent?.includes('Claiming'));
     await page.waitForFunction(() => document.querySelector('.toast')?.textContent?.includes('Arc claim confirmed'));
 
-    // Verify on-chain asset and R tokens redeemed to 0
-    const postAssetShares = await client.readContract({
-      address: deployed.contracts.yesShare,
-      abi: ERC20_ABI,
-      functionName: 'balanceOf',
-      args: [traderAddress]
-    });
-    assert.equal(postAssetShares, 0n, 'Asset yesShare tokens must be 0 after settlement claim');
+    // Verify all on-chain balances redeemed to 0
+    const postYes = await client.readContract({ address: deployed.contracts.yesToken, abi: ERC20_ABI, functionName: 'balanceOf', args: [traderAddress] });
+    assert.equal(postYes, 0n, 'Binary YES tokens must be 0 after claim');
 
-    const postAssetR = await client.readContract({
-      address: deployed.contracts.residualShare,
-      abi: ERC20_ABI,
-      functionName: 'balanceOf',
-      args: [traderAddress]
-    });
-    assert.equal(postAssetR, 0n, 'Residual claim (R) tokens must be 0 after settlement claim');
+    const postShares = await client.readContract({ address: deployed.contracts.yesShare, abi: ERC20_ABI, functionName: 'balanceOf', args: [traderAddress] });
+    assert.equal(postShares, 0n, 'yesShare tokens must be 0 after claim');
+
+    const postR = await client.readContract({ address: deployed.contracts.residualShare, abi: ERC20_ABI, functionName: 'balanceOf', args: [traderAddress] });
+    assert.equal(postR, 0n, 'Residual claim (R) tokens must be 0 after claim');
 
     // Verify on-chain collateral increased by exact total payout
-    const postAssetCollateral = await client.readContract({
-      address: ARC_USDC,
-      abi: ERC20_ABI,
-      functionName: 'balanceOf',
-      args: [traderAddress]
-    });
-    const actualPayout = postAssetCollateral - preAssetCollateral;
-    assert.equal(actualPayout, expectedTotalPayout, `Exact collateral payout must match sum of yesShare and residualShare payouts (${expectedTotalPayout} micro-USDC)`);
-    console.log(`    Verified: Exact collateral payout received (${actualPayout} micro-USDC), token balances reduced to 0`);
+    const postCollateral = await client.readContract({ address: ARC_USDC, abi: ERC20_ABI, functionName: 'balanceOf', args: [traderAddress] });
+    const actualPayout = postCollateral - preClaimCollateral;
+    assert.equal(actualPayout, expectedTotalPayout, `Exact collateral payout must match expected total (${expectedTotalPayout} micro-USDC)`);
+    console.log(`    Verified: Exact total collateral payout received (${actualPayout} micro-USDC), all token balances reduced to 0`);
 
     // Verify UI reactive refresh: winning rows removed from table
     await page.waitForFunction(
