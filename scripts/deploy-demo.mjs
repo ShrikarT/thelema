@@ -1488,26 +1488,14 @@ export async function runDeploy({
 
   // 1. Deploy Core Contracts
   console.log('\n--- Core Contract Deployments ---');
-  await executeWithJournal('oracle', 'Deploy DemoOracle', async (nonce, gasPrice, gasLimit) => {
-    console.log('Deploying DemoOracle...');
-    return wallet.deployContract({
-      abi: oracleArtifact.abi,
-      bytecode: oracleArtifact.bytecode.object,
-      args: [account.address],
-      nonce,
-      gasPrice,
-      gas: gasLimit
-    });
-  });
-  const oracleAddress = manifest.contracts.oracle;
-  console.log(`  -> DemoOracle at: ${oracleAddress}`);
+  const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 
   await executeWithJournal('binaryVault', 'Deploy BinaryVault', async (nonce, gasPrice, gasLimit) => {
     console.log('Deploying BinaryVault...');
     return wallet.deployContract({
       abi: binVaultArtifact.abi,
       bytecode: binVaultArtifact.bytecode.object,
-      args: [ARC_USDC, oracleAddress, eventDeadline, tradingCutoff],
+      args: [ARC_USDC, ZERO_ADDR, eventDeadline, tradingCutoff],
       nonce,
       gasPrice,
       gas: gasLimit
@@ -1521,7 +1509,7 @@ export async function runDeploy({
     return wallet.deployContract({
       abi: shareVaultArtifact.abi,
       bytecode: shareVaultArtifact.bytecode.object,
-      args: [ARC_USDC, oracleAddress, cap6, eventDeadline, tradingCutoff, earliestPriceFixTime],
+      args: [ARC_USDC, ZERO_ADDR, cap6, eventDeadline, tradingCutoff, earliestPriceFixTime],
       nonce,
       gasPrice,
       gas: gasLimit
@@ -1529,6 +1517,46 @@ export async function runDeploy({
   });
   const shareVaultAddress = manifest.contracts.shareVault;
   console.log(`  -> ShareVault at: ${shareVaultAddress}`);
+
+  await executeWithJournal('oracle', 'Deploy DemoOracle', async (nonce, gasPrice, gasLimit) => {
+    console.log('Deploying DemoOracle...');
+    return wallet.deployContract({
+      abi: oracleArtifact.abi,
+      bytecode: oracleArtifact.bytecode.object,
+      args: [account.address, binVaultAddress, shareVaultAddress],
+      nonce,
+      gasPrice,
+      gas: gasLimit
+    });
+  });
+  const oracleAddress = manifest.contracts.oracle;
+  console.log(`  -> DemoOracle at: ${oracleAddress}`);
+
+  await executeWithJournal('setOracleBinary', 'Wire Oracle to BinaryVault', async (nonce, gasPrice, gasLimit) => {
+    console.log('Setting Oracle on BinaryVault...');
+    return wallet.writeContract({
+      address: binVaultAddress,
+      abi: binVaultArtifact.abi,
+      functionName: 'setOracle',
+      args: [oracleAddress],
+      nonce,
+      gasPrice,
+      gas: gasLimit
+    });
+  });
+
+  await executeWithJournal('setOracleShare', 'Wire Oracle to ShareVault', async (nonce, gasPrice, gasLimit) => {
+    console.log('Setting Oracle on ShareVault...');
+    return wallet.writeContract({
+      address: shareVaultAddress,
+      abi: shareVaultArtifact.abi,
+      functionName: 'setOracle',
+      args: [oracleAddress],
+      nonce,
+      gasPrice,
+      gas: gasLimit
+    });
+  });
 
   await executeWithJournal('binaryAmm', 'Deploy BinaryAMM', async (nonce, gasPrice, gasLimit) => {
     console.log('Deploying BinaryAMM...');

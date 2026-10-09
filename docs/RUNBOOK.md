@@ -196,6 +196,11 @@ Executes both stages in a single command once all timing conditions are satisfie
 npm run demo:operator publish-and-settle YES 220.50
 ```
 
+#### 5. Operator Guidance: Private Mempool Settlement
+> [!IMPORTANT]
+> **Operator Guidance (Mempool Privacy & Front-Running Mitigation)**:
+> Oracle settlement transactions (`queue-settlement`, `publish-and-settle`) should be submitted via a **private mempool** or direct builder RPC where supported on Arc. Submitting settlement transactions directly to public mempools risks transaction observation and searcher sandwiching before the block is sealed. On Arc Mainnet, route operator settlement transactions through Arc's private RPC endpoint or trusted builder bundles. This is operational guidance for mainnet operators; contracts enforce atomic timelocked settlement and freeze trading independently.
+
 ---
 
 ## 6. Sponsor Integration Verification

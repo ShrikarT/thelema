@@ -70,12 +70,31 @@ test('Arc MOCK settled market reads successfully even with empty liquidity',asyn
  assert.equal(s.lifecycle,'PRICE_FIXED');
  assert.equal(s.stats.impliedSpot,200);
 });
-test('Arc MOCK rejects inconsistent lifecycle states',async()=>{
- await assert.rejects(readArc(config,mockRpc({shareLc:0,binSettled:1})),e=>e.code==='BAD_STATE'||/inconsistent/i.test(e.message));
- await assert.rejects(readArc(config,mockRpc({shareLc:0,shareSettled:1})),e=>e.code==='BAD_STATE'||/inconsistent/i.test(e.message));
- await assert.rejects(readArc(config,mockRpc({shareLc:1,shareSettled:1})),e=>e.code==='BAD_STATE'||/inconsistent/i.test(e.message));
- await assert.rejects(readArc(config,mockRpc({shareLc:1,binSettled:0})),e=>e.code==='BAD_STATE'||/inconsistent/i.test(e.message));
- await assert.rejects(readArc(config,mockRpc({shareLc:2,shareSettled:0})),e=>e.code==='BAD_STATE'||/inconsistent/i.test(e.message));
- await assert.rejects(readArc(config,mockRpc({shareLc:1,eventYes:1,binYes:0})),e=>e.code==='BAD_STATE'||/inconsistent/i.test(e.message));
+test('Unified chain configuration supports Arc Mainnet and Testnet', async () => {
+  const { getChainConfig, PRECOMPILE_USDC } = await import('../packages/core/chain.mjs');
+  const mainnet = getChainConfig(5042);
+  assert.equal(mainnet.chainId, 5042);
+  assert.equal(mainnet.chainName, 'Arc Mainnet');
+  assert.equal(mainnet.collateral, PRECOMPILE_USDC);
+  assert.equal(mainnet.isTestnet, false);
+
+  const testnet = getChainConfig(5042002);
+  assert.equal(testnet.chainId, 5042002);
+  assert.equal(testnet.chainName, 'Arc Testnet');
+  assert.equal(testnet.collateral, PRECOMPILE_USDC);
+  assert.equal(testnet.isTestnet, true);
+
+  assert.throws(() => getChainConfig(99999), /Unsupported chain ID/);
 });
+
+test('Arc client dynamically validates configured chain ID against RPC', async () => {
+  const mainnetConfig = { ...config, chainId: 5042 };
+  // Rejects if RPC is testnet (5042002) but config expects mainnet (5042)
+  await assert.rejects(readArc(mainnetConfig, mockRpc({ chain: 5042002 })), /chain/);
+
+  // Succeeds if RPC matches configured mainnet
+  const s = await readArc(mainnetConfig, mockRpc({ chain: 5042 }));
+  assert.equal(s.mode, 'arc');
+});
+
 

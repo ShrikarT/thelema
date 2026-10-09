@@ -4,54 +4,110 @@ pragma solidity ^0.8.24;
 import {Ownable} from "./lib/Ownable.sol";
 
 interface IBinarySettle { function settle(bool eventYes) external; }
-interface IShareSettle {
-    function resolveEvent(bool eventYes) external;
-    function fixPrice(uint256 settlementValue6) external;
-    function settle(bool eventYes, uint256 settlementValue6) external;
-}
+interface IShareSettle { function settle(bool eventYes, uint256 settlementValue6) external; }
 
 contract DemoOracle is Ownable {
+    uint256 public constant TIMELOCK_DELAY = 24 hours;
+
+    IBinarySettle public immutable binaryVault;
+    IShareSettle public immutable shareVault;
+
     bool public eventResolved;
     bool public priceFixed;
     bool public eventYes;
     uint256 public settlementValue6;
 
+    struct PendingSettlement {
+        bool queued;
+        bool eventYes;
+        uint256 settlementValue6;
+        uint256 executeAfter;
+    }
+    PendingSettlement public pendingSettlement;
+
     error AlreadyPublished();
-    error InvalidOrder();
+    error TimelockNotExpired();
+    error NoPendingSettlement();
+    error SettlementAlreadyQueued();
+    error DirectResolutionDisabled();
+    error NotAContract();
+    error InvalidSettlementParams();
+
     event EventOutcomePublished(bool indexed eventYes);
     event SettlementPricePublished(uint256 settlementValue6);
+    event SettlementQueued(bool indexed eventYes, uint256 settlementValue6, uint256 executeAfter);
+    event SettlementCancelled();
 
-    constructor(address owner_) Ownable(owner_) {}
-
-    function resolveEvent(address binaryVault, address shareVault, bool eventYes_) external onlyOwner {
-        if (eventResolved) revert AlreadyPublished();
-        if (binaryVault == address(0) || shareVault == address(0)) revert ZeroAddress();
-        eventResolved = true;
-        eventYes = eventYes_;
-        IBinarySettle(binaryVault).settle(eventYes_);
-        IShareSettle(shareVault).resolveEvent(eventYes_);
-        emit EventOutcomePublished(eventYes_);
+    constructor(address owner_, address binaryVault_, address shareVault_) Ownable(owner_) {
+        if (binaryVault_ == address(0) || shareVault_ == address(0)) revert ZeroAddress();
+        if (binaryVault_.code.length == 0 || shareVault_.code.length == 0) revert NotAContract();
+        binaryVault = IBinarySettle(binaryVault_);
+        shareVault = IShareSettle(shareVault_);
     }
 
-    function fixPrice(address shareVault, uint256 settlementValue6_) external onlyOwner {
-        if (!eventResolved) revert InvalidOrder();
-        if (priceFixed) revert AlreadyPublished();
-        if (shareVault == address(0)) revert ZeroAddress();
-        priceFixed = true;
-        settlementValue6 = settlementValue6_;
-        IShareSettle(shareVault).fixPrice(settlementValue6_);
-        emit SettlementPricePublished(settlementValue6_);
+    function isSettlementPending() external view returns (bool) {
+        return pendingSettlement.queued;
     }
 
-    function publishAndSettle(address binaryVault, address shareVault, bool eventYes_, uint256 settlementValue6_) external onlyOwner {
+    function queueSettlement(bool eventYes_, uint256 settlementValue6_) external onlyOwner {
         if (eventResolved || priceFixed) revert AlreadyPublished();
-        if (binaryVault == address(0) || shareVault == address(0)) revert ZeroAddress();
+        if (pendingSettlement.queued) revert SettlementAlreadyQueued();
+
+        uint256 executeAfter = block.timestamp + TIMELOCK_DELAY;
+        pendingSettlement = PendingSettlement({
+            queued: true,
+            eventYes: eventYes_,
+            settlementValue6: settlementValue6_,
+            executeAfter: executeAfter
+        });
+        emit SettlementQueued(eventYes_, settlementValue6_, executeAfter);
+    }
+
+    function cancelSettlement() external onlyOwner {
+        if (!pendingSettlement.queued) revert NoPendingSettlement();
+        delete pendingSettlement;
+        emit SettlementCancelled();
+    }
+
+    function executeSettlement() external onlyOwner {
+        if (!pendingSettlement.queued) revert NoPendingSettlement();
+        if (block.timestamp < pendingSettlement.executeAfter) revert TimelockNotExpired();
+
+        bool outcome = pendingSettlement.eventYes;
+        uint256 val6 = pendingSettlement.settlementValue6;
+        delete pendingSettlement;
+        _settle(outcome, val6);
+    }
+
+    function publishAndSettle(bool eventYes_, uint256 settlementValue6_) external onlyOwner {
+        if (!pendingSettlement.queued) revert NoPendingSettlement();
+        if (block.timestamp < pendingSettlement.executeAfter) revert TimelockNotExpired();
+        if (pendingSettlement.eventYes != eventYes_ || pendingSettlement.settlementValue6 != settlementValue6_) {
+            revert InvalidSettlementParams();
+        }
+
+        delete pendingSettlement;
+        _settle(eventYes_, settlementValue6_);
+    }
+
+    function resolveEvent(bool) external pure {
+        revert DirectResolutionDisabled();
+    }
+
+    function fixPrice(uint256) external pure {
+        revert DirectResolutionDisabled();
+    }
+
+    function _settle(bool eventYes_, uint256 settlementValue6_) internal {
+        if (eventResolved || priceFixed) revert AlreadyPublished();
         eventResolved = true;
         priceFixed = true;
         eventYes = eventYes_;
         settlementValue6 = settlementValue6_;
-        IBinarySettle(binaryVault).settle(eventYes_);
-        IShareSettle(shareVault).settle(eventYes_, settlementValue6_);
+
+        binaryVault.settle(eventYes_);
+        shareVault.settle(eventYes_, settlementValue6_);
+
         emit EventOutcomePublished(eventYes_);
         emit SettlementPricePublished(settlementValue6_);
     }
