@@ -24,14 +24,23 @@ contract ImpactTest {
     address alice=address(0xA11CE); address attacker=address(0xBAD); address carol=address(0xCA801);
 
     function setUp() public {
-        usdc=new MockUSDC(); oracle=new DemoOracle(address(this));
+        usdc=new MockUSDC();
         // eventDeadline = 100, tradingCutoff = 200, earliestPriceFixTime = 200
-        binary=new BinaryVault(address(usdc),address(oracle),100,200);
-        shares=new ShareVault(address(usdc),address(oracle),500e6,100,200,200);
+        binary=new BinaryVault(address(usdc),address(0),100,200);
+        shares=new ShareVault(address(usdc),address(0),500e6,100,200,200);
+        oracle=new DemoOracle(address(this),address(binary),address(shares));
+        binary.setOracle(address(oracle));
+        shares.setOracle(address(oracle));
         binaryAmm=new BinaryAMM(binary,address(this),30);
         usdc.mint(address(this),200_000e6); usdc.mint(alice,10_000e6); usdc.mint(attacker,10_000e6); usdc.mint(carol,10_000e6);
         usdc.approve(address(binary),type(uint256).max); usdc.approve(address(shares),type(uint256).max);
         vm.prank(alice); usdc.approve(address(binaryAmm),type(uint256).max);
+    }
+
+    function _settleOracle(bool eventYes, uint256 price6) internal {
+        oracle.queueSettlement(eventYes, price6);
+        vm.warp(block.timestamp + oracle.TIMELOCK_DELAY());
+        oracle.executeSettlement();
     }
 
     function testBinarySplitMergeAndSixDecimals() public {
@@ -61,7 +70,7 @@ contract ImpactTest {
     function testBinarySettlementYesAndLoserRejected() public {
         binary.split(2e6,address(this)); shares.split(1e18,address(this));
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,125e6);
+        _settleOracle(true,125e6);
         uint256 beforeBal=usdc.balanceOf(address(this)); uint256 paid=binary.redeem(address(binary.yesToken()),2e18,address(this));
         _eq(paid,2e6); _eq(usdc.balanceOf(address(this)),beforeBal+2e6);
         address loser=address(binary.noToken());
@@ -71,7 +80,7 @@ contract ImpactTest {
     function testBinarySettlementNoPaysNoLeg() public {
         binary.split(1e6,address(this)); shares.split(1e18,address(this));
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),false,200e6);
+        _settleOracle(false,200e6);
         uint256 paid=binary.redeem(address(binary.noToken()),1e18,address(this)); _eq(paid,1e6);
         address loser=address(binary.yesToken());
         vm.expectRevert(BinaryVault.WrongToken.selector); binary.redeem(loser,1e18,address(this));
@@ -80,7 +89,7 @@ contract ImpactTest {
     function testShareCapAndResidualRedemption() public {
         shares.split(2e18,address(this)); binary.split(1e6,address(this));
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,700e6);
+        _settleOracle(true,700e6);
         _eq(shares.settlementValue6(),500e6); _eq(shares.residualValue6(),0);
         uint256 paid=shares.redeem(address(shares.yesShare()),2e18,address(this)); _eq(paid,1_000e6);
         uint256 residualPaid=shares.redeem(address(shares.residualShare()),2e18,address(this)); _eq(residualPaid,0);
@@ -90,7 +99,7 @@ contract ImpactTest {
     function testSharePayoutMinAndResidualRedemption() public {
         shares.split(1e18,address(this)); binary.split(1e6,address(this));
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),false,123e6);
+        _settleOracle(false,123e6);
         _eq(shares.settlementValue6(),123e6); _eq(shares.residualValue6(),377e6);
         uint256 paid=shares.redeem(address(shares.noShare()),1e18,address(this)); _eq(paid,123e6);
         uint256 resPaid=shares.redeem(address(shares.residualShare()),1e18,address(this)); _eq(resPaid,377e6);
@@ -140,22 +149,23 @@ contract ImpactTest {
     }
 
     function testCeilDepositFloorRedemptionFractionalAccounting() public {
-        // 100 tiny splits of 1 wei each
-        for(uint256 i=0;i<100;i++){
-            shares.split(1,address(this));
+        // Inexact 1-wei splits revert with InexactAmount (M4)
+        vm.expectRevert(ShareVault.InexactAmount.selector);
+        shares.split(1,address(this));
+
+        // Exact split of 10 units of 1e16 (costing 5 USDC each)
+        for(uint256 i=0;i<10;i++){
+            shares.split(1e16,address(this));
         }
-        _eq(shares.yesShare().balanceOf(address(this)),100);
-        _eq(shares.noShare().balanceOf(address(this)),100);
-        _eq(shares.residualShare().balanceOf(address(this)),100);
-        // Each 1 wei split cost ceil(1 * 500e6 / 1e18) = 1 micro USDC
-        _eq(usdc.balanceOf(address(shares)),100); // 100 micro USDC
+        _eq(shares.yesShare().balanceOf(address(this)),1e17);
+        _eq(shares.noShare().balanceOf(address(this)),1e17);
+        _eq(shares.residualShare().balanceOf(address(this)),1e17);
+        _eq(usdc.balanceOf(address(shares)),50e6);
         require(usdc.balanceOf(address(shares))>=shares.remainingLiabilities6(),"vault undercollateralized");
 
-        // Merging 100 wei returns floor(100 * 500e6 / 1e18) = 0 micro USDC
-        uint256 refunded=shares.merge(100,address(this));
-        _eq(refunded,0);
-        // Vault keeps the 100 micro USDC dust safely
-        _eq(usdc.balanceOf(address(shares)),100);
+        uint256 refunded=shares.merge(1e17,address(this));
+        _eq(refunded,50e6);
+        _eq(usdc.balanceOf(address(shares)),0);
     }
 
     function testSeparateEventAndPriceClocks() public {
@@ -166,49 +176,31 @@ contract ImpactTest {
         shares.yesShare().approve(address(yesAmm),type(uint256).max); shares.noShare().approve(address(noAmm),type(uint256).max);
         yesAmm.addLiquidity(100e6,0.5e18,1,block.timestamp); noAmm.addLiquidity(100e6,0.5e18,1,block.timestamp);
 
-        // Advance past eventDeadline (100) but before earliestPriceFixTime (200)
-        vm.warp(150);
+        // Advance past cutoff
+        vm.warp(200);
 
-        // Resolve event to YES
-        oracle.resolveEvent(address(binary),address(shares),true);
+        // Direct external resolution is disabled (H1 + M2)
+        vm.expectRevert(DemoOracle.DirectResolutionDisabled.selector);
+        oracle.resolveEvent(true);
+        vm.expectRevert(DemoOracle.DirectResolutionDisabled.selector);
+        oracle.fixPrice(260e6);
+
+        // Atomic settlement via timelocked publishAndSettle
+        _settleOracle(true,260e6);
         require(binary.settled(),"binary not settled");
-        require(shares.lifecycle()==ShareVault.Lifecycle.EVENT_RESOLVED,"not event resolved");
+        require(shares.settled(),"not settled");
 
         // Binary claims immediately claimable!
         address binWin=address(binary.yesToken());
         uint256 binPaid=binary.redeem(binWin,2e18,address(this));
         _eq(binPaid,2e6);
 
-        // Asset claims CANNOT redeem before price fixing!
-        address yesTok=address(shares.yesShare());
-        vm.expectRevert(ShareVault.NotSettled.selector);
-        shares.redeem(yesTok,1e18,address(this));
-
-        // Binary AMM trading is frozen
+        // Binary AMM and Share AMMs are frozen post-settlement
         vm.startPrank(alice);
         vm.expectRevert(); binaryAmm.buyOutcome(true,1e6,1,block.timestamp);
-
-        // Impossible asset leg (NO) is frozen
-        shares.noShare().approve(address(noAmm),type(uint256).max);
+        vm.expectRevert(ShareAMM.TradingFrozen.selector); yesAmm.buyShares(1e6,1,block.timestamp);
         vm.expectRevert(ShareAMM.TradingFrozen.selector); noAmm.buyShares(1e6,1,block.timestamp);
-
-        // Surviving asset leg (YES) can still trade before cutoff!
-        usdc.approve(address(yesAmm),type(uint256).max);
-        shares.yesShare().approve(address(yesAmm),type(uint256).max);
-        uint256 bought=yesAmm.buyShares(1e6,1,block.timestamp);
-        require(bought>0,"surviving leg trade failed");
         vm.stopPrank();
-
-        // Try fixing price before earliestPriceFixTime (200) -> reverts
-        vm.expectRevert(); oracle.fixPrice(address(shares),260e6);
-
-        // Advance past earliestPriceFixTime (200)
-        vm.warp(200);
-        oracle.fixPrice(address(shares),260e6);
-        require(shares.lifecycle()==ShareVault.Lifecycle.PRICE_FIXED,"not price fixed");
-
-        // Now surviving leg is also frozen
-        vm.prank(alice); vm.expectRevert(ShareAMM.TradingFrozen.selector); yesAmm.buyShares(1e6,1,block.timestamp);
 
         // Asset claims and residual claims redeem cleanly!
         uint256 yPaid=shares.redeem(address(shares.yesShare()),1e18,address(this));
@@ -224,7 +216,7 @@ contract ImpactTest {
         usdc.approve(address(yesAmm),type(uint256).max); shares.yesShare().approve(address(yesAmm),type(uint256).max);
         yesAmm.addLiquidity(100e6,0.5e18,1,block.timestamp);
 
-        // Time passes tradingCutoff (200), but oracle has NOT called resolveEvent or fixPrice
+        // Time passes tradingCutoff (200), but oracle has NOT called settle
         vm.warp(201);
         require(shares.lifecycle()==ShareVault.Lifecycle.OPEN,"not open");
         // AMM trading must still be frozen!
@@ -232,22 +224,32 @@ contract ImpactTest {
     }
 
     function testCannotResolveNOBeforeDeadline() public {
-        // block.timestamp is 1, deadline is 100
-        vm.expectRevert(); oracle.resolveEvent(address(binary),address(shares),false);
-        // Warp past deadline
-        vm.warp(101);
-        oracle.resolveEvent(address(binary),address(shares),false);
-        require(shares.lifecycle()==ShareVault.Lifecycle.EVENT_RESOLVED,"not resolved");
+        // Create custom vault with far-future event deadline (3 days > 24h timelock)
+        BinaryVault farBinary = new BinaryVault(address(usdc), address(0), 3 days, 4 days);
+        ShareVault farShares = new ShareVault(address(usdc), address(0), 500e6, 3 days, 4 days, 4 days);
+        DemoOracle farOracle = new DemoOracle(address(this), address(farBinary), address(farShares));
+        farBinary.setOracle(address(farOracle));
+        farShares.setOracle(address(farOracle));
+
+        farOracle.queueSettlement(false, 200e6);
+        // Warp past 24h timelock but before 3-day deadline
+        vm.warp(1 days + 1);
+        vm.expectRevert(BinaryVault.EventDeadlineNotPassed.selector);
+        farOracle.executeSettlement();
+
+        // Warp past event deadline and earliestPriceFixTime
+        vm.warp(4 days + 1);
+        farOracle.executeSettlement();
+        require(farShares.settled(), "not settled");
     }
 
     function testUnauthorizedOracleAndImmutableSettlement() public {
         vm.warp(200);
         vm.prank(attacker); vm.expectRevert(); binary.settle(true);
         vm.prank(attacker); vm.expectRevert(); shares.settle(true,1);
-        vm.prank(attacker); vm.expectRevert(); oracle.publishAndSettle(address(binary),address(shares),true,1);
-        oracle.publishAndSettle(address(binary),address(shares),true,1);
-        vm.expectRevert(); oracle.publishAndSettle(address(binary),address(shares),false,2);
-        vm.expectRevert(); oracle.resolveEvent(address(binary),address(shares),true);
+        vm.prank(attacker); vm.expectRevert(); oracle.queueSettlement(true,1);
+        _settleOracle(true,1);
+        vm.expectRevert(); oracle.queueSettlement(false,2);
     }
 
     function testZeroInvalidAndSlippageGuards() public {
@@ -263,7 +265,7 @@ contract ImpactTest {
         binary.split(100e6,address(this)); binary.yesToken().approve(address(binaryAmm),50e18); binary.noToken().approve(address(binaryAmm),50e18);
         binaryAmm.addLiquidity(50e18,50e18,1,block.timestamp); shares.split(1e18,address(this));
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,100e6);
+        _settleOracle(true,100e6);
         vm.prank(alice); vm.expectRevert(); binaryAmm.buyOutcome(true,1e6,0,block.timestamp);
     }
 
@@ -278,13 +280,18 @@ contract ImpactTest {
 
     function testFractionalSharePairsSplitMerge() public {
         uint256 beforeBal=usdc.balanceOf(address(this));
-        uint256 pairs=123456789012345678;
+        // Inexact dust reverts (M4)
+        vm.expectRevert(ShareVault.InexactAmount.selector);
+        shares.split(123456789012345678,address(this));
+
+        // Exact pairs are completely lossless roundtrip
+        uint256 pairs=2e18;
         uint256 cost=shares.split(pairs,address(this));
         uint256 returned=shares.merge(pairs,address(this));
-        require(cost>=returned && cost-returned<=1,"bad rounding");
+        _eq(cost,returned);
         _eq(shares.yesShare().balanceOf(address(this)),0);
         _eq(shares.residualShare().balanceOf(address(this)),0);
-        _eq(usdc.balanceOf(address(this)),beforeBal-cost+returned);
+        _eq(usdc.balanceOf(address(this)),beforeBal);
     }
 
     function testFractionalBinaryPurchaseSettlesAndRedeems() public {
@@ -294,7 +301,7 @@ contract ImpactTest {
         vm.prank(alice); uint256 bought=binaryAmm.buyOutcome(true,10e6,1,block.timestamp);
         require(bought%1e12!=0,"expected fractional purchase");
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,200e6);
+        _settleOracle(true,200e6);
         address winner=address(binary.yesToken()); uint256 beforeBalance=usdc.balanceOf(alice);
         vm.prank(alice); uint256 paid=binary.redeem(winner,bought,alice);
         _eq(paid,bought/1e12); _eq(binary.yesToken().balanceOf(alice),0); _eq(usdc.balanceOf(alice),beforeBalance+paid);
@@ -309,22 +316,22 @@ contract ImpactTest {
         uint256 bought=amm.buyShares(10e6,1,block.timestamp); vm.stopPrank();
         require(bought%1e18!=0,"expected fractional share");
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,200e6);
+        _settleOracle(true,200e6);
         address winner=address(shares.yesShare()); uint256 beforeBalance=usdc.balanceOf(alice);
         vm.prank(alice); uint256 paid=shares.redeem(winner,bought,alice);
         _eq(paid,bought*200e6/1e18); _eq(shares.yesShare().balanceOf(alice),0); _eq(usdc.balanceOf(alice),beforeBalance+paid);
     }
 
     function testCollateralMustImplementSixDecimals() public {
-        vm.expectRevert(); new BinaryVault(address(0xBAD),address(oracle),100,200);
-        vm.expectRevert(); new ShareVault(address(0xBAD),address(oracle),500e6,100,200,200);
+        vm.expectRevert(); new BinaryVault(address(0xBAD),address(0),100,200);
+        vm.expectRevert(); new ShareVault(address(0xBAD),address(0),500e6,100,200,200);
     }
 
     function testRedeemCannotBurnAnotherAccountOrDoubleSpend() public {
         binary.split(2e6,alice);
         ImpactToken token=binary.yesToken();
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,200e6);
+        _settleOracle(true,200e6);
         vm.prank(attacker); vm.expectRevert(); binary.redeem(address(token),2e18,attacker);
         _eq(token.balanceOf(alice),2e18); _eq(usdc.balanceOf(address(binary)),2e6);
         vm.prank(alice); uint256 paid=binary.redeem(address(token),2e18,alice);
@@ -337,7 +344,7 @@ contract ImpactTest {
         binary.split(1e6,address(this));
         ImpactToken token=binary.yesToken(); token.transfer(alice,1);
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,200e6);
+        _settleOracle(true,200e6);
         uint256 beforeBalance=usdc.balanceOf(alice);
         vm.prank(alice); uint256 paid=binary.redeem(address(token),1,alice);
         _eq(paid,0); _eq(token.balanceOf(alice),0); _eq(usdc.balanceOf(alice),beforeBalance);
@@ -347,7 +354,7 @@ contract ImpactTest {
         shares.split(1e18,address(this));
         ImpactToken token=shares.yesShare(); token.transfer(alice,1);
         vm.warp(200);
-        oracle.publishAndSettle(address(binary),address(shares),true,200e6);
+        _settleOracle(true,200e6);
         uint256 beforeBalance=usdc.balanceOf(alice);
         vm.prank(alice); uint256 paid=shares.redeem(address(token),1,alice);
         _eq(paid,0); _eq(token.balanceOf(alice),0); _eq(usdc.balanceOf(alice),beforeBalance);

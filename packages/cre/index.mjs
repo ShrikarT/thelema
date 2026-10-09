@@ -1,8 +1,38 @@
+// packages/core/chain.mjs
+var PRECOMPILE_USDC = "0x3600000000000000000000000000000000000000";
+var ARC_CHAINS = Object.freeze({
+  5042: Object.freeze({
+    chainId: 5042,
+    chainName: "Arc Mainnet",
+    collateral: typeof process !== "undefined" && process.env?.ARC_USDC || PRECOMPILE_USDC,
+    rpcUrl: typeof process !== "undefined" && process.env?.ARC_MAINNET_RPC_URL || "https://rpc.arc.io",
+    explorer: "https://arcscan.app",
+    isTestnet: false
+  }),
+  5042002: Object.freeze({
+    chainId: 5042002,
+    chainName: "Arc Testnet",
+    collateral: typeof process !== "undefined" && process.env?.ARC_USDC || PRECOMPILE_USDC,
+    rpcUrl: typeof process !== "undefined" && process.env?.ARC_TESTNET_RPC_URL || "https://rpc.testnet.arc.io",
+    explorer: "https://testnet.arcscan.app",
+    isTestnet: true
+  })
+});
+var DEFAULT_CHAIN_ID = 5042002;
+function getChainConfig(chainId = DEFAULT_CHAIN_ID) {
+  const cfg = ARC_CHAINS[chainId];
+  if (!cfg) {
+    throw new Error(`Unsupported chain ID ${chainId}. Supported chains: ${Object.keys(ARC_CHAINS).join(", ")}`);
+  }
+  return cfg;
+}
+
 // packages/core/market.mjs
 var USDC = 10n ** 6n;
 var TOKEN = 10n ** 18n;
 var CAP = 500n * USDC;
 var MAX_SANDBOX_ORDER = 1000000n * USDC;
+var defaultChain = getChainConfig(DEFAULT_CHAIN_ID);
 var MARKET = Object.freeze({
   id: "china-ai-chips-snvda",
   ticker: "sNVDA",
@@ -11,8 +41,8 @@ var MARKET = Object.freeze({
   title: "Will the US allow advanced AI chip sales to China by 31 December 2026?",
   shortTitle: "The next chapter of AI chip exports.",
   resolutionDate: "2026-12-31T23:59:59Z",
-  chainId: 5042002,
-  collateralAddress: "0x3600000000000000000000000000000000000000",
+  chainId: defaultChain.chainId,
+  collateralAddress: defaultChain.collateral,
   cap: 500
 });
 var MarketError = class extends Error {
