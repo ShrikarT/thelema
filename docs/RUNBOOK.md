@@ -173,25 +173,21 @@ Market duration defaults depend on deployment target:
 npm run demo:operator status
 ```
 
-#### 2. Resolve the Event (Stage 1)
-Resolves whether the underlying condition occurred (`YES`) or not (`NO`):
+#### 2. Queue Settlement (Stage 1: 24h Timelock Entry)
+Queues the event outcome (`YES` or `NO`) and continuous index settlement price in USDC ($0.00 to $500.00 cap) into the 24-hour timelock window:
 ```bash
-# Can resolve YES at any time before or after deadline
-npm run demo:operator resolve-event YES
-
-# Can resolve NO only after eventDeadline has passed
-npm run demo:operator resolve-event NO
+# Queue settlement (only callable by oracle owner):
+npm run demo:operator queue-settlement YES 220.50
 ```
 
-#### 3. Fix the Final Settlement Price (Stage 2)
-Fixes the continuous index settlement price in USDC ($0.00 to $500.00 cap) after event resolution and earliest price fix time:
+#### 3. Cancel Settlement (Dispute Guardian / Challenge Path)
+If erroneous, front-run, or disputed data was queued, the oracle owner or the authorized dispute guardian can cancel before finalization:
 ```bash
-# Price must be formatted as decimal with at most 6 decimals:
-npm run demo:operator fix-price 220.50
+npm run demo:operator cancel-settlement
 ```
 
-#### 4. Combined Atomic Execution
-Executes both stages in a single command once all timing conditions are satisfied:
+#### 4. Execute Timelocked Settlement (Stage 2: Finalization)
+Once the 24-hour timelock delay has elapsed (`block.timestamp >= queuedUnlockTimestamp`), execute and finalize atomically:
 ```bash
 npm run demo:operator publish-and-settle YES 220.50
 ```

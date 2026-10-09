@@ -1,0 +1,327 @@
+{
+  "probabilityOnlyChange": {
+    "before": {
+      "p": 0.63,
+      "eYes": 185,
+      "eNo": 117.99999999999999,
+      "impact": 67.00000000000001,
+      "impliedSpot": 160.20999999999998,
+      "yesSharePrice": 116.55,
+      "noSharePrice": 43.66,
+      "cap": 500
+    },
+    "after": {
+      "p": 0.664747111,
+      "eYes": 175.3298330618845,
+      "eNo": 130.2300485171956,
+      "impact": 45.0997845446889,
+      "impliedSpot": 160.20999999999998,
+      "yesSharePrice": 116.55,
+      "noSharePrice": 43.66,
+      "cap": 500
+    },
+    "assetPoolsUnchanged": true
+  },
+  "cappedConditionalOutOfBounds": {
+    "p": 0.02,
+    "eYes": 5827.5,
+    "eNo": 44.55102040816326,
+    "impact": 5782.948979591837,
+    "impliedSpot": 160.20999999999998,
+    "yesSharePrice": 116.55,
+    "noSharePrice": 43.66,
+    "cap": 500
+  },
+  "seedQuotes": [
+    {
+      "amount": "0.1",
+      "shares": 0.000848171369749972,
+      "averagePrice": 117.90070210631902,
+      "priceImpactPercent": 1.158903566125291,
+      "maximumPossiblePayout": 0.424085684874986,
+      "worstCaseLossEvenAtCap": -0.324085684874986
+    },
+    {
+      "amount": "1",
+      "shares": 0.007880177047107176,
+      "averagePrice": 126.90070210631896,
+      "priceImpactPercent": 8.880911288132953,
+      "maximumPossiblePayout": 3.9400885235535883,
+      "worstCaseLossEvenAtCap": -2.9400885235535883
+    },
+    {
+      "amount": "5",
+      "shares": 0.029957932692307693,
+      "averagePrice": 166.90070210631896,
+      "priceImpactPercent": 43.200945608167274,
+      "maximumPossiblePayout": 14.978966346153847,
+      "worstCaseLossEvenAtCap": -9.978966346153847
+    },
+    {
+      "amount": "25",
+      "shares": 0.06813832695462001,
+      "averagePrice": 366.900702106319,
+      "priceImpactPercent": 214.80111720833892,
+      "maximumPossiblePayout": 34.069163477310006,
+      "worstCaseLossEvenAtCap": -9.069163477310006
+    },
+    {
+      "amount": "50",
+      "shares": 0.08105032111210471,
+      "averagePrice": 616.9007021063189,
+      "priceImpactPercent": 429.3013317085534,
+      "maximumPossiblePayout": 40.52516055605235,
+      "worstCaseLossEvenAtCap": 9.474839443947651
+    },
+    {
+      "amount": "1000",
+      "shares": 0.09884450084518492,
+      "averagePrice": 10116.900702106319,
+      "priceImpactPercent": 8580.309482716704,
+      "maximumPossiblePayout": 49.42225042259246,
+      "worstCaseLossEvenAtCap": 950.5777495774075
+    }
+  ],
+  "mockStaleTokenPriceAccepted": {
+    "scope": "Mocked response, not live market evidence",
+    "result": {
+      "protocol": "Mock source",
+      "network": "ARBITRUM_ONE",
+      "subgraphId": "mock",
+      "poolId": "pool",
+      "poolName": "",
+      "assetSymbol": "WETH",
+      "assetAddress": "0x1",
+      "quoteSymbol": "USDC",
+      "quoteAddress": "0x2",
+      "price": 2500,
+      "tvlUSD": null,
+      "volumeUSD": null,
+      "blockNumber": 999999,
+      "blockTimestamp": 1791393220,
+      "status": "live",
+      "updatedAt": "2026-10-07T17:13:40.000Z"
+    },
+    "tokenLastPriceBlockNumber": 1,
+    "indexerBlockNumber": 999999
+  },
+  "publicDeployment": {
+    "checkedAt": "2026-10-07T17:13:47.211Z",
+    "config": {
+      "chainId": 5042002,
+      "chainName": "Arc Testnet",
+      "collateral": "0x3600000000000000000000000000000000000000",
+      "explorer": "https://testnet.arcscan.app",
+      "arcReady": true,
+      "creReady": false,
+      "graphReady": true,
+      "contracts": {
+        "binaryAMM": "0x84fd754f3c10af24d5d4e38be1853f0cd14525a1",
+        "yesShareAMM": "0xa6b29a7971dd8773dda804b98c1b348efd7ddf8a",
+        "noShareAMM": "0xdeb8cda6be867bf903b74575c9b81d405a3a2ab5",
+        "binarySplit": "0x787c65cfcff30ea1e04a63ffab57ef42b0120ab7",
+        "shareSplit": "0x07e657d074e3b2e5a575b3bc30faf4c65f85edea",
+        "oracle": "0x648d135701667547e674b087f8b2c28adc053ee1"
+      }
+    },
+    "state": {
+      "status": 200,
+      "data": {
+        "mode": "arc",
+        "market": {
+          "id": "china-ai-chips-snvda",
+          "ticker": "sNVDA",
+          "asset": "Synthetic Nvidia index",
+          "question": "Will the US allow advanced AI chip sales to China by 31 December 2026?",
+          "title": "Will the US allow advanced AI chip sales to China by 31 December 2026?",
+          "shortTitle": "The next chapter of AI chip exports.",
+          "resolutionDate": "2026-12-31T23:59:59Z",
+          "chainId": 5042002,
+          "collateralAddress": "0x3600000000000000000000000000000000000000",
+          "cap": 500
+        },
+        "revision": 65999268,
+        "blockNumber": "0x3ef11a4",
+        "lifecycle": "OPEN",
+        "status": "open",
+        "resolvedOutcome": null,
+        "cap": 500,
+        "stats": {
+          "p": 0.547376157,
+          "eYes": 220.28396644247698,
+          "eNo": 96.4597881336092,
+          "impact": 123.82417830886779,
+          "impliedSpot": 164.238191,
+          "yesSharePrice": 120.578191,
+          "noSharePrice": 43.66,
+          "cap": 500
+        },
+        "timing": {
+          "eventDeadline": 1798761599000,
+          "tradingCutoff": 1798765199000,
+          "earliestPriceFixTime": 1798765199000,
+          "policy": "scheduled",
+          "observationRule": "Planned settlement observation window (30-minute TWAP reference after trading cutoff; current testnet deployment uses manual DEMO_ORACLE submission)",
+          "priceSource": "DEMO_ORACLE manual submission (planned TWAP oracle reference)"
+        },
+        "balance": "",
+        "volume": "",
+        "positions": [],
+        "history": [],
+        "vaults": {
+          "remainingLiabilities": "50",
+          "residualLocked": "0"
+        },
+        "claimed": "",
+        "settlement": null
+      }
+    },
+    "references": {
+      "status": 200,
+      "data": {
+        "probability": {
+          "status": "unavailable",
+          "value": null,
+          "label": "Related event reference",
+          "source": "The Graph",
+          "updatedAt": null,
+          "error": "Graph event market is not configured."
+        },
+        "spot": {
+          "status": "live",
+          "value": 2571.746232599566,
+          "label": "WETH pool reference",
+          "asset": "ETH",
+          "comparable": false,
+          "source": "The Graph",
+          "updatedAt": "2026-10-07T17:13:11.000Z"
+        },
+        "crossProtocol": {
+          "status": "agreeing",
+          "source1": {
+            "protocol": "Uniswap V3",
+            "network": "ARBITRUM_ONE",
+            "subgraphId": "FQ6JYszEKApsBpAmiHesRsd9Ygc6mzmpNRANeVQFYoVX",
+            "poolId": "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443",
+            "poolName": "Uniswap V3 WETH/USDC 0.05%",
+            "assetSymbol": "WETH",
+            "assetAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+            "quoteSymbol": "USDC",
+            "quoteAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+            "price": 2571.30765,
+            "tvlUSD": 1012499.4039645197,
+            "volumeUSD": 58600302806.572845,
+            "blockNumber": 512628931,
+            "blockTimestamp": 1791393219,
+            "status": "live",
+            "updatedAt": "2026-10-07T17:13:39.000Z"
+          },
+          "source2": {
+            "protocol": "SushiSwap",
+            "network": "ARBITRUM_ONE",
+            "subgraphId": "9tSS5FaePZnjmnXnSKCCqKVLAqA6eGg6jA2oRojsXUbP",
+            "poolId": "0x905dfcd5649217c42684f23958568e533c711aa3",
+            "poolName": "SushiSwap Wrapped Ether/USD Coin (Arb1)",
+            "assetSymbol": "WETH",
+            "assetAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+            "quoteSymbol": "USDC",
+            "quoteAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+            "price": 2570.0074895219755,
+            "tvlUSD": 173615.57222774177,
+            "volumeUSD": 4359544859.348612,
+            "blockNumber": 512628939,
+            "blockTimestamp": 1791393222,
+            "status": "live",
+            "updatedAt": "2026-10-07T17:13:42.000Z"
+          },
+          "consensusPrice": 2570.657569760988,
+          "disagreement": 0.0005057696105925229,
+          "disagreementPercent": "0.05%",
+          "disagreementThreshold": 0.015,
+          "maxAgeSeconds": 900,
+          "summary": "Uniswap V3 ($2571.31) and SushiSwap ($2570.01) agree within 0.05% spread (threshold 1.5%).",
+          "comparable": false,
+          "updatedAt": "2026-10-07T17:13:39.000Z"
+        }
+      }
+    },
+    "quotes": [
+      {
+        "status": 200,
+        "data": {
+          "book": "asset",
+          "side": "yes",
+          "amount": "0.1",
+          "outUnits": "819953586570103",
+          "quantity": "0.000819",
+          "minOutUnits": "815853818637252",
+          "fee": "0.0003",
+          "averagePrice": 121.95812255459946,
+          "priceImpactPct": 1.144428808522635,
+          "slippageBps": 50,
+          "revision": 65999271,
+          "expiresAt": 1791393344632,
+          "mode": "arc"
+        },
+        "maximumPossiblePayout": 0.40997679328505154
+      },
+      {
+        "status": 200,
+        "data": {
+          "book": "asset",
+          "side": "yes",
+          "amount": "1",
+          "outUnits": "7627061267794593",
+          "quantity": "0.007627",
+          "minOutUnits": "7588925961455620",
+          "fee": "0.003",
+          "averagePrice": 131.11209742375067,
+          "priceImpactPct": 8.736162266483728,
+          "slippageBps": 50,
+          "revision": 65999274,
+          "expiresAt": 1791393345181,
+          "mode": "arc"
+        },
+        "maximumPossiblePayout": 3.8135306338972965
+      },
+      {
+        "status": 200,
+        "data": {
+          "book": "asset",
+          "side": "yes",
+          "amount": "25",
+          "outUnits": "66627916947863046",
+          "quantity": "0.066627",
+          "minOutUnits": "66294777363123730",
+          "fee": "0.075",
+          "averagePrice": 375.2180939344498,
+          "priceImpactPct": 211.18238781211258,
+          "slippageBps": 50,
+          "revision": 65999277,
+          "expiresAt": 1791393346471,
+          "mode": "arc"
+        },
+        "maximumPossiblePayout": 33.31395847393152
+      },
+      {
+        "status": 200,
+        "data": {
+          "book": "asset",
+          "side": "yes",
+          "amount": "50",
+          "outUnits": "79428726532449650",
+          "quantity": "0.079428",
+          "minOutUnits": "79031582899787401",
+          "fee": "0.15",
+          "averagePrice": 629.4951736330949,
+          "priceImpactPct": 422.06387275547604,
+          "slippageBps": 50,
+          "revision": 65999279,
+          "expiresAt": 1791393347269,
+          "mode": "arc"
+        },
+        "maximumPossiblePayout": 39.71436326622482
+      }
+    ]
+  }
+}

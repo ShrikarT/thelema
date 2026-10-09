@@ -12,6 +12,8 @@ contract DemoOracle is Ownable {
     IBinarySettle public immutable binaryVault;
     IShareSettle public immutable shareVault;
 
+    address public disputeGuardian;
+
     bool public eventResolved;
     bool public priceFixed;
     bool public eventYes;
@@ -37,12 +39,19 @@ contract DemoOracle is Ownable {
     event SettlementPricePublished(uint256 settlementValue6);
     event SettlementQueued(bool indexed eventYes, uint256 settlementValue6, uint256 executeAfter);
     event SettlementCancelled();
+    event DisputeGuardianUpdated(address indexed guardian);
 
     constructor(address owner_, address binaryVault_, address shareVault_) Ownable(owner_) {
         if (binaryVault_ == address(0) || shareVault_ == address(0)) revert ZeroAddress();
         if (binaryVault_.code.length == 0 || shareVault_.code.length == 0) revert NotAContract();
         binaryVault = IBinarySettle(binaryVault_);
         shareVault = IShareSettle(shareVault_);
+    }
+
+    function setDisputeGuardian(address guardian_) external onlyOwner {
+        if (guardian_ == address(0)) revert ZeroAddress();
+        disputeGuardian = guardian_;
+        emit DisputeGuardianUpdated(guardian_);
     }
 
     function isSettlementPending() external view returns (bool) {
@@ -63,7 +72,8 @@ contract DemoOracle is Ownable {
         emit SettlementQueued(eventYes_, settlementValue6_, executeAfter);
     }
 
-    function cancelSettlement() external onlyOwner {
+    function cancelSettlement() external {
+        if (msg.sender != owner && msg.sender != disputeGuardian) revert Unauthorized();
         if (!pendingSettlement.queued) revert NoPendingSettlement();
         delete pendingSettlement;
         emit SettlementCancelled();

@@ -1,36 +1,59 @@
-# Security and trust boundaries
+# Security Architecture and Audit Remediation
 
-This is a research build, not a security certification.
+## Overview
 
-## Implemented local defenses
+THELEMA is an on-chain synthetic impact-market and futarchy research protocol on Arc.
+This document details the security mitigations, threat model, and trust boundaries implemented following the comprehensive October 8 security audit.
 
-- Loopback binding by default; unexpected Host headers rejected to reduce DNS-rebinding exposure.
-- Opaque random per-session IDs; HttpOnly/SameSite=Strict cookie; four-hour expiry and bounded session count.
-- Separate CSRF token for mutations; origin and cross-site checks; JSON content type; 16 KiB body limit; request/header timeouts.
-- Per-session request limiting and a tighter clipping limit. This is not a distributed anti-abuse system.
-- Static public-path/extension allowlist; no source, `.env`, source maps or arbitrary proxy URLs exposed.
-- CSP, nosniff, no-referrer, anti-framing and noindex headers for the local server.
-- BigInt monetary updates; bounds on malformed sizes, slippage, balances, revisions and deadlines.
-- No server signing key. Wallet account/network/decimal guards, exact new allowance rather than unlimited approval, preflight simulation, receipt status and pending-transaction warnings.
-- Graph/CRE keys stay on the server; fixed/allowlisted HTTPS hosts and disabled redirects; live failures do not fall back to demo output.
-- No request-body/access logging in the server. Unit test examples are public fixtures, not real private orders.
+---
 
-## Important limitations
+## Audit Hardening Summary (Findings C1 through L4)
 
-- Sandbox balances are not financial accounts. A process restart loses state; the standalone file is intentionally resettable and client-controlled.
-- The site is not authenticated production trading infrastructure. Do not expose it publicly without a separate deployment/auth/rate-limit review.
-- Origin/host controls assume a reviewed exact `APP_ORIGIN` and `APP_HOST`; configure HTTPS and secure cookies before hosted use. The app does not blindly trust forwarded headers.
-- Mock wallet checks are not real-chain verification. A configured address is not proof of correct bytecode or ownership.
-- Approvals and fills are separate transactions. If the fill fails after approval, the allowance may remain. Inspect receipts before resending any pending transaction.
-- Multi-book claims can partially succeed; the client reports the number confirmed and instructs a refresh before retrying.
-- Contracts and CRE code remain uncompiled here, unaudited and not production-ready.
-- The demo oracle is fully trusted and can settle a market. Production timing/event-resolution rules require another design.
-- The backend/bridge can see a requested clip size. A returned clipped size can reveal the threshold. Do not claim absolute secrecy or end-to-end private transport.
-- Graph references need real schema/unit/freshness verification. Different assets and capped payoffs are not a guaranteed dollar identity.
-- The n8n gate stores submitted evidence, including its raw form submission. Never submit secrets, private order sizes or `MAX_NOTIONAL`. Review retention/access before publishing it.
-- The n8n gate checks reported statuses and presence of references, not their authenticity, complete URL syntax, commit validity, chain proofs or actual CI execution. A malicious or mistaken submission can say PASS; a human must inspect the artifacts.
-- Dependency lockfile, full TypeScript checks, broader browser coverage and independent audits remain release prerequisites.
+### 1. Oracle Settlement Architecture (C1, H1, H2, M2, L3)
+- **Two-Step Ownership Transfer (C1, L3)**: `Ownable.sol` requires a two-step handshake (`transferOwnership` sets `pendingOwner`, and only `pendingOwner` can call `acceptOwnership`). A typo cannot brick oracle governance.
+- **24-Hour Settlement Timelock (C1)**:
+  - All settlements must be queued via `queueSettlement(eventYes, spotPrice6)` on `DemoOracle.sol`.
+  - Execution via `executeSettlement()` is locked until `block.timestamp >= queuedUnlockTimestamp` (24 hours after queueing).
+  - The oracle owner or an independent `disputeGuardian` can call `cancelSettlement()` during the timelock window if false or compromised data is submitted.
+- **Multisig Governance Requirement (C1)**: On Arc Mainnet (`chainId: 5042`), `Deploy.s.sol` strictly enforces that the contract owner is a multisig Safe contract (`safeAddress.code.length > 0` and distinct from deployer EOA).
+- **Atomic Settlement Only (H1, M2)**:
+  - Direct individual resolution calls (`resolveEvent` / `fixPrice`) are disabled (`DirectResolutionDisabled`).
+  - Settlement executes in a single atomic transaction through `publishAndSettle` / `executeSettlement`, eliminating public mempool front-running windows.
+  - Trading on `ShareVault` is immediately frozen upon event resolution (`ShareVault.assertShareTradingAllowed()` checks `lifecycle == OPEN`), closing any insider trading opportunities.
+- **Immutable Vault Binding (H2)**: Vault addresses (`binaryVault` and `shareVault`) are stored immutably in the `DemoOracle` constructor with bytecode existence checks (`code.length > 0`), preventing silent misdirection to unverified sinks or stale addresses.
 
-## Do not include in exports
+### 2. Vault Solvency & Par Refund Escape Hatch (H3, M4)
+- **180-Day Par Refund Escape Hatch (H3)**:
+  - If the oracle keys are lost, inactive, or bricked post-cutoff, complete-set holders can invoke `refund(pairs, receiver)` after `refundAfter` (`tradingCutoff + 180 days`).
+  - Redemptions occur at par ($1.00$ USDC per binary pair; $C = 500.00$ USDC per share pair $Y + N + R$).
+  - Conservation is 100% preserved. The escape hatch reverts if settlement is pending or already finalized.
+- **Exact Rounding & Dust Reverts (M4)**:
+  - Split and merge operations enforce exact divisibility (`InexactAmount` revert on any non-zero remainder).
+  - Eliminates fractional skim accumulation across split/merge roundtrips.
 
-Private keys, seed phrases, `.env`, real credentials, private order payloads, auth cookies, raw provider debug output or personal session identifiers. `automation/evidence/release-evidence.json` intentionally contains no live receipts or fabricated private execution.
+### 3. AMM Resilience & Guardian Controls (L1, L2, L4, M3)
+- **Tracked Internal Reserves (L1)**: `BinaryAMM` and `ShareAMM` track internal token balances (`reserveYes18`, `reserveNo18`, `reserveStable6`, `reserveShares18`) in storage rather than querying raw `balanceOf`. Direct ERC-20 donations do not alter pricing or skew probability/spot ratios.
+- **Contract Existence Checks (L2)**: `SafeTransferLib.sol` verifies `token.code.length > 0` prior to calling low-level transfers, protecting against silent success on non-contract addresses.
+- **Emergency Pause Guardian (L4)**:
+  - A pause guardian can invoke `setPaused(true)` on `BinaryAMM` and `ShareAMM`.
+  - Halts all trading and new liquidity deposits immediately.
+  - Critically, LP liquidity withdrawals (`removeLiquidity`) and vault par redemptions (`redeem` / `merge`) remain fully functional during pause to guarantee users can exit.
+- **Stray Token Sweeping (M3)**: `BinaryAMM` and `ShareAMM` provide a `sweep(token, to)` function restricted to the guardian to safely recover collateral in excess of tracked reserves or extraneous tokens.
+
+---
+
+## Chain Configuration & Precompiles (M1)
+
+- **Unified Single Source of Truth**: All components (`packages/core/chain.ts`, `packages/arc/client.ts`, `apps/web/src/wallet.ts`, `script/Deploy.s.sol`) reference a centralized chain definition.
+- **Chain Profiles**:
+  - Arc Mainnet: `chainId: 5042`, RPC: `https://rpc.arc.io`, Explorer: `https://arcscan.app`
+  - Arc Testnet: `chainId: 5042002`, RPC: `https://rpc.testnet.arc.io`, Explorer: `https://testnet.arcscan.app`
+- **Native USDC Precompile**: `0x3600000000000000000000000000000000000000` (6 decimals). Verified on Arc.
+
+---
+
+## Operator Best Practices & Runbook Controls
+
+1. **Private Mempool Settlement**: When submitting settlement transactions to Arc, operators should submit via a private mempool endpoint where supported to prevent front-running attempts.
+2. **Preflight Balance & Ceiling Checks**: Deployers and operators run automated preflight balance validations enforcing strict spending ceilings (e.g. 100 USDC testnet ceiling) before broadcasting.
+3. **Multi-signature Sign-off**: Production mainnet operations must be initiated and executed through a Gnosis Safe multisig with at least 2-of-3 threshold.

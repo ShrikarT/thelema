@@ -170,21 +170,12 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
     const tradingCutoff = BigInt(blockTime + tradingCutoffOffset);
     const earliestPriceFixTime = BigInt(blockTime + earliestPriceFixOffset);
 
-    // Deploy DemoOracle
-    const oracleTx = await adminWallet.deployContract({
-      abi: oracleArtifact.abi,
-      bytecode: oracleArtifact.bytecode.object,
-      args: [adminAccount.address]
-    });
-    const oracleReceipt = await client.waitForTransactionReceipt({ hash: oracleTx });
-    assert.equal(oracleReceipt.status, 'success');
-    const oracleAddress = oracleReceipt.contractAddress;
-
+    const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
     // Deploy BinaryVault
     const binVaultTx = await adminWallet.deployContract({
       abi: binaryVaultArtifact.abi,
       bytecode: binaryVaultArtifact.bytecode.object,
-      args: [ARC_USDC, oracleAddress, eventDeadline, tradingCutoff]
+      args: [ARC_USDC, ZERO_ADDR, eventDeadline, tradingCutoff]
     });
     const binVaultReceipt = await client.waitForTransactionReceipt({ hash: binVaultTx });
     assert.equal(binVaultReceipt.status, 'success');
@@ -194,11 +185,35 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
     const shareVaultTx = await adminWallet.deployContract({
       abi: shareVaultArtifact.abi,
       bytecode: shareVaultArtifact.bytecode.object,
-      args: [ARC_USDC, oracleAddress, cap6, eventDeadline, tradingCutoff, earliestPriceFixTime]
+      args: [ARC_USDC, ZERO_ADDR, cap6, eventDeadline, tradingCutoff, earliestPriceFixTime]
     });
     const shareVaultReceipt = await client.waitForTransactionReceipt({ hash: shareVaultTx });
     assert.equal(shareVaultReceipt.status, 'success');
     const shareVaultAddress = shareVaultReceipt.contractAddress;
+
+    // Deploy DemoOracle binding vaults immutably
+    const oracleTx = await adminWallet.deployContract({
+      abi: oracleArtifact.abi,
+      bytecode: oracleArtifact.bytecode.object,
+      args: [adminAccount.address, binVaultAddress, shareVaultAddress]
+    });
+    const oracleReceipt = await client.waitForTransactionReceipt({ hash: oracleTx });
+    assert.equal(oracleReceipt.status, 'success');
+    const oracleAddress = oracleReceipt.contractAddress;
+
+    // Wire oracle to vaults
+    await sendTx(adminWallet, 'Wire Oracle to BinaryVault', {
+      address: binVaultAddress,
+      abi: binaryVaultArtifact.abi,
+      functionName: 'setOracle',
+      args: [oracleAddress]
+    });
+    await sendTx(adminWallet, 'Wire Oracle to ShareVault', {
+      address: shareVaultAddress,
+      abi: shareVaultArtifact.abi,
+      functionName: 'setOracle',
+      args: [oracleAddress]
+    });
 
     // Deploy BinaryAMM (30 bps fee)
     const binAmmTx = await adminWallet.deployContract({
@@ -581,49 +596,66 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
     await sendTx(userWallet, 'approve yesShareAMM', { address: ARC_USDC, abi: mockUsdcArtifact.abi, functionName: 'approve', args: [market.yesAmmAddress, 25_000_000n] });
     await sendTx(userWallet, 'buy yesShare', { address: market.yesAmmAddress, abi: shareAmmArtifact.abi, functionName: 'buyShares', args: [25_000_000n, 1n, farDeadline] });
 
-    // Early NO resolution attempt before eventDeadline must revert
+    // Direct resolution is disabled to prevent front-running (H1 & M2)
     await assert.rejects(
       () => adminWallet.writeContract({
         address: market.oracleAddress,
         abi: oracleArtifact.abi,
         functionName: 'resolveEvent',
-        args: [market.binVaultAddress, market.shareVaultAddress, false]
+        args: [true]
       }),
-      /EventDeadlineNotPassed|0xbe0d6bfd/
+      /DirectResolutionDisabled/
     );
 
-    // Resolve event to YES
-    await sendTx(adminWallet, 'resolveEvent YES', {
+    // Queue settlement with timelock (C1 & H1)
+    await sendTx(adminWallet, 'queueSettlement YES', {
       address: market.oracleAddress,
       abi: oracleArtifact.abi,
-      functionName: 'resolveEvent',
-      args: [market.binVaultAddress, market.shareVaultAddress, true]
+      functionName: 'queueSettlement',
+      args: [true, 600_000_000n]
     });
 
-    const snapResolved = await readArc(config, { rpc });
-    assert.equal(snapResolved.lifecycle, 'EVENT_RESOLVED');
-    assert.equal(snapResolved.resolvedOutcome, 'YES');
-    assert.equal(snapResolved.stats.p, 1.0);
-    assert.equal(snapResolved.stats.impliedSpot, snapResolved.stats.yesSharePrice);
-    assert.ok(snapResolved.stats.impliedSpot > 116.55, 'Implied spot reflects price impact of User 2 purchase');
-
-    // Surviving leg trade succeeds
-    await sendTx(userWallet, 'approve yesShareAMM for surviving trade', { address: ARC_USDC, abi: mockUsdcArtifact.abi, functionName: 'approve', args: [market.yesAmmAddress, 10_000_000n] });
-    const survivingTrade = await sendTx(userWallet, 'buy surviving yesShare', {
-      address: market.yesAmmAddress,
-      abi: shareAmmArtifact.abi,
-      functionName: 'buyShares',
-      args: [10_000_000n, 1n, farDeadline]
+    // Advance EVM timestamp past earliestPriceFixTime and TIMELOCK_DELAY (24 hours)
+    await client.request({
+      method: 'evm_setNextBlockTimestamp',
+      params: [Number(market.earliestPriceFixTime) + 86400 + 10]
     });
-    assert.equal(survivingTrade.status, 'success');
+    await client.request({ method: 'evm_mine', params: [] });
 
-    // Binary and losing leg trading must revert
+    // Publish and settle atomically
+    await sendTx(adminWallet, 'publishAndSettle YES S=600', {
+      address: market.oracleAddress,
+      abi: oracleArtifact.abi,
+      functionName: 'publishAndSettle',
+      args: [true, 600_000_000n]
+    });
+
+    const snapSettled = await readArc(config, { rpc });
+    assert.equal(snapSettled.lifecycle, 'PRICE_FIXED');
+    assert.equal(snapSettled.status, 'settled');
+    assert.equal(snapSettled.resolvedOutcome, 'YES');
+    assert.equal(snapSettled.stats.p, 1.0);
+    assert.equal(snapSettled.settlement.spot, '600');
+    assert.equal(snapSettled.settlement.payout, '500'); // capped at 500
+    assert.equal(snapSettled.settlement.residual, '0'); // 500 - 500 = 0
+    assert.equal(snapSettled.settlement.capped, true);
+
+    // Binary, share, and losing leg trading must all revert post-settlement (H1 & M2)
     await assert.rejects(
       () => userWallet.writeContract({
         address: market.binAmmAddress,
         abi: binaryAmmArtifact.abi,
         functionName: 'buyOutcome',
         args: [true, 5_000_000n, 1n, farDeadline]
+      }),
+      /TradingFrozen/
+    );
+    await assert.rejects(
+      () => userWallet.writeContract({
+        address: market.yesAmmAddress,
+        abi: shareAmmArtifact.abi,
+        functionName: 'buyShares',
+        args: [5_000_000n, 1n, farDeadline]
       }),
       /TradingFrozen/
     );
@@ -637,7 +669,7 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
       /TradingFrozen/
     );
 
-    // BINARY-FIRST CLAIM before price fixing
+    // BINARY-FIRST CLAIM after settlement
     const userYesTokenBal = await client.readContract({ address: market.yesTokenAddress, abi: erc20Abi, functionName: 'balanceOf', args: [userAccount.address] });
     assert.ok(userYesTokenBal > 0n);
     const usdcBeforeBinClaim = await client.readContract({ address: ARC_USDC, abi: erc20Abi, functionName: 'balanceOf', args: [userAccount.address] });
@@ -658,26 +690,6 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
     const userResidualAfterBin = await client.readContract({ address: market.residualShareAddress, abi: erc20Abi, functionName: 'balanceOf', args: [userAccount.address] });
     assert.ok(userYesSharesAfterBin > 0n);
     assert.equal(userResidualAfterBin, 2n * 10n ** 18n);
-
-    // Advance EVM timestamp past earliestPriceFixTime
-    await client.request({
-      method: 'evm_setNextBlockTimestamp',
-      params: [Number(market.earliestPriceFixTime) + 10]
-    });
-    await client.request({ method: 'evm_mine', params: [] });
-
-    // Fix price above cap: S = 600 USDC (600_000_000n), Cap = 500 USDC
-    await sendTx(adminWallet, 'fixPrice S=600', {
-      address: market.oracleAddress,
-      abi: oracleArtifact.abi,
-      functionName: 'fixPrice',
-      args: [market.shareVaultAddress, 600_000_000n]
-    });
-
-    const snapSettled = await readArc(config, { rpc });
-    assert.equal(snapSettled.lifecycle, 'PRICE_FIXED');
-    assert.equal(snapSettled.status, 'settled');
-    assert.equal(snapSettled.settlement.spot, '600');
     assert.equal(snapSettled.settlement.payout, '500'); // capped at 500
     assert.equal(snapSettled.settlement.residual, '0'); // 500 - 500 = 0
     assert.equal(snapSettled.settlement.capped, true);
@@ -750,44 +762,34 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
     await sendTx(userWallet, 'approve shareVault', { address: ARC_USDC, abi: mockUsdcArtifact.abi, functionName: 'approve', args: [market.shareVaultAddress, 1_000_000_000n] });
     await sendTx(userWallet, 'split 2 sets', { address: market.shareVaultAddress, abi: shareVaultArtifact.abi, functionName: 'split', args: [2n * 10n ** 18n, userAccount.address] });
 
-    // Advance EVM timestamp past eventDeadline
+    // Oracle queues settlement for NO at S=150 USDC
+    await sendTx(adminWallet, 'queueSettlement NO S=150', {
+      address: market.oracleAddress,
+      abi: oracleArtifact.abi,
+      functionName: 'queueSettlement',
+      args: [false, 150_000_000n]
+    });
+
+    // Advance EVM timestamp past earliestPriceFixTime and TIMELOCK_DELAY (24 hours)
     await client.request({
       method: 'evm_setNextBlockTimestamp',
-      params: [Number(market.eventDeadline) + 10]
+      params: [Number(market.earliestPriceFixTime) + 86400 + 10]
     });
     await client.request({ method: 'evm_mine', params: [] });
 
-    // Oracle resolves event to NO
-    await sendTx(adminWallet, 'resolveEvent NO', {
+    // Publish and settle atomically
+    await sendTx(adminWallet, 'publishAndSettle NO S=150', {
       address: market.oracleAddress,
       abi: oracleArtifact.abi,
-      functionName: 'resolveEvent',
-      args: [market.binVaultAddress, market.shareVaultAddress, false]
-    });
-
-    const snapResolved = await readArc(config, { rpc });
-    assert.equal(snapResolved.lifecycle, 'EVENT_RESOLVED');
-    assert.equal(snapResolved.resolvedOutcome, 'NO');
-    assert.equal(snapResolved.stats.p, 0.0);
-
-    // Advance past earliestPriceFixTime
-    await client.request({
-      method: 'evm_setNextBlockTimestamp',
-      params: [Number(market.earliestPriceFixTime) + 10]
-    });
-    await client.request({ method: 'evm_mine', params: [] });
-
-    // Fix price at S = 150 USDC (below cap 500 USDC)
-    await sendTx(adminWallet, 'fixPrice S=150', {
-      address: market.oracleAddress,
-      abi: oracleArtifact.abi,
-      functionName: 'fixPrice',
-      args: [market.shareVaultAddress, 150_000_000n]
+      functionName: 'publishAndSettle',
+      args: [false, 150_000_000n]
     });
 
     const snapSettled = await readArc(config, { rpc });
     assert.equal(snapSettled.lifecycle, 'PRICE_FIXED');
     assert.equal(snapSettled.status, 'settled');
+    assert.equal(snapSettled.resolvedOutcome, 'NO');
+    assert.equal(snapSettled.stats.p, 0.0);
     assert.equal(snapSettled.settlement.spot, '150');
     assert.equal(snapSettled.settlement.payout, '150'); // X = 150
     assert.equal(snapSettled.settlement.residual, '350'); // R = 500 - 150 = 350 USDC per unit
@@ -1054,7 +1056,7 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
   await t.test('Crash-safe recovery: reconciles submitted and mined transactions without duplicate broadcasts, rejects corrupted manifest', async () => {
     const crashManifestPath = path.join(os.tmpdir(), `crash-manifest-${Date.now()}.json`);
 
-    // Injection 1: Crash immediately AFTER_BROADCAST on oracle deployment
+    // Injection 1: Crash immediately AFTER_BROADCAST on binaryVault deployment
     let broadcastHash = null;
     let failureTriggered = false;
     await assert.rejects(
@@ -1064,7 +1066,7 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
         privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
         manifestPath: crashManifestPath,
         testFailureHook: (stage, stepKey, hash) => {
-          if (stage === 'AFTER_BROADCAST' && stepKey === 'oracle') {
+          if (stage === 'AFTER_BROADCAST' && stepKey === 'binaryVault') {
             broadcastHash = hash;
             failureTriggered = true;
             throw new Error('SIMULATED_CRASH_AFTER_BROADCAST');
@@ -1078,14 +1080,14 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
 
     // Verify manifest and journal recorded SUBMITTED state atomically
     const rawManifest1 = JSON.parse(await readFile(crashManifestPath, 'utf8'));
-    const oracleJournalEntry = rawManifest1.journal.find(j => j.step === 'oracle');
-    assert.ok(oracleJournalEntry);
-    assert.equal(oracleJournalEntry.status, 'SUBMITTED');
-    assert.equal(oracleJournalEntry.hash, broadcastHash);
+    const binaryVaultJournalEntry = rawManifest1.journal.find(j => j.step === 'binaryVault');
+    assert.ok(binaryVaultJournalEntry);
+    assert.equal(binaryVaultJournalEntry.status, 'SUBMITTED');
+    assert.equal(binaryVaultJournalEntry.hash, broadcastHash);
 
-    // Resume deployment with AFTER_MINING crash on binaryVault
+    // Resume deployment with AFTER_MINING crash on shareVault
     let miningTriggered = false;
-    let binaryVaultHash = null;
+    let shareVaultHash = null;
     await assert.rejects(
       () => runDeploy({
         rpcUrl,
@@ -1093,8 +1095,8 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
         privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
         manifestPath: crashManifestPath,
         testFailureHook: (stage, stepKey, hash) => {
-          if (stage === 'AFTER_MINING' && stepKey === 'binaryVault') {
-            binaryVaultHash = hash;
+          if (stage === 'AFTER_MINING' && stepKey === 'shareVault') {
+            shareVaultHash = hash;
             miningTriggered = true;
             throw new Error('SIMULATED_CRASH_AFTER_MINING');
           }
@@ -1103,12 +1105,12 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
       /SIMULATED_CRASH_AFTER_MINING/
     );
     assert.ok(miningTriggered, 'Failure hook after mining must have fired');
-    assert.ok(binaryVaultHash, 'binaryVault must have been mined before crash');
+    assert.ok(shareVaultHash, 'shareVault must have been mined before crash');
 
-    // Verify oracle was reconciled to COMPLETED and NOT rebroadcast
+    // Verify binaryVault was reconciled to COMPLETED and NOT rebroadcast
     const rawManifest2 = JSON.parse(await readFile(crashManifestPath, 'utf8'));
-    assert.equal(rawManifest2.steps.oracle.status, 'COMPLETED');
-    assert.equal(rawManifest2.steps.oracle.txHash, broadcastHash);
+    assert.equal(rawManifest2.steps.binaryVault.status, 'COMPLETED');
+    assert.equal(rawManifest2.steps.binaryVault.txHash, broadcastHash);
 
     // Final run: complete deployment without errors
     const completed = await runDeploy({
@@ -1118,8 +1120,8 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
       manifestPath: crashManifestPath
     });
     assert.equal(completed.status, 'ACTIVE_DEMO');
-    assert.equal(completed.steps.oracle.txHash, broadcastHash, 'Oracle transaction hash preserved across crash recoveries');
-    assert.equal(completed.steps.binaryVault.txHash, binaryVaultHash, 'BinaryVault transaction hash preserved across crash recoveries');
+    assert.equal(completed.steps.binaryVault.txHash, broadcastHash, 'binaryVault transaction hash preserved across crash recoveries');
+    assert.equal(completed.steps.shareVault.txHash, shareVaultHash, 'shareVault transaction hash preserved across crash recoveries');
 
     // Verify actual supplies, reserves, and balances after recovery
     const binAmmRes = await client.readContract({ address: completed.contracts.binaryAmm, abi: binaryAmmArtifact.abi, functionName: 'reserves' });
@@ -1732,36 +1734,24 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
       privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
     };
 
-    // Operator fix-price before event resolution throws
+    // Operator queue-settlement succeeds
+    await operatorMain(['queue-settlement', 'YES', '220.50'], opConfig);
+
+    // Queueing settlement again throws
     await assert.rejects(
-      () => operatorMain(['fix-price', '200'], opConfig),
-      /must be EVENT_RESOLVED/
+      () => operatorMain(['queue-settlement', 'YES', '220.50'], opConfig),
+      /SettlementAlreadyQueued|reverted/
     );
 
-    // Operator resolve-event NO before eventDeadline throws
-    await assert.rejects(
-      () => operatorMain(['resolve-event', 'NO'], opConfig),
-      /cannot resolve NO before eventDeadline/
-    );
-
-    // Operator resolve-event YES succeeds early
-    await operatorMain(['resolve-event', 'YES'], opConfig);
-
-    // Resolving event again throws
-    await assert.rejects(
-      () => operatorMain(['resolve-event', 'YES'], opConfig),
-      /already at lifecycle stage/
-    );
-
-    // Advance time past earliestPriceFixTime
+    // Advance time past earliestPriceFixTime and TIMELOCK_DELAY (24 hours)
     await client.request({
       method: 'evm_setNextBlockTimestamp',
-      params: [Number(opMarket.earliestPriceFixTime) + 10]
+      params: [Number(opMarket.earliestPriceFixTime) + 86400 + 10]
     });
     await client.request({ method: 'evm_mine', params: [] });
 
-    // Operator fix-price succeeds
-    await operatorMain(['fix-price', '220.50'], opConfig);
+    // Operator publish-and-settle succeeds
+    await operatorMain(['publish-and-settle', 'YES', '220.50'], opConfig);
 
     // Check shareVault lifecycle
     const lc = await client.readContract({
@@ -1773,7 +1763,7 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
 
     // Operator safety checks: unapproved non-local execution rejected
     await assert.rejects(
-      () => operatorMain(['resolve-event', 'YES'], {
+      () => operatorMain(['queue-settlement', 'YES', '220.50'], {
         ...opConfig,
         isLocal: false,
         rpcUrl: 'https://rpc.testnet.arc.io',
@@ -1792,7 +1782,7 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
 
       // Missing approved address throws
       await assert.rejects(
-        () => operatorMain(['resolve-event', 'YES'], {
+        () => operatorMain(['queue-settlement', 'YES', '220.50'], {
           ...opConfig,
           isLocal: false,
           rpcUrl: 'https://rpc.testnet.arc.io',
@@ -1804,7 +1794,7 @@ test('Local EVM: End-to-end economic and lifecycle verification against compiled
       // Mismatched approved address throws
       process.env.APPROVED_OPERATOR_ADDRESS = '0x1111111111111111111111111111111111111111';
       await assert.rejects(
-        () => operatorMain(['resolve-event', 'YES'], {
+        () => operatorMain(['queue-settlement', 'YES', '220.50'], {
           ...opConfig,
           isLocal: false,
           rpcUrl: 'https://rpc.testnet.arc.io',
