@@ -29,13 +29,16 @@ import {
   ArcMarketSnapshot,
   RpcCaller
 } from './types.ts';
+import { getChainConfig, DEFAULT_CHAIN_ID } from '../core/chain.ts';
+
+const defaultChain = getChainConfig(DEFAULT_CHAIN_ID);
 
 export const ARC = Object.freeze({
-  chainId: 5042002,
-  chainName: 'Arc Testnet',
-  collateral: '0x3600000000000000000000000000000000000000',
-  rpcUrl: 'https://rpc.testnet.arc.io',
-  explorer: 'https://testnet.arcscan.app'
+  chainId: defaultChain.chainId,
+  chainName: defaultChain.chainName,
+  collateral: defaultChain.collateral,
+  rpcUrl: defaultChain.rpcUrl,
+  explorer: defaultChain.explorer
 });
 
 export function toTimestampMs(secondsOrMs: number | bigint): number {
@@ -144,7 +147,7 @@ export async function readArc(
   const activeRpc = rpc || makeRpc({ endpoint: config.rpcUrl });
   const c = config.contracts;
   const chainIdHex = (await activeRpc('eth_chainId', [])) as string;
-  if (BigInt(chainIdHex) !== 5042002n) {
+  if (BigInt(chainIdHex) !== BigInt(config.chainId)) {
     throw new MarketError('Unexpected RPC chain. Refusing to use it.', 'WRONG_CHAIN', 503);
   }
 

@@ -1,7 +1,13 @@
 import { encode, words, addressWord, isAddress } from '../../../packages/arc/abi.mjs';
 import { parseUnits, formatUnits, TOKEN } from '../../../packages/core/market.mjs';
+import { getChainConfig, DEFAULT_CHAIN_ID } from '../../../packages/core/chain.mjs';
 import type { ArcConfig, ArcPositionRow } from '../../../packages/arc/types.ts';
 import type { Quote, Book, WalletState, Eip1193Provider } from './api';
+
+let activeChainId = DEFAULT_CHAIN_ID;
+export function setActiveChainId(id: number) {
+  activeChainId = id;
+}
 
 const provider = (): Eip1193Provider => {
   if (!window.ethereum) {
@@ -13,8 +19,9 @@ const provider = (): Eip1193Provider => {
 async function guard(account?: string): Promise<Eip1193Provider> {
   const p = provider();
   const chainIdHex = (await p.request({ method: 'eth_chainId' })) as string;
-  if (BigInt(chainIdHex) !== 5042002n) {
-    throw new Error('Switch your wallet to Arc Testnet before continuing.');
+  const chainCfg = getChainConfig(activeChainId);
+  if (BigInt(chainIdHex) !== BigInt(chainCfg.chainId)) {
+    throw new Error(`Switch your wallet to ${chainCfg.chainName} before continuing.`);
   }
   if (account) {
     const accounts = (await p.request({ method: 'eth_accounts' })) as string[] | undefined;
@@ -35,6 +42,7 @@ async function read(to: string, signature: string, args: (string | number | bigi
 }
 
 async function checked(config: ArcConfig, account: string): Promise<Eip1193Provider> {
+  if (config.chainId) setActiveChainId(config.chainId);
   const p = await guard(account);
   if (!config.arcReady) throw new Error('The deployment is not configured.');
   if (Object.values(config.contracts).some(a => !isAddress(a))) {
@@ -48,24 +56,26 @@ async function checked(config: ArcConfig, account: string): Promise<Eip1193Provi
 }
 
 export async function connectWallet(config: ArcConfig): Promise<WalletState> {
+  if (config.chainId) setActiveChainId(config.chainId);
+  const chainCfg = getChainConfig(activeChainId);
   const p = provider();
   const accounts = (await p.request({ method: 'eth_requestAccounts' })) as string[] | undefined;
   const account = accounts?.[0];
   if (!account || !isAddress(account)) throw new Error('Wallet did not return a valid account.');
-  const chainId = '0x' + (5042002).toString(16);
+  const chainId = '0x' + chainCfg.chainId.toString(16);
   try {
     await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId }] });
   } catch (e: unknown) {
-    if ((e as { code?: number })?.code !== 4902) throw new Error('Please approve switching to Arc Testnet in your wallet.');
+    if ((e as { code?: number })?.code !== 4902) throw new Error(`Please approve switching to ${chainCfg.chainName} in your wallet.`);
     await p.request({
       method: 'wallet_addEthereumChain',
       params: [
         {
           chainId,
-          chainName: 'Arc Testnet',
+          chainName: chainCfg.chainName,
           nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
-          rpcUrls: ['https://rpc.testnet.arc.io'],
-          blockExplorerUrls: ['https://testnet.arcscan.app']
+          rpcUrls: [chainCfg.rpcUrl],
+          blockExplorerUrls: [chainCfg.explorer]
         }
       ]
     });
@@ -100,7 +110,7 @@ async function transact(account: string, to: string, data: string): Promise<stri
   await guard(account);
   const hash = (await p.request({
     method: 'eth_sendTransaction',
-    params: [{ ...request, gas, chainId: '0x' + (5042002).toString(16) }]
+    params: [{ ...request, gas, chainId: '0x' + getChainConfig(activeChainId).chainId.toString(16) }]
   })) as string;
   return waitReceipt(hash);
 }

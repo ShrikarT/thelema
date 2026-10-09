@@ -5,16 +5,23 @@ import {ImpactToken} from "../token/ImpactToken.sol";
 import {SafeTransferLib} from "../lib/SafeTransferLib.sol";
 import {ReentrancyGuard} from "../lib/ReentrancyGuard.sol";
 
+interface IOraclePending {
+    function isSettlementPending() external view returns (bool);
+}
+
 contract BinaryVault is ReentrancyGuard {
     using SafeTransferLib for address;
 
     uint256 public constant COLLATERAL_PER_PAIR_6 = 1e6;
     uint256 public constant TOKEN_SCALE = 1e12;
+    uint256 public constant REFUND_DELAY = 180 days;
 
     address public immutable collateral;
-    address public immutable oracle;
+    address public immutable deployer;
+    address public oracle;
     uint256 public immutable eventDeadline;
     uint256 public immutable tradingCutoff;
+    uint256 public immutable refundAfter;
 
     ImpactToken public immutable yesToken;
     ImpactToken public immutable noToken;
@@ -24,16 +31,22 @@ contract BinaryVault is ReentrancyGuard {
 
     error Unauthorized();
     error InvalidAmount();
+    error InexactAmount();
     error AlreadySettled();
     error NotSettled();
     error WrongToken();
     error TradingFrozen();
     error EventDeadlineNotPassed();
+    error OracleAlreadySet();
+    error RefundNotActive();
+    error SettlementPending();
 
     event Split(address indexed caller, address indexed receiver, uint256 collateral6, uint256 tokenAmount18);
     event Merge(address indexed caller, address indexed receiver, uint256 tokenAmount18, uint256 collateral6);
     event Settled(bool eventYes);
     event Redeemed(address indexed caller, address indexed receiver, address indexed token, uint256 tokenAmount18, uint256 collateral6);
+    event Refunded(address indexed caller, address indexed receiver, uint256 tokenAmount18, uint256 collateral6);
+    event OracleSet(address indexed oracle);
 
     constructor(
         address collateral_,
@@ -41,18 +54,30 @@ contract BinaryVault is ReentrancyGuard {
         uint256 eventDeadline_,
         uint256 tradingCutoff_
     ) {
-        if (collateral_ == address(0) || oracle_ == address(0)) revert Unauthorized();
+        if (collateral_ == address(0)) revert Unauthorized();
         if (tradingCutoff_ < eventDeadline_) revert InvalidAmount();
         (bool ok, bytes memory data) = collateral_.staticcall(abi.encodeWithSelector(0x313ce567));
         if (!ok || data.length != 32 || abi.decode(data, (uint256)) != 6) revert InvalidAmount();
 
         collateral = collateral_;
-        oracle = oracle_;
+        deployer = msg.sender;
+        if (oracle_ != address(0)) {
+            oracle = oracle_;
+        }
         eventDeadline = eventDeadline_;
         tradingCutoff = tradingCutoff_;
+        refundAfter = tradingCutoff_ + REFUND_DELAY;
 
         yesToken = new ImpactToken("THELEMA Binary YES", "tYES", address(this));
         noToken = new ImpactToken("THELEMA Binary NO", "tNO", address(this));
+    }
+
+    function setOracle(address oracle_) external {
+        if (msg.sender != deployer) revert Unauthorized();
+        if (oracle != address(0)) revert OracleAlreadySet();
+        if (oracle_ == address(0) || oracle_.code.length == 0) revert Unauthorized();
+        oracle = oracle_;
+        emit OracleSet(oracle_);
     }
 
     function isTradingAllowed() external view returns (bool) {
@@ -76,6 +101,7 @@ contract BinaryVault is ReentrancyGuard {
     function merge(uint256 tokenAmount18, address receiver) external nonReentrant returns (uint256 collateral6) {
         if (settled || block.timestamp > tradingCutoff) revert TradingFrozen();
         if (tokenAmount18 == 0 || receiver == address(0)) revert InvalidAmount();
+        if (tokenAmount18 % TOKEN_SCALE != 0) revert InexactAmount();
         collateral6 = tokenAmount18 / TOKEN_SCALE;
         yesToken.burn(msg.sender, tokenAmount18);
         noToken.burn(msg.sender, tokenAmount18);
@@ -83,8 +109,24 @@ contract BinaryVault is ReentrancyGuard {
         emit Merge(msg.sender, receiver, tokenAmount18, collateral6);
     }
 
+    function refund(uint256 tokenAmount18, address receiver) external nonReentrant returns (uint256 collateral6) {
+        if (settled) revert AlreadySettled();
+        if (block.timestamp <= refundAfter) revert RefundNotActive();
+        if (oracle != address(0) && oracle.code.length > 0 && IOraclePending(oracle).isSettlementPending()) {
+            revert SettlementPending();
+        }
+        if (tokenAmount18 == 0 || receiver == address(0)) revert InvalidAmount();
+        if (tokenAmount18 % TOKEN_SCALE != 0) revert InexactAmount();
+
+        collateral6 = tokenAmount18 / TOKEN_SCALE;
+        yesToken.burn(msg.sender, tokenAmount18);
+        noToken.burn(msg.sender, tokenAmount18);
+        if (collateral6 != 0) collateral.safeTransfer(receiver, collateral6);
+        emit Refunded(msg.sender, receiver, tokenAmount18, collateral6);
+    }
+
     function settle(bool eventYes_) external {
-        if (msg.sender != oracle) revert Unauthorized();
+        if (oracle == address(0) || msg.sender != oracle) revert Unauthorized();
         if (settled) revert AlreadySettled();
         if (!eventYes_ && block.timestamp < eventDeadline) revert EventDeadlineNotPassed();
         eventYes = eventYes_;
