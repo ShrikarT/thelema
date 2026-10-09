@@ -13,21 +13,28 @@ interface IERC20Impact {
 
 interface IBinaryVault {
     function collateral() external view returns(address);
+    function oracle() external view returns(address);
+    function deployer() external view returns(address);
     function yesToken() external view returns(address);
     function noToken() external view returns(address);
     function settled() external view returns(bool);
     function eventYes() external view returns(bool);
     function eventDeadline() external view returns(uint256);
     function tradingCutoff() external view returns(uint256);
+    function refundAfter() external view returns(uint256);
     function isTradingAllowed() external view returns(bool);
+    function setOracle(address oracle) external;
     function split(uint256 collateral6,address receiver) external returns(uint256 tokenAmount18);
     function merge(uint256 tokenAmount18,address receiver) external returns(uint256 collateral6);
+    function refund(uint256 tokenAmount18,address receiver) external returns(uint256 collateral6);
     function redeem(address token,uint256 tokenAmount18,address receiver) external returns(uint256 collateral6);
     function settle(bool eventYes) external;
 }
 
 interface IShareVault {
     function collateral() external view returns(address);
+    function oracle() external view returns(address);
+    function deployer() external view returns(address);
     function yesShare() external view returns(address);
     function noShare() external view returns(address);
     function residualShare() external view returns(address);
@@ -35,6 +42,7 @@ interface IShareVault {
     function eventDeadline() external view returns(uint256);
     function tradingCutoff() external view returns(uint256);
     function earliestPriceFixTime() external view returns(uint256);
+    function refundAfter() external view returns(uint256);
     function settled() external view returns(bool);
     function eventYes() external view returns(bool);
     function settlementValue6() external view returns(uint256);
@@ -42,9 +50,11 @@ interface IShareVault {
     function residualLocked6() external view returns(uint256);
     function remainingLiabilities6() external view returns(uint256);
     function isTradingAllowed(address token) external view returns(bool);
+    function setOracle(address oracle) external;
     function collateralForPairs(uint256 pairs18) external view returns(uint256 collateral6);
     function split(uint256 pairs18,address receiver) external returns(uint256 collateral6);
     function merge(uint256 pairs18,address receiver) external returns(uint256 collateral6);
+    function refund(uint256 pairs18,address receiver) external returns(uint256 collateral6);
     function resolveEvent(bool eventYes) external;
     function fixPrice(uint256 settlementValue6) external;
     function settle(bool eventYes,uint256 settlementValue6) external;
@@ -78,7 +88,12 @@ interface IDemoOracle {
     function priceFixed() external view returns(bool);
     function eventYes() external view returns(bool);
     function settlementValue6() external view returns(uint256);
-    function resolveEvent(address binaryVault,address shareVault,bool eventYes) external;
-    function fixPrice(address shareVault,uint256 settlementValue6) external;
-    function publishAndSettle(address binaryVault,address shareVault,bool eventYes,uint256 settlementValue6) external;
+    function TIMELOCK_DELAY() external view returns(uint256);
+    function binaryVault() external view returns(address);
+    function shareVault() external view returns(address);
+    function isSettlementPending() external view returns(bool);
+    function queueSettlement(bool eventYes,uint256 settlementValue6) external;
+    function cancelSettlement() external;
+    function executeSettlement() external;
+    function publishAndSettle(bool eventYes,uint256 settlementValue6) external;
 }

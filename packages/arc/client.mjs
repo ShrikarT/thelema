@@ -11,12 +11,14 @@ import {
 } from "../core/market.mjs";
 import { isCreConfigured } from "../cre/index.mjs";
 import { isGraphConfigured } from "../graph/index.mjs";
+import { getChainConfig, DEFAULT_CHAIN_ID } from "../core/chain.mjs";
+var defaultChain = getChainConfig(DEFAULT_CHAIN_ID);
 var ARC = Object.freeze({
-  chainId: 5042002,
-  chainName: "Arc Testnet",
-  collateral: "0x3600000000000000000000000000000000000000",
-  rpcUrl: "https://rpc.testnet.arc.io",
-  explorer: "https://testnet.arcscan.app"
+  chainId: defaultChain.chainId,
+  chainName: defaultChain.chainName,
+  collateral: defaultChain.collateral,
+  rpcUrl: defaultChain.rpcUrl,
+  explorer: defaultChain.explorer
 });
 function toTimestampMs(secondsOrMs) {
   const n = Number(secondsOrMs);
@@ -106,7 +108,7 @@ async function readArc(config, { rpc } = {}) {
   const activeRpc = rpc || makeRpc({ endpoint: config.rpcUrl });
   const c = config.contracts;
   const chainIdHex = await activeRpc("eth_chainId", []);
-  if (BigInt(chainIdHex) !== 5042002n) {
+  if (BigInt(chainIdHex) !== BigInt(config.chainId)) {
     throw new MarketError("Unexpected RPC chain. Refusing to use it.", "WRONG_CHAIN", 503);
   }
   const block = await activeRpc("eth_blockNumber");

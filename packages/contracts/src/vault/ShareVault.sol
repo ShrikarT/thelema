@@ -5,17 +5,24 @@ import {ImpactToken} from "../token/ImpactToken.sol";
 import {SafeTransferLib} from "../lib/SafeTransferLib.sol";
 import {ReentrancyGuard} from "../lib/ReentrancyGuard.sol";
 
+interface IOraclePending {
+    function isSettlementPending() external view returns (bool);
+}
+
 contract ShareVault is ReentrancyGuard {
     using SafeTransferLib for address;
 
     uint256 public constant ONE_SHARE_18 = 1e18;
+    uint256 public constant REFUND_DELAY = 180 days;
 
     address public immutable collateral;
-    address public immutable oracle;
+    address public immutable deployer;
+    address public oracle;
     uint256 public immutable cap6;
     uint256 public immutable eventDeadline;
     uint256 public immutable tradingCutoff;
     uint256 public immutable earliestPriceFixTime;
+    uint256 public immutable refundAfter;
 
     ImpactToken public immutable yesShare;
     ImpactToken public immutable noShare;
@@ -37,6 +44,7 @@ contract ShareVault is ReentrancyGuard {
 
     error Unauthorized();
     error InvalidAmount();
+    error InexactAmount();
     error AlreadySettled();
     error NotSettled();
     error WrongToken();
@@ -44,12 +52,17 @@ contract ShareVault is ReentrancyGuard {
     error EventDeadlineNotPassed();
     error ObservationWindowNotReached();
     error InvalidLifecycle();
+    error OracleAlreadySet();
+    error RefundNotActive();
+    error SettlementPending();
 
     event Split(address indexed caller, address indexed receiver, uint256 pairs18, uint256 collateral6);
     event Merge(address indexed caller, address indexed receiver, uint256 pairs18, uint256 collateral6);
     event EventResolved(bool indexed eventYes);
     event PriceFixed(uint256 publishedValue6, uint256 settlementValue6, uint256 residualValue6);
     event Redeemed(address indexed caller, address indexed receiver, address indexed token, uint256 shares18, uint256 collateral6);
+    event Refunded(address indexed caller, address indexed receiver, uint256 pairs18, uint256 collateral6);
+    event OracleSet(address indexed oracle);
 
     constructor(
         address collateral_,
@@ -59,38 +72,45 @@ contract ShareVault is ReentrancyGuard {
         uint256 tradingCutoff_,
         uint256 earliestPriceFixTime_
     ) {
-        if (collateral_ == address(0) || oracle_ == address(0) || cap6_ == 0) revert InvalidAmount();
+        if (collateral_ == address(0) || cap6_ == 0) revert InvalidAmount();
         if (tradingCutoff_ < eventDeadline_ || earliestPriceFixTime_ < tradingCutoff_) revert InvalidAmount();
         (bool ok, bytes memory data) = collateral_.staticcall(abi.encodeWithSelector(0x313ce567));
         if (!ok || data.length != 32 || abi.decode(data, (uint256)) != 6) revert InvalidAmount();
 
         collateral = collateral_;
-        oracle = oracle_;
+        deployer = msg.sender;
+        if (oracle_ != address(0)) {
+            oracle = oracle_;
+        }
         cap6 = cap6_;
         eventDeadline = eventDeadline_;
         tradingCutoff = tradingCutoff_;
         earliestPriceFixTime = earliestPriceFixTime_;
+        refundAfter = tradingCutoff_ + REFUND_DELAY;
 
         yesShare = new ImpactToken("THELEMA Share YES", "sYES", address(this));
         noShare = new ImpactToken("THELEMA Share NO", "sNO", address(this));
         residualShare = new ImpactToken("THELEMA Share RESIDUAL", "sRES", address(this));
     }
 
+    function setOracle(address oracle_) external {
+        if (msg.sender != deployer) revert Unauthorized();
+        if (oracle != address(0)) revert OracleAlreadySet();
+        if (oracle_ == address(0) || oracle_.code.length == 0) revert Unauthorized();
+        oracle = oracle_;
+        emit OracleSet(oracle_);
+    }
+
     function collateralForPairs(uint256 pairs18) public view returns (uint256) {
         if (pairs18 == 0) revert InvalidAmount();
-        return (pairs18 * cap6 - 1) / ONE_SHARE_18 + 1;
+        if ((pairs18 * cap6) % ONE_SHARE_18 != 0) revert InexactAmount();
+        return pairs18 * cap6 / ONE_SHARE_18;
     }
 
     function isTradingAllowed(address token) external view returns (bool) {
         if (block.timestamp > tradingCutoff) return false;
-        if (lifecycle == Lifecycle.PRICE_FIXED) return false;
-        if (lifecycle == Lifecycle.EVENT_RESOLVED) {
-            return token == (eventYes ? address(yesShare) : address(noShare));
-        }
-        if (lifecycle == Lifecycle.OPEN) {
-            return token == address(yesShare) || token == address(noShare);
-        }
-        return false;
+        if (lifecycle != Lifecycle.OPEN) return false;
+        return token == address(yesShare) || token == address(noShare);
     }
 
     function settled() external view returns (bool) {
@@ -127,6 +147,7 @@ contract ShareVault is ReentrancyGuard {
     function merge(uint256 pairs18, address receiver) external nonReentrant returns (uint256 collateral6) {
         if (lifecycle != Lifecycle.OPEN || block.timestamp > tradingCutoff) revert TradingFrozen();
         if (receiver == address(0) || pairs18 == 0) revert InvalidAmount();
+        if ((pairs18 * cap6) % ONE_SHARE_18 != 0) revert InexactAmount();
         collateral6 = pairs18 * cap6 / ONE_SHARE_18;
         yesShare.burn(msg.sender, pairs18);
         noShare.burn(msg.sender, pairs18);
@@ -137,8 +158,27 @@ contract ShareVault is ReentrancyGuard {
         emit Merge(msg.sender, receiver, pairs18, collateral6);
     }
 
+    function refund(uint256 pairs18, address receiver) external nonReentrant returns (uint256 collateral6) {
+        if (lifecycle != Lifecycle.OPEN) revert AlreadySettled();
+        if (block.timestamp <= refundAfter) revert RefundNotActive();
+        if (oracle != address(0) && oracle.code.length > 0 && IOraclePending(oracle).isSettlementPending()) {
+            revert SettlementPending();
+        }
+        if (pairs18 == 0 || receiver == address(0)) revert InvalidAmount();
+        if ((pairs18 * cap6) % ONE_SHARE_18 != 0) revert InexactAmount();
+
+        collateral6 = pairs18 * cap6 / ONE_SHARE_18;
+        yesShare.burn(msg.sender, pairs18);
+        noShare.burn(msg.sender, pairs18);
+        residualShare.burn(msg.sender, pairs18);
+        totalSets18 -= pairs18;
+        totalRefunded6 += collateral6;
+        if (collateral6 != 0) collateral.safeTransfer(receiver, collateral6);
+        emit Refunded(msg.sender, receiver, pairs18, collateral6);
+    }
+
     function resolveEvent(bool eventYes_) external {
-        if (msg.sender != oracle) revert Unauthorized();
+        if (oracle == address(0) || msg.sender != oracle) revert Unauthorized();
         if (lifecycle != Lifecycle.OPEN) revert AlreadySettled();
         if (!eventYes_ && block.timestamp < eventDeadline) revert EventDeadlineNotPassed();
         eventYes = eventYes_;
@@ -147,7 +187,7 @@ contract ShareVault is ReentrancyGuard {
     }
 
     function fixPrice(uint256 publishedValue6) external {
-        if (msg.sender != oracle) revert Unauthorized();
+        if (oracle == address(0) || msg.sender != oracle) revert Unauthorized();
         if (lifecycle != Lifecycle.EVENT_RESOLVED) revert InvalidLifecycle();
         if (block.timestamp < earliestPriceFixTime) revert ObservationWindowNotReached();
         settlementValue6 = publishedValue6 > cap6 ? cap6 : publishedValue6;
@@ -157,7 +197,7 @@ contract ShareVault is ReentrancyGuard {
     }
 
     function settle(bool eventYes_, uint256 publishedValue6) external {
-        if (msg.sender != oracle) revert Unauthorized();
+        if (oracle == address(0) || msg.sender != oracle) revert Unauthorized();
         if (lifecycle != Lifecycle.OPEN) revert AlreadySettled();
         if (!eventYes_ && block.timestamp < eventDeadline) revert EventDeadlineNotPassed();
         if (block.timestamp < earliestPriceFixTime) revert ObservationWindowNotReached();

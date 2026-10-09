@@ -407,6 +407,31 @@ Configuration:
     return receipt;
   }
 
+  if (command === 'queue-settlement') {
+    const outcomeArg = (args[1] || '').toUpperCase();
+    if (outcomeArg !== 'YES' && outcomeArg !== 'NO') {
+      throw new Error('Invalid outcome argument. Must specify YES or NO.');
+    }
+    if (!args[2]) {
+      throw new Error('Missing price argument. Usage: queue-settlement <YES|NO> <priceInUSDC>');
+    }
+    const isYes = outcomeArg === 'YES';
+    const price6 = parsePrice6(args[2]);
+
+    console.log(`Queueing settlement event ${outcomeArg} and price $${args[2]} (${price6} raw)...`);
+    const receipt = await executeOperatorTx(`queueSettlement(${outcomeArg}, $${args[2]})`, (gasPrice) =>
+      wallet.writeContract({
+        address: config.oracle,
+        abi: oracleArtifact.abi,
+        functionName: 'queueSettlement',
+        args: [isYes, price6],
+        gasPrice
+      })
+    );
+    console.log(`Settlement queued successfully! Tx: ${receipt.transactionHash || receipt.hash || 'mined'}`);
+    return receipt;
+  }
+
   if (command === 'publish-and-settle') {
     const outcomeArg = (args[1] || '').toUpperCase();
     if (outcomeArg !== 'YES' && outcomeArg !== 'NO') {
@@ -441,7 +466,7 @@ Configuration:
         address: config.oracle,
         abi: oracleArtifact.abi,
         functionName: 'publishAndSettle',
-        args: [config.binaryVault, config.shareVault, isYes, price6],
+        args: [isYes, price6],
         gasPrice
       })
     );

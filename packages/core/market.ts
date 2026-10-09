@@ -38,6 +38,10 @@ export const CAP: USDC6 = 500n * USDC;
 export const FEE_BPS: bigint = 30n;
 const MAX_SANDBOX_ORDER: USDC6 = 1_000_000n * USDC;
 
+import { getChainConfig, DEFAULT_CHAIN_ID } from './chain.ts';
+
+const defaultChain = getChainConfig(DEFAULT_CHAIN_ID);
+
 export const MARKET: Readonly<MarketMetadata & {
   title: string;
   shortTitle: string;
@@ -52,8 +56,8 @@ export const MARKET: Readonly<MarketMetadata & {
   title: 'Will the US allow advanced AI chip sales to China by 31 December 2026?',
   shortTitle: 'The next chapter of AI chip exports.',
   resolutionDate: '2026-12-31T23:59:59Z',
-  chainId: 5042002,
-  collateralAddress: '0x3600000000000000000000000000000000000000',
+  chainId: defaultChain.chainId,
+  collateralAddress: defaultChain.collateral,
   cap: 500
 });
 

@@ -1,9 +1,11 @@
 // packages/core/market.ts
+import { getChainConfig, DEFAULT_CHAIN_ID } from "./chain.mjs";
 var USDC = 10n ** 6n;
 var TOKEN = 10n ** 18n;
 var CAP = 500n * USDC;
 var FEE_BPS = 30n;
 var MAX_SANDBOX_ORDER = 1000000n * USDC;
+var defaultChain = getChainConfig(DEFAULT_CHAIN_ID);
 var MARKET = Object.freeze({
   id: "china-ai-chips-snvda",
   ticker: "sNVDA",
@@ -12,8 +14,8 @@ var MARKET = Object.freeze({
   title: "Will the US allow advanced AI chip sales to China by 31 December 2026?",
   shortTitle: "The next chapter of AI chip exports.",
   resolutionDate: "2026-12-31T23:59:59Z",
-  chainId: 5042002,
-  collateralAddress: "0x3600000000000000000000000000000000000000",
+  chainId: defaultChain.chainId,
+  collateralAddress: defaultChain.collateral,
   cap: 500
 });
 var MarketError = class extends Error {

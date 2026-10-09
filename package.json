@@ -16,7 +16,7 @@
     "test:core": "node --test --test-reporter=tap tests/core.test.mjs",
     "test:ui": "node tests/browser.mjs && node tests/arc-evm-browser.integration.mjs",
     "test:ui:evm": "node tests/arc-evm-browser.integration.mjs",
-    "test:contracts": "cd packages/contracts && forge test -vvv",
+    "test:contracts": "node node_modules/@foundry-rs/forge/bin.mjs test -vvv --root packages/contracts",
     "test:evm": "node --test tests/arc-evm.integration.mjs",
     "check": "npm run build && npm run typecheck && npm test",
     "release:check": "node scripts/check-release.mjs",
