@@ -12,7 +12,7 @@ impliedSpot ≈ P · E[S|yes] + (1−P) · E[S|no]
 impact      = E[S|yes] − E[S|no]
 ```
 
-ETHOnline 2026 · Arc + Chainlink CRE + The Graph · From Scratch
+Arc Microgrant · Arc + Chainlink CRE + The Graph · From Scratch
 
 Demo market is one synthetic underlying (default sNVDA). Contracts are asset-agnostic. Not a real security. Not [if.market](https://if.market) — they already ship this category; this is the open Arc AMM + live Graph identity + TEE size clip.
 
