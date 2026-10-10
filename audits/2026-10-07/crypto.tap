@@ -1,0 +1,26 @@
+
+> thelema@0.2.0 test:bridge:crypto
+> node --test --test-reporter=tap services/cre-bridge/crypto.test.mjs
+
+TAP version 13
+# Subtest: REAL crypto: CRE JWT EIP-191 signature recovers the dedicated ephemeral signer
+ok 1 - REAL crypto: CRE JWT EIP-191 signature recovers the dedicated ephemeral signer
+  ---
+  duration_ms: 159.4825
+  type: 'test'
+  ...
+# Subtest: REAL crypto: different requests have independent JWT replay identifiers and digests
+ok 2 - REAL crypto: different requests have independent JWT replay identifiers and digests
+  ---
+  duration_ms: 12.1507
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14307.1552

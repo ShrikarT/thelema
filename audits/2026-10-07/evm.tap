@@ -1,0 +1,794 @@
+
+> thelema@0.2.0 test:evm
+> node --test tests/arc-evm.integration.mjs
+
+▶ Local EVM: End-to-end economic and lifecycle verification against compiled Solidity contracts
+  ✔ OPEN state: readArc, quoteArc, and complete-set split/merge economics (881.8784ms)
+  ✔ Actual wallet purchases: buyOutcome on BinaryAMM and buyShares on ShareAMM (518.6901ms)
+  ✔ YES Lifecycle: surviving-leg trading, binary claim, above-cap fix (S=600), and final payouts (836.7105ms)
+  ✔ NO Lifecycle: below-cap fix (S=150), residual payouts (R=350), and empty-liquidity reads (820.309ms)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+  ✔ Trading cutoff stops trading even if oracle is late (676.28ms)
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395491 (2026-10-07T17:51:31.000Z)
+
+--- Reconciling Incomplete & Mined Transactions ---
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,76,15,000 gas
+Effective Gas Price: 1000000018 wei (1.000000018 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.01761500031707 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Total Planned Spending (incurred + remaining): 86.03861500031707 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    600000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+Current USDC (native gas/currency) Balance: 9999.931913572951569132 USDC
+Current USDC (ERC-20 precompile) Balance: 675916 USDC
+Funding preflight validation passed! Ready to proceed.
+
+--- Core Contract Deployments ---
+Deploying DemoOracle...
+  -> DemoOracle at: 0x22753e4264fddc6181dc7cce468904a80a363e44
+Deploying BinaryVault...
+  -> BinaryVault at: 0xa7c59f010700930003b33ab25a7a0679c860f29c
+Deploying ShareVault...
+  -> ShareVault at: 0xfaaddc93baf78e89dcf37ba67943e1be8f37bb8c
+Deploying BinaryAMM...
+  -> BinaryAMM at: 0x276c216d241856199a83bf27b2286659e5b877d3
+Deploying ShareAMM (YES)...
+  -> ShareAMM (YES) at: 0x3347b4d90ebe72befb30444c9966b2b990ae9fcb
+Deploying ShareAMM (NO)...
+  -> ShareAMM (NO) at: 0x3155755b79aa083bd953911c92705b7aa82a18f9
+
+--- Verifying On-Chain Contract Bindings ---
+Contract bindings successfully verified.
+
+--- Seeding Initial Liquidity (Fractional Profile) ---
+Splitting 20 USDC into 20 YES + 20 NO...
+  ✖ Deployment script: runDeploy executes, seeds fractional profile, safely resumes, and is idempotent (1416.0521ms)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395492 (2026-10-07T17:51:32.000Z)
+
+--- Reconciling Incomplete & Mined Transactions ---
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,76,15,000 gas
+Effective Gas Price: 6274851783 wei (6.274851783 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.110531514157545 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Total Planned Spending (incurred + remaining): 86.131531514157545 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    600000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+Current USDC (native gas/currency) Balance: 0 USDC
+Current USDC (ERC-20 precompile) Balance: 0 USDC
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0x1563915e194D8CfBA1943570603F7606A3115508
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395493 (2026-10-07T17:51:33.000Z)
+
+--- Reconciling Incomplete & Mined Transactions ---
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,76,15,000 gas
+Effective Gas Price: 1000000009 wei (1.000000009 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.017615000158535 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Total Planned Spending (incurred + remaining): 86.038615000158535 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    600000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+Current USDC (native gas/currency) Balance: 86.021 USDC
+Current USDC (ERC-20 precompile) Balance: 86.021 USDC
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+  ✔ Deployment preflight: underfunded account throws before any broadcast and account nonce remains 0 (653.8372ms)
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395493 (2026-10-07T17:51:33.000Z)
+
+--- Reconciling Incomplete & Mined Transactions ---
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,76,15,000 gas
+Effective Gas Price: 1000000009 wei (1.000000009 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.017615000158535 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Total Planned Spending (incurred + remaining): 86.038615000158535 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    600000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+Current USDC (native gas/currency) Balance: 9999.902170297370545564 USDC
+Current USDC (ERC-20 precompile) Balance: 675916 USDC
+Funding preflight validation passed! Ready to proceed.
+
+--- Core Contract Deployments ---
+Deploying DemoOracle...
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395493 (2026-10-07T17:51:33.000Z)
+Found valid existing manifest. Verified contract identities and receipts on-chain for safe resume.
+
+--- Reconciling Incomplete & Mined Transactions ---
+[RECONCILE] Checking on-chain status for step "oracle": 0xfeb7dcdc9715cbaf383dc90b4dfc1b9a8779fcef7b61c60060fcff0c67c98749
+[RECONCILE] Step "oracle" was successfully mined in block 149.
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,68,35,000 gas
+Effective Gas Price: 1300000010 wei (1.30000001 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.02188550016835 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 0.00069336800586696 USDC
+Total Planned Spending (incurred + remaining): 86.04357886817421696 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    533360 gas [MINED_RECEIPT] (block 149)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+Current USDC (native gas/currency) Balance: 9999.901476929364678604 USDC
+Current USDC (ERC-20 precompile) Balance: 675916 USDC
+Funding preflight validation passed! Ready to proceed.
+
+--- Core Contract Deployments ---
+[RESUME] Step "oracle" (Deploy DemoOracle) already completed on-chain.
+  -> DemoOracle at: 0x3aade2dcd2df6a8cac689ee797591b2913658659
+Deploying BinaryVault...
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395494 (2026-10-07T17:51:34.000Z)
+Found valid existing manifest. Verified contract identities and receipts on-chain for safe resume.
+
+--- Reconciling Incomplete & Mined Transactions ---
+[RECONCILE] Checking on-chain status for step "oracle": 0xfeb7dcdc9715cbaf383dc90b4dfc1b9a8779fcef7b61c60060fcff0c67c98749
+[RECONCILE] Step "oracle" was successfully mined in block 149.
+[RECONCILE] Checking on-chain status for step "binaryVault": 0x2d2309281767539346554305119820f967a8082b1c65098dd0a050435b4fca33
+[RECONCILE] Step "binaryVault" was successfully mined in block 150.
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,42,35,000 gas
+Effective Gas Price: 1690000013 wei (1.690000013 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.024057150185055 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 0.003877194520357933 USDC
+Total Planned Spending (incurred + remaining): 86.048934344705412933 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    533360 gas [MINED_RECEIPT] (block 149)
+  - binaryVault               :   1883921 gas [MINED_RECEIPT] (block 150)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+Current USDC (native gas/currency) Balance: 9999.898293102850187631 USDC
+Current USDC (ERC-20 precompile) Balance: 675916 USDC
+Funding preflight validation passed! Ready to proceed.
+
+--- Core Contract Deployments ---
+[RESUME] Step "oracle" (Deploy DemoOracle) already completed on-chain.
+  -> DemoOracle at: 0x3aade2dcd2df6a8cac689ee797591b2913658659
+[RESUME] Step "binaryVault" (Deploy BinaryVault) already completed on-chain.
+  -> BinaryVault at: 0xab16a69a5a8c12c732e0deff4be56a70bb64c926
+Deploying ShareVault...
+  -> ShareVault at: 0xe3011a37a904ab90c8881a99bd1f6e21401f1522
+Deploying BinaryAMM...
+  -> BinaryAMM at: 0x1f10f3ba7acb61b2f50b9d6ddcf91a6f787c0e82
+Deploying ShareAMM (YES)...
+  -> ShareAMM (YES) at: 0x457ccf29090fe5a24c19c1bc95f492168c0eafdb
+Deploying ShareAMM (NO)...
+  -> ShareAMM (NO) at: 0x525c7063e7c20997baae9bda922159152d0e8417
+
+--- Verifying On-Chain Contract Bindings ---
+Contract bindings successfully verified.
+
+--- Seeding Initial Liquidity (Fractional Profile) ---
+Splitting 20 USDC into 20 YES + 20 NO...
+Adding liquidity to BinaryAMM (10 YES, 10 NO)...
+Splitting 50 USDC for 0.1 complete sets in ShareVault...
+Adding liquidity to YesShareAMM (11.655 USDC + 0.1 yesShare)...
+Adding liquidity to NoShareAMM (4.366 USDC + 0.1 noShare)...
+
+Liquidity seeding complete!
+
+Deployment manifest saved to: C:\Users\Shrikar\AppData\Local\Temp\crash-manifest-1791393065533.json
+
+Environment variables to use this deployment:
+ARC_ORACLE=0x3aade2dcd2df6a8cac689ee797591b2913658659
+ARC_BINARY_VAULT=0xab16a69a5a8c12c732e0deff4be56a70bb64c926
+ARC_SHARE_VAULT=0xe3011a37a904ab90c8881a99bd1f6e21401f1522
+ARC_BINARY_AMM=0x1f10f3ba7acb61b2f50b9d6ddcf91a6f787c0e82
+ARC_YES_SHARE_AMM=0x457ccf29090fe5a24c19c1bc95f492168c0eafdb
+ARC_NO_SHARE_AMM=0x525c7063e7c20997baae9bda922159152d0e8417
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395495 (2026-10-07T17:51:35.000Z)
+Found valid existing manifest. Verified contract identities and receipts on-chain for safe resume.
+
+--- Reconciling Incomplete & Mined Transactions ---
+[RECONCILE] Checking on-chain status for step "oracle": 0xfeb7dcdc9715cbaf383dc90b4dfc1b9a8779fcef7b61c60060fcff0c67c98749
+[RECONCILE] Step "oracle" was successfully mined in block 149.
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,68,35,000 gas
+Effective Gas Price: 146192029980 wei (146.19202998 gwei)
+Required USDC (gas budget) [native, 18-dec]: 2.4611428247133 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 0.00069336800586696 USDC
+Total Planned Spending (incurred + remaining): 88.48283619271916696 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    533360 gas [MINED_RECEIPT] (block 149)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+Current USDC (native gas/currency) Balance: 9999.809730004796356596 USDC
+Current USDC (ERC-20 precompile) Balance: 675829.979 USDC
+Funding preflight validation passed! Ready to proceed.
+
+--- Core Contract Deployments ---
+[RESUME] Step "oracle" (Deploy DemoOracle) already completed on-chain.
+  -> DemoOracle at: 0x3aade2dcd2df6a8cac689ee797591b2913658659
+Deploying BinaryVault...
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395495 (2026-10-07T17:51:35.000Z)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395495 (2026-10-07T17:51:35.000Z)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: https://rpc.testnet.arc.io
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+  ✔ Crash-safe recovery: reconciles submitted and mined transactions without duplicate broadcasts, rejects corrupted manifest (2801.3521ms)
+Connected to Chain ID: 5042002
+
+[SAFETY ENFORCEMENT: Non-Local Development Target]
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+
+[DRY RUN REQUESTED: Read-only mode across all targets]
+Unsigned launch plan written to: C:\Users\Shrikar\AppData\Local\Temp\dryrun-plan-1791393068586.json
+  ✔ Safety & boundary enforcement: rejects misclassified local, enforces dry-run read-only, redacts RPC secrets, executes CLI (2420.4776ms)
+  ✔ Local node identity verification: passes on genuine Anvil, fails closed on unverified nodes and proxies (7.6178ms)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+
+======================================================
+--- ADDRESS-ONLY FUNDING PREFLIGHT (READ-ONLY MODE) ---
+======================================================
+Target Public Address: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+Note: Unconditionally read-only. No keys accessed, no signers created, no transactions broadcast, no manifest writes.
+
+--- Preflight Summary for 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 ---
+Selected Chain: 5042002 (Arc Testnet)
+Current Native Balance (USDC gas, 18-dec): 100 USDC
+Current Collateral Balance (USDC ERC-20, 6-dec): 4339.094144 USDC
+
+--- Remaining Requirements ---
+Remaining Collateral: 86.021 USDC
+Remaining Gas Units (base): 1,35,50,000 gas
+Safety Reserve (30%): 40,65,000 gas
+Total Gas Units with Reserve: 1,76,15,000 gas
+Effective Gas Price: 1000000008 wei (1.000000008 gwei)
+Dynamic Gas Budget: 0.01761500014092 USDC
+Total Required Funds: 86.03861500014092 USDC
+
+--- Proposed 100.00 USDC Spending Ceiling Check ---
+Proposed Hard Ceiling: 100.00 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Remaining Spending (collateral + gas): 86.03861500014092 USDC
+Total Planned Deployment Spending: 86.03861500014092 USDC
+Ceiling Status: WITHIN CEILING (OK)
+
+--- Funding Status ---
+Native Balance Status: SURPLUS (+13.96138499985908 USDC)
+Collateral Balance Status: SURPLUS (+4253.073144 USDC)
+
+--- Preflight Verification Categories ---
+Funding Readiness:     READY
+Deployment Integrity:  CLEAN / VERIFIED
+Owner Authorization:   REQUIRED_FOR_BROADCAST (Preflight is strictly read-only; releaseApproved=false)
+Overall Readiness:     READY FOR DEPLOYMENT
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+
+======================================================
+--- ADDRESS-ONLY FUNDING PREFLIGHT (READ-ONLY MODE) ---
+======================================================
+Target Public Address: 0x1111111111111111111111111111111111111111
+Note: Unconditionally read-only. No keys accessed, no signers created, no transactions broadcast, no manifest writes.
+
+--- Preflight Summary for 0x1111111111111111111111111111111111111111 ---
+Selected Chain: 5042002 (Arc Testnet)
+Current Native Balance (USDC gas, 18-dec): 0 USDC
+Current Collateral Balance (USDC ERC-20, 6-dec): 0 USDC
+
+--- Remaining Requirements ---
+Remaining Collateral: 86.021 USDC
+Remaining Gas Units (base): 1,35,50,000 gas
+Safety Reserve (30%): 40,65,000 gas
+Total Gas Units with Reserve: 1,76,15,000 gas
+Effective Gas Price: 1000000008 wei (1.000000008 gwei)
+Dynamic Gas Budget: 0.01761500014092 USDC
+Total Required Funds: 86.03861500014092 USDC
+
+--- Proposed 100.00 USDC Spending Ceiling Check ---
+Proposed Hard Ceiling: 100.00 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Remaining Spending (collateral + gas): 86.03861500014092 USDC
+Total Planned Deployment Spending: 86.03861500014092 USDC
+Ceiling Status: WITHIN CEILING (OK)
+
+--- Funding Status ---
+Native Balance Status: SHORTFALL (-86.03861500014092 USDC)
+Collateral Balance Status: SHORTFALL (-86.021 USDC)
+
+--- Preflight Verification Categories ---
+Funding Readiness:     INSUFFICIENT
+Deployment Integrity:  CLEAN / VERIFIED
+Owner Authorization:   REQUIRED_FOR_BROADCAST (Preflight is strictly read-only; releaseApproved=false)
+Overall Readiness:     ACTION REQUIRED BEFORE BROADCAST
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395498 (2026-10-07T17:51:38.000Z)
+[RECONCILE] Manifest contained unverified completed steps: binary_split, share_split, yes_share_seed.
+
+--- Reconciling Incomplete & Mined Transactions ---
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,76,15,000 gas
+Effective Gas Price: 1000000008 wei (1.000000008 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.01761500014092 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 20 USDC
+Total Planned Spending (incurred + remaining): 106.03861500014092 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    600000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+  ✔ Address-only preflight: unconditionally read-only with keys in env, checks 100-USDC ceiling (427.7438ms)
+Connected to Chain ID: 5042002
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+
+======================================================
+--- ADDRESS-ONLY FUNDING PREFLIGHT (READ-ONLY MODE) ---
+======================================================
+Target Public Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Note: Unconditionally read-only. No keys accessed, no signers created, no transactions broadcast, no manifest writes.
+
+--- Preflight Summary for 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 ---
+Selected Chain: 5042002 (Arc Testnet)
+Current Native Balance (USDC gas, 18-dec): 9999.451657453890547182 USDC
+Current Collateral Balance (USDC ERC-20, 6-dec): 675829.979 USDC
+
+--- Remaining Requirements ---
+Remaining Collateral: 86.021 USDC
+Remaining Gas Units (base): 1,35,50,000 gas
+Safety Reserve (30%): 40,65,000 gas
+Total Gas Units with Reserve: 1,76,15,000 gas
+Effective Gas Price: 1000000008 wei (1.000000008 gwei)
+Dynamic Gas Budget: 0.01761500014092 USDC
+Total Required Funds: 86.03861500014092 USDC
+
+--- Proposed 100.00 USDC Spending Ceiling Check ---
+Proposed Hard Ceiling: 100.00 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Remaining Spending (collateral + gas): 86.03861500014092 USDC
+Total Planned Deployment Spending: 86.03861500014092 USDC
+Ceiling Status: WITHIN CEILING (OK)
+
+--- Funding Status ---
+Native Balance Status: SURPLUS (+9913.413042453749627182 USDC)
+Collateral Balance Status: SURPLUS (+675743.958 USDC)
+
+--- Preflight Verification Categories ---
+Funding Readiness:     READY
+Deployment Integrity:  CLEAN / VERIFIED
+Owner Authorization:   REQUIRED_FOR_BROADCAST (Preflight is strictly read-only; releaseApproved=false)
+Overall Readiness:     READY FOR DEPLOYMENT
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+
+======================================================
+--- ADDRESS-ONLY FUNDING PREFLIGHT (READ-ONLY MODE) ---
+======================================================
+Target Public Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Note: Unconditionally read-only. No keys accessed, no signers created, no transactions broadcast, no manifest writes.
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: https://rpc.testnet.arc.io
+Connected to Chain ID: 5042002
+
+[SAFETY ENFORCEMENT: Non-Local Development Target]
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: https://rpc.testnet.arc.io
+Connected to Chain ID: 5042002
+
+[SAFETY ENFORCEMENT: Non-Local Development Target]
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395498 (2026-10-07T17:51:38.000Z)
+[RECONCILE] Manifest contained unverified completed steps: binary_split, share_split, yes_share_seed.
+
+--- Reconciling Incomplete & Mined Transactions ---
+
+--- Real Funding Preflight & Balance Validation ---
+Remaining Gas Units (with 30% safety reserve): 1,76,15,000 gas
+Effective Gas Price: 1000000008 wei (1.000000008 gwei)
+Required USDC (gas budget) [native, 18-dec]: 0.01761500014092 USDC
+Required USDC (collateral) [ERC-20, 6-dec]: 86.021 USDC
+Incurred Spending (collateral + gas): 20 USDC
+Total Planned Spending (incurred + remaining): 106.03861500014092 USDC
+
+--- Gas Estimates & Provenance Breakdown ---
+  - oracle                    :    600000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryVault               :   2000000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - shareVault                :   3200000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binaryAmm                 :   1800000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yesShareAmm               :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - noShareAmm                :   1700000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_bin_split    :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_split              :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_bin_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_bin_amm        :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - binary_seed               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_share_split  :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - share_split               :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_yes_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_yes_share_amm     :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - yes_share_seed            :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_usdc_no_amm       :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - approve_no_share_amm      :    100000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+  - no_share_seed             :    350000 gas [CONSERVATIVE_ALLOWANCE] (undeployed dependency, Foundry trace)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395498 (2026-10-07T17:51:38.000Z)
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+
+======================================================
+--- ADDRESS-ONLY FUNDING PREFLIGHT (READ-ONLY MODE) ---
+======================================================
+Target Public Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Note: Unconditionally read-only. No keys accessed, no signers created, no transactions broadcast, no manifest writes.
+
+--- Preflight Summary for 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 ---
+Selected Chain: 5042002 (Arc Testnet)
+Current Native Balance (USDC gas, 18-dec): 9999.451657453890547182 USDC
+Current Collateral Balance (USDC ERC-20, 6-dec): 675829.979 USDC
+
+--- Remaining Requirements ---
+Remaining Collateral: 86.021 USDC
+Remaining Gas Units (base): 1,35,50,000 gas
+Safety Reserve (30%): 40,65,000 gas
+Total Gas Units with Reserve: 1,76,15,000 gas
+Effective Gas Price: 1000000008 wei (1.000000008 gwei)
+Dynamic Gas Budget: 0.01761500014092 USDC
+Total Required Funds: 86.03861500014092 USDC
+
+--- Proposed 100.00 USDC Spending Ceiling Check ---
+Proposed Hard Ceiling: 100.00 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Remaining Spending (collateral + gas): 86.03861500014092 USDC
+Total Planned Deployment Spending: 86.03861500014092 USDC
+Ceiling Status: WITHIN CEILING (OK)
+
+--- Funding Status ---
+Native Balance Status: SURPLUS (+9913.413042453749627182 USDC)
+Collateral Balance Status: SURPLUS (+675743.958 USDC)
+
+--- Preflight Verification Categories ---
+Funding Readiness:     READY
+Deployment Integrity:  CLEAN / VERIFIED
+Owner Authorization:   REQUIRED_FOR_BROADCAST (Preflight is strictly read-only; releaseApproved=false)
+Overall Readiness:     READY FOR DEPLOYMENT
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+
+======================================================
+--- ADDRESS-ONLY FUNDING PREFLIGHT (READ-ONLY MODE) ---
+======================================================
+Target Public Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Note: Unconditionally read-only. No keys accessed, no signers created, no transactions broadcast, no manifest writes.
+
+--- Preflight Summary for 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 ---
+Selected Chain: 5042002 (Arc Testnet)
+Current Native Balance (USDC gas, 18-dec): 9999.451657453890547182 USDC
+Current Collateral Balance (USDC ERC-20, 6-dec): 675829.979 USDC
+
+--- Remaining Requirements ---
+Remaining Collateral: 86.021 USDC
+Remaining Gas Units (base): 1,35,50,000 gas
+Safety Reserve (30%): 40,65,000 gas
+Total Gas Units with Reserve: 1,76,15,000 gas
+Effective Gas Price: 1000000008 wei (1.000000008 gwei)
+Dynamic Gas Budget: 0.01761500014092 USDC
+Total Required Funds: 86.03861500014092 USDC
+
+--- Proposed 100.00 USDC Spending Ceiling Check ---
+Proposed Hard Ceiling: 100.00 USDC
+Incurred Spending (collateral + gas): 0 USDC
+Remaining Spending (collateral + gas): 86.03861500014092 USDC
+Total Planned Deployment Spending: 86.03861500014092 USDC
+Ceiling Status: WITHIN CEILING (OK)
+
+--- Funding Status ---
+Native Balance Status: SURPLUS (+9913.413042453749627182 USDC)
+Collateral Balance Status: SURPLUS (+675743.958 USDC)
+
+--- Preflight Verification Categories ---
+Funding Readiness:     READY
+Deployment Integrity:  UNVERIFIED_STEPS_DETECTED
+Owner Authorization:   REQUIRED_FOR_BROADCAST (Preflight is strictly read-only; releaseApproved=false)
+Overall Readiness:     READY FOR DEPLOYMENT
+--- THELEMA Demo Deployment & Seeding Preflight ---
+Source Commit: 4931d3f7adf37fa70d42aeba7dc02ff073ad11cb
+RPC Endpoint: http://127.0.0.1:64491
+Connected to Chain ID: 5042002
+Deployer Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+Loading contract artifacts...
+Current Block Timestamp: 1791395498 (2026-10-07T17:51:38.000Z)
+  ✔ Preflight hardening, cumulative spending & fee bounds: validates address, preserves manifest, enforces approved deployer, accounts for reverted gas (1869.2342ms)
+Operating with Account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Operating with Account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Operating with Account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Resolving event outcome to: YES...
+Event resolved to YES successfully! Tx: 0x42e054f5c1c0c37aae0e014fbf6adcef6fe3af845dcbcb18b05e88744769dd51
+Operating with Account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Operating with Account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Fixing asset settlement price to: $220.50 (220500000 raw micro-USDC)...
+Settlement price fixed to $220.50 successfully! Tx: 0xf7678b0a1d7ab24bc37a8e7200fe5641f7a6b14116970cebdbbd37cbc743854d
+  ✔ Operator CLI: validates strict pricing, timing constraints, and executes settlement commands (1108.131ms)
+  ✔ Trading cutoff boundary: trade and split/merge allowed before cutoff, frozen immediately after (704.505ms)
+✖ Local EVM: End-to-end economic and lifecycle verification against compiled Solidity contracts (19243.6657ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 13
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24256.8255
+
+✖ failing tests:
+
+test at tests\arc-evm.integration.mjs:937:11
+✖ Deployment script: runDeploy executes, seeds fractional profile, safely resumes, and is idempotent (1416.0521ms)
+  Error: EPERM: operation not permitted, rename 'C:\Users\Shrikar\AppData\Local\Temp\thelema-manifest-1791393063455-u11ztr1t0fp.json.11252.1791393064838.tmp' -> 'C:\Users\Shrikar\AppData\Local\Temp\thelema-manifest-1791393063455-u11ztr1t0fp.json'
+      at renameSync (node:fs:1248:11)
+      at persistManifestAtomic (file:///C:/Users/Shrikar/thelema/scripts/deploy-demo.mjs:913:5)
+      at executeWithJournal (file:///C:/Users/Shrikar/thelema/scripts/deploy-demo.mjs:1447:5)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async runDeploy (file:///C:/Users/Shrikar/thelema/scripts/deploy-demo.mjs:1636:7)
+      at async TestContext.<anonymous> (file:///C:/Users/Shrikar/thelema/tests/arc-evm.integration.mjs:939:30)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async TestContext.<anonymous> (file:///C:/Users/Shrikar/thelema/tests/arc-evm.integration.mjs:937:3)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    errno: -4048,
+    code: 'EPERM',
+    syscall: 'rename',
+    path: 'C:\\Users\\Shrikar\\AppData\\Local\\Temp\\thelema-manifest-1791393063455-u11ztr1t0fp.json.11252.1791393064838.tmp',
+    dest: 'C:\\Users\\Shrikar\\AppData\\Local\\Temp\\thelema-manifest-1791393063455-u11ztr1t0fp.json'
+  }

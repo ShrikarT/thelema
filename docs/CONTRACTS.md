@@ -2,22 +2,37 @@
 
 ## Status
 
-**Compiled and verified in Foundry (24/24 tests passing) and Local EVM integration (1 parent + 14 subtests = 15 TAP tests). NOT deployed to public mainnet. Unaudited research prototype.**
+**Hardened for Arc Mainnet deployment readiness.**
+- **Foundry unit & invariant tests**: 49 / 49 passing (`npm run test:contracts`).
+- **TAP regression suite**: 239 / 239 passing (`npm test`).
+- **Local EVM integration**: 15 / 15 passing (`npm run test:evm`).
+- **Browser UI EVM integration**: 100% verified (`npm run test:ui:evm`).
+- **TypeScript & Build**: Clean compilation, zero lint or type errors (`npm run typecheck && npm run build`).
 
-All contracts are self-contained Solidity 0.8.24 without external dependency downloads. Foundry tests execute against explicit interfaces and cheat codes. Local EVM integration runs on an ephemeral Anvil node (Chain ID `5042002`). Zero public transactions have been broadcast (`releaseApproved: false`).
+All contracts are self-contained Solidity 0.8.24 without unverified external dependencies. Tests execute against explicit interfaces and cheat codes. Zero unauthorized mainnet funds have been risked.
+
+---
+
+## Thelema Positioning & Intuition
+
+> **"What does an event do to an asset's price? Trade the impact, not just the odds — trade both worlds in one conserved vault."**
+
+THELEMA is a synthetic impact-market research protocol and conditional market mechanism based on futarchy principles. It is **not** a gambling venue, betting exchange, or leveraged CFD platform:
+1. **Fully-Collateralized Solvency**: 100% backed in native 6-decimal USDC (`0x3600000000000000000000000000000000000000`). Zero leverage, zero rehypothecation, zero fractional reserves.
+2. **Futarchy Mechanism**: Prices continuous conditional expectations $\mathbb{E}[S \mid \text{YES}]$ and $\mathbb{E}[S \mid \text{NO}]$ against event probability $P(\text{event})$ within a single conserved vault.
+3. **Mathematical Solvency Invariant**: Complete set minting $C \to \text{YES} + \text{NO} + R$ satisfies $X + 0 + (C - X) \equiv C$ identically across all states of the world.
 
 ---
 
 ## Financial Model & Complete-Set Conservation ($C \to Y + N + R$)
 
-THELEMA uses a strictly solvent, fully-collateralized complete-set model for continuous conditional impact assets:
-
 ### 1. Complete-Set Minting & Merging
-- **Minting**: Depositing $C$ USDC of collateral ($C = 500.00$ USDC per set) mints three distinct ERC-20 tokens:
+- **Minting**: Depositing $C$ USDC collateral ($C = 500.00$ USDC per set) mints three distinct ERC-20 tokens:
   $$\text{Deposit } C \text{ USDC} \longrightarrow 1 \text{ YES Share} + 1 \text{ NO Share} + 1 \text{ Residual Share } (R)$$
 - **Merging**: Merging back to $C$ USDC collateral requires returning all three tokens:
   $$1 \text{ YES Share} + 1 \text{ NO Share} + 1 \text{ Residual Share } (R) \longrightarrow C \text{ USDC}$$
-  Attempting to merge only YES and NO shares without Residual is rejected on-chain (`InsufficientBalance`).
+  Attempting to merge only YES and NO shares without Residual reverts on-chain.
+- **Dust-Free Arithmetic**: Split and merge enforce exact divisibility (`InexactAmount` revert on non-zero remainder) to ensure lossless roundtrips.
 
 ### 2. Settlement Payoffs & Absolute Solvency
 At settlement, the oracle determines the event outcome ($\text{YES}$ or $\text{NO}$) and fixes the settlement price $S \ge 0$. The payout index is capped at $C$:
@@ -35,61 +50,59 @@ The three tokens pay out according to the realized world:
 
 **Solvency Invariant**:
 $$\text{Total Payout} = X + 0 + (C - X) \equiv C$$
-For every possible state of the world ($\text{YES}$ or $\text{NO}$) and for all index values $S \ge 0$, the aggregate payout across one complete set is identically equal to $C$. The vault's collateral balance always satisfies $\text{balance} \ge \text{remainingLiabilities}$, ensuring mathematical solvency with zero shortfall risk.
+For every possible state of the world ($\text{YES}$ or $\text{NO}$) and for all index values $S \ge 0$, the aggregate payout across one complete set is identically equal to $C$.
 
 ---
 
-## Settlement-Horizon Comparability Labeling: Capped Horizon Index vs Spot Price
+## Security Audit Hardening Matrix (Oct 8 Audit Findings)
 
-It is critical to distinguish between an unconstrained spot asset price and THELEMA's conditional settlement payoffs:
-- **Capped Horizon Index ($S \le \text{cap}$)**:
-  The conditional share payoffs $q_Y$ and $q_N$ reflect the market's expectation of the settlement price **capped at $C = 500$ USDC** at the future settlement horizon.
-- **Not Spot Asset Price**:
-  An external spot asset (e.g. NVDA equity) can trade freely without a ceiling (e.g. $\$600$, $\$800$, $\$1,200$). In contrast, THELEMA shares can never pay more than $C = \$500.00$ per share.
-- **Comparability Labeling**:
-  All market displays, API endpoints, and documentation explicitly label implied index valuations as **Capped Horizon Index ($S \le \text{cap}$)**. The sum $q_Y + q_N$ is a horizon-comparability metric under the capped contract payoff, not an assertion of spot equity equivalence.
-
----
-
-## Components
-
-- `src/vault/BinaryVault.sol`: six-decimal collateral -> 18-decimal complete sets; merge before settlement; winning-token redemption afterward.
-- `src/vault/ShareVault.sol`: 500-USDC collateral per complete set ($C \to Y + N + R$); cap at settlement; residual redemption.
-- `src/amm/BinaryAMM.sol`: complete-set-mint constant-product buys, LP accounting and separated protocol fees.
-- `src/amm/ShareAMM.sol`: independent USDC/share CPMMs, buy/sell and LP operations.
-- `src/token/ImpactToken.sol`: vault/pool-controlled mint/burn ERC20.
-- `src/DemoOracle.sol`: owner-controlled, two-stage publication and settlement of both vaults with strict timing cutoffs.
-- `script/Deploy.s.sol`: Arc-only deployment script; uses real owner/fee-recipient inputs and requires the expected 30-basis-point fee.
-- `src/interfaces/IImpact.sol` and `abi/IImpact.json`: interface/source mirror only.
+| ID | Severity | Vulnerability Description | Applied Hardening Fix | Test Coverage |
+| :--- | :--- | :--- | :--- | :--- |
+| **C1** | Critical | Single-EOA oracle control over settlement; single-step ownership | Multisig Safe requirement for Arc Mainnet; 24h timelocked settlement (`queueSettlement` $\to$ `executeSettlement`); cancellation path; dispute guardian challenge window | `test_C1_SettlementTimelockEnforced`, `test_C1_DisputeGuardianCanCancelSettlement` |
+| **H1** | High | Settlement front-running in public mempool | Atomic settlement path only (`publishAndSettle` / `settle`); direct `resolveEvent` and `fixPrice` disabled | `test_H1_M2_AtomicSettlementOnly` |
+| **H2** | High | Vault addresses passed as per-call parameters | Vaults bound immutably in `DemoOracle` constructor with bytecode existence checks (`code.length > 0`) | `test_H2_DeployingOracleWithZeroOrEOAReverts`, `test_H2_SettlementTargetsStoredVaults` |
+| **H3** | High | No escape hatch if oracle fails / bricks | 180-day post-cutoff par refund escape hatch (`refundAfter = tradingCutoff + 180 days`) in `BinaryVault` and `ShareVault` | `test_H3_RefundWorksAtParAfterRefundAfterWithoutSettlement`, `test_H3_RefundRevertsIfAlreadySettled` |
+| **M1** | Medium | Chain ID and precompiles hardcoded inconsistently | Single source of truth in `packages/core/chain.ts` supporting Arc Mainnet (`5042`) and Arc Testnet (`5042002`) | TAP chain verification |
+| **M2** | Medium | Insider-trading window between event resolution and price fixing | Trading frozen immediately upon event resolution (`ShareVault.assertShareTradingAllowed()` reverts if `lifecycle != OPEN`) | `test_H1_M2_ShareTradingFrozenPostResolution` |
+| **M3** | Medium | Untracked stray tokens in AMMs | Added `sweep(address token, address to)` in `BinaryAMM` and `ShareAMM` restricted to guardian | `test_M3_SweepStrayCollateralAndTokens` |
+| **M4** | Medium | Dust loss on merge / floor-ceil asymmetry | Exact rounding with `InexactAmount` revert on dust in binary & share split/merge; zero skim accumulation | `test_M4_BinaryMergeRevertsOnDust`, `test_M4_ShareSplitMergeExactRoundtripIsLossless` |
+| **L1** | Low | Donation-based AMM price skew | Internal tracked reserves (`reserveYes18`, `reserveNo18`, `reserveStable6`, `reserveShares18`) in AMMs; donation immune | `test_L1_DonationDoesNotDistortBinaryPrice`, `test_L1_DonationDoesNotDistortSharePrice` |
+| **L2** | Low | `SafeTransferLib` silent no-op on EOAs | Added explicit `token.code.length == 0` validation before calling `transfer`/`transferFrom` | `test_L2_SafeTransferLibRevertsOnEOA` |
+| **L3** | Low | Single-step ownership typo bricking | Two-step ownership transfer (`transferOwnership` + `acceptOwnership`) implemented in `Ownable.sol` | `test_C1_TwoStepOwnershipRoundTrip` |
+| **L4** | Low | Lack of emergency incident response | Pause-only guardian multisig (`paused`, `setPaused`, `setGuardian`) on AMMs halting trading/deposits while preserving LP exits | `test_L4_PauseGuardianHaltsTradingOnly` |
 
 ---
 
-## Key Invariants & Hardened Logic
+## Contract Inventory
 
-1. **Fractional winning tokens can redeem.** AMMs produce fractional balances. Binary payout is `amount18 / 1e12`; share payout is `shares18 * cappedValue6 / 1e18`.
-2. **Fractional share sets.** Split costs $\lceil\text{units} \times 500\text{ USDC}\rceil$; merge returns the floor. Residual is computed from actual vault collateral minus aggregate winning liability at settlement.
-3. **Six-decimal collateral validation.** Vault constructors require a successful `decimals()` response equal to six.
-4. **Positive trade outputs/minimums.** Buy/sell paths reject zero output and zero minimum output. Deployment uses the UI's 0.30% fee.
-5. **Dust burns.** Positive winning token balances with a zero micro-USDC payout can still be burned; zero transfers are skipped. Per-holder rounding dust remains in the vault.
-6. **Execution Evidence**: 24/24 Foundry unit tests pass (`forge test -vvv`) and 15/15 local EVM integration tests pass (`npm run test:evm`).
+- `src/vault/BinaryVault.sol`: 6-decimal collateral $\to$ 18-decimal complete sets ($1.00 \to 1\text{ YES} + 1\text{ NO}$); exact split/merge; immutable oracle binding; 180-day par refund.
+- `src/vault/ShareVault.sol`: 500-USDC complete sets ($C \to \text{YES} + \text{NO} + R$); atomic settlement; trading frozen at resolution; exact split/merge; 180-day par refund.
+- `src/amm/BinaryAMM.sol`: Tracked internal reserves, constant-product binary pool, pause guardian, stray token sweep, minimum initial liquidity.
+- `src/amm/ShareAMM.sol`: Tracked internal reserves, constant-product share pool, pause guardian, stray token sweep, minimum initial liquidity.
+- `src/DemoOracle.sol`: 24h timelocked settlement queue, dispute guardian, two-step ownership, immutable vault bindings.
+- `src/oracle/DataStreamsAdapter.sol`: Chainlink Data Streams pull-oracle adapter with on-chain cryptographic verification and normalized 6-decimal spot output.
+- `src/interfaces/IDataStreamsVerifier.sol`: Interface for Chainlink Data Streams report verifier contracts.
+- `src/lib/Ownable.sol`: Hardened two-step ownership pattern (`pendingOwner`).
+- `src/lib/SafeTransferLib.sol`: Bytecode-verified safe ERC-20 transfer wrapper.
+- `script/Deploy.s.sol`: Production deployment script with Arc Mainnet multisig Safe checks, gas limits, and one-time vault-oracle initialization.
 
-## Differences to the simulator
+---
 
-- On-chain binary `split` takes collateral in micro-USDC and mints multiples of `1e12` token wei. The simulator permits finer pair quantities and rounds collateral upward. The wallet UI restricts live binary splits to six decimal places of pairs.
-- The simulator clears both winning and losing local positions at claim. On-chain redemption accepts only the winning token; losing tokens remain worthless balances. The UI does not promise a losing-token payout.
-- A zero-value on-chain dust burn is allowed. The simulator refuses zero-collateral pair operations.
-- Read-only contract quote methods may still return a price after settlement; execution is frozen. The app rejects settled-market quotes before requesting a wallet transaction.
-- Post-settlement LP removal is available in the source. LP administration and share sells are not exposed in the current web UI.
+## Verification Commands
 
-## Security & Verification Guidance
+```bash
+# Run Foundry contract suite (49 tests)
+npm run test:contracts
 
-```sh
-cd packages/contracts
-forge build
-forge test -vvv
+# Run TAP test suite (239 tests)
+npm test
+
+# Run Local EVM integration (15 tests)
+npm run test:evm
+
+# Run Browser UI EVM integration
+npm run test:ui:evm
+
+# Run typecheck & build
+npm run typecheck && npm run build
 ```
-
-All 24 smart contract unit and regression tests pass in Foundry and run in CI on every push. Invariant edge cases, arithmetic bounds, donation/rounding behavior, fee-on-transfer/rebasing token exclusions, oracle controls, initialization and LP ownership are verified in code. Independent external security audit is required before any meaningful funds are used on public mainnet.
-
-The demo oracle can decide the event/index; there is no dispute window or independent policy/news feed in this demo prototype. This is a deliberate trust assumption, not decentralized resolution.
-

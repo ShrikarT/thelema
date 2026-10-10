@@ -1,0 +1,84 @@
+"""
+THELEMA Subgraph Schema for Goldsky / The Graph on Arc Network
+Tracks markets, vaults, AMM trades, liquidity positions, and settlement lifecycles.
+"""
+
+enum MarketLifecycle {
+  OPEN
+  EVENT_RESOLVED
+  PRICE_FIXED
+}
+
+type Market @entity {
+  id: ID! # Market address / identifier
+  name: String!
+  collateralToken: Bytes! # Arc USDC (0x3600000000000000000000000000000000000000)
+  binaryVault: Bytes!
+  shareVault: Bytes!
+  binaryAMM: Bytes!
+  yesShareAMM: Bytes!
+  noShareAMM: Bytes!
+  oracle: Bytes!
+  cap6: BigInt!
+  lifecycle: MarketLifecycle!
+  resolvedOutcome: Boolean
+  settlementPrice6: BigInt
+  residualPrice6: BigInt
+  totalCollateralDeposited6: BigInt!
+  totalCollateralRedeemed6: BigInt!
+  updatedAtBlock: BigInt!
+  updatedAtTimestamp: BigInt!
+}
+
+type Trade @entity(immutable: true) {
+  id: ID! # txHash-logIndex
+  market: Market!
+  trader: Bytes!
+  book: String! # "binary" or "asset"
+  side: String! # "yes" or "no"
+  stableAmount6: BigInt!
+  fee6: BigInt!
+  tokensOut18: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LiquidityEvent @entity(immutable: true) {
+  id: ID! # txHash-logIndex
+  market: Market!
+  provider: Bytes!
+  amm: Bytes!
+  type: String! # "ADD" or "REMOVE"
+  stable6: BigInt
+  tokens18: BigInt
+  lpTokens18: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SettlementEvent @entity(immutable: true) {
+  id: ID! # txHash-logIndex
+  market: Market!
+  eventYes: Boolean!
+  spotPrice6: BigInt!
+  settlementPrice6: BigInt!
+  residualPrice6: BigInt!
+  queuedAt: BigInt
+  executedAt: BigInt!
+  transactionHash: Bytes!
+}
+
+type UserPosition @entity {
+  id: ID! # userAddress-marketAddress
+  user: Bytes!
+  market: Market!
+  yesBinary18: BigInt!
+  noBinary18: BigInt!
+  yesShare18: BigInt!
+  noShare18: BigInt!
+  residualShare18: BigInt!
+  totalCollateralClaimed6: BigInt!
+  updatedAtTimestamp: BigInt!
+}
