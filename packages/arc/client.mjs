@@ -42,12 +42,14 @@ function configuration(env = {}) {
     oracle
   };
   const arcReady = Object.values(contracts).every(isAddress);
+  const targetChainId = env.ARC_CHAIN_ID ? Number(env.ARC_CHAIN_ID) : DEFAULT_CHAIN_ID;
+  const chainCfg = getChainConfig(targetChainId);
   return {
-    chainId: ARC.chainId,
-    chainName: ARC.chainName,
-    collateral: ARC.collateral,
-    explorer: ARC.explorer,
-    rpcUrl: env.ARC_RPC_URL || env.RPC_URL || ARC.rpcUrl,
+    chainId: chainCfg.chainId,
+    chainName: chainCfg.chainName,
+    collateral: chainCfg.collateral,
+    explorer: chainCfg.explorer,
+    rpcUrl: env.ARC_RPC_URL || env.RPC_URL || chainCfg.rpcUrl,
     arcReady,
     creReady: isCreConfigured(env),
     graphReady: isGraphConfigured(env),

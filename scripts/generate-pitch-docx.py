@@ -1,4 +1,4 @@
-﻿import os
+import os
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -50,7 +50,7 @@ def create_pitch_docx():
     title_p = doc.add_paragraph()
     title_p.paragraph_format.space_before = Pt(0)
     title_p.paragraph_format.space_after = Pt(2)
-    run_pre = title_p.add_run("ETHONLINE 2026 HACKATHON SUBMISSION\n")
+    run_pre = title_p.add_run("ARC MICROGRANT SUBMISSION\n")
     run_pre.font.name = "Calibri"
     run_pre.font.size = Pt(10)
     run_pre.font.bold = True
@@ -186,7 +186,7 @@ def create_pitch_docx():
     add_body(
         "THELEMA introduces conditional synthetic impact markets. By decoupling outcomes into parallel contingent worlds (YES world vs. NO world), "
         "THELEMA prices not merely the odds of a policy decision, but what happens to asset valuations conditional upon that decision. "
-        "For ETHOnline 2026, we deployed a live market on Arc Testnet pricing the critical geopolitical and tech question: "
+        "For the Arc microgrant, we deployed a live market on Arc Testnet pricing the critical geopolitical and tech question: "
         "\"Will the US allow advanced AI chip sales to China by 31 December 2026?\""
     )
     add_body(

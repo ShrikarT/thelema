@@ -188,15 +188,6 @@ Health states: `agreeing`, `disagreeing`, `single_source`, `unavailable`. Block 
 
 ---
 
-## ETHOnline 2026
-
-| Track | What shipped |
-| :--- | :--- |
-| **Arc — Best DeFi Stablecoin-Native Pool** | Native USDC vaults and AMMs on Arc Testnet. Live deployment and a recorded fill. |
-| **Chainlink — Best Confidential Workflow** | CRE size-clip WASM, authenticated bridge, simulator evidence. |
-| **The Graph — Standardized Cross-Protocol** | Dual Messari DEX query, consensus/disagreement, fail-closed freshness. |
-
----
 
 ## Security Audit Hardening & Arc Mainnet Readiness
 
@@ -263,7 +254,7 @@ npm run verify:graph
 - [**Runbook**](docs/RUNBOOK.md) — deploy, seed, operator demo.
 - [**Security**](docs/SECURITY.md) — threat notes and explicit non-goals.
 - [**Design**](docs/DESIGN.md) — console visual system.
-- [**AI attribution**](AI.md) — hackathon disclosure.
+- [**AI attribution**](AI.md) — tooling and generation disclosure.
 
 ---
 

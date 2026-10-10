@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -56,7 +56,7 @@ def build_deck():
     tf.word_wrap = True
 
     p0 = tf.paragraphs[0]
-    p0.text = "ETHONLINE 2026 SUBMISSION"
+    p0.text = "ARC MICROGRANT SUBMISSION"
     p0.font.size = Pt(13)
     p0.font.bold = True
     p0.font.color.rgb = ACCENT_BLUE
@@ -294,7 +294,7 @@ def build_deck():
             "Confidential Size Clipping: Hides order notional inside TEE to prevent front-running.",
             "WASM Policy Compilation: Pure TypeScript policy compiled to standalone WebAssembly.",
             "Official CLI Simulation: Tested via Chainlink CRE CLI simulator (halted at network boundary).",
-            "Honest Hackathon Reporting: Production contract standby pending organization deploy access."
+            "Honest Grant Reporting: Production contract standby pending organization deploy access."
         ])
     ]
 

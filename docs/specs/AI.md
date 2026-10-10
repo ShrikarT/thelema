@@ -1,6 +1,6 @@
 # AI attribution
 
-ETHOnline requires documenting AI use. Update as you generate code.
+Documenting AI use honestly across all generated code and specifications. Update as you generate code.
 
 | Date | Tool | Files / area |
 |---|---|

@@ -1,6 +1,6 @@
 # THELEMA — demo video script
 
-ETHOnline wants **2–4 minutes**, **≥720p**, **your voice**. Record like the [web3torrent demo](https://www.youtube.com/watch?v=T0jY6BqNS3w): calm, show the product, name the stack, stop.
+Demo video guideline: **2–4 minutes**, **≥720p**, **your voice**. Record like the [web3torrent demo](https://www.youtube.com/watch?v=T0jY6BqNS3w): calm, show the product, name the stack, stop.
 
 No music. No stock footage. You talking over the app.
 
