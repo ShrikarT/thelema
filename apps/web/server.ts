@@ -79,7 +79,8 @@ export function createApp({ env = process.env, fetchImpl = fetch }: AppOptions =
   const effectiveEnv = { ...env };
   if (env === process.env || process.env.NODE_ENV === 'production' || env.ARC_USE_SUBMISSION === 'true') {
     try {
-      const subPath = path.resolve('deployments/submission-market.json');
+      const manifestRelative = effectiveEnv.ARC_MANIFEST_PATH || (effectiveEnv.ARC_CHAIN_ID === '5042' ? 'deployments/mainnet-market.json' : 'deployments/submission-market.json');
+      const subPath = path.resolve(manifestRelative);
       if (existsSync(subPath)) {
         const manifest = JSON.parse(readFileSync(subPath, 'utf8'));
         if (manifest.contracts) {

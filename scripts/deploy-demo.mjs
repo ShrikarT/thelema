@@ -14,9 +14,12 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
-const ARC_CHAIN_ID = 5042002;
-const ARC_TESTNET_RPC = 'https://rpc.testnet.arc.io';
-const ARC_USDC = '0x3600000000000000000000000000000000000000';
+import { getChainConfig, DEFAULT_CHAIN_ID, PRECOMPILE_USDC } from '../packages/core/chain.mjs';
+
+const ARC_CHAIN_ID = Number(process.env.ARC_CHAIN_ID || DEFAULT_CHAIN_ID);
+const defaultChainCfg = getChainConfig(ARC_CHAIN_ID);
+const ARC_TESTNET_RPC = defaultChainCfg.rpcUrl;
+const ARC_USDC = process.env.ARC_USDC || defaultChainCfg.collateral || PRECOMPILE_USDC;
 const ANVIL_DEV_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 
 const candidateEnvPaths = ['.env', path.resolve('../thelema/.env')];
@@ -416,7 +419,7 @@ export async function runDeploy({
   isLocal = false,
   dryRun = false,
   autoFund = true,
-  manifestPath = path.resolve('deployments/demo-manifest.json'),
+  manifestPath = path.resolve(ARC_CHAIN_ID === 5042 ? 'deployments/mainnet-market.json' : 'deployments/demo-manifest.json'),
   planPath = path.resolve('deployments/unsigned-launch-plan.json'),
   testFailureHook = null
 } = {}) {
@@ -454,8 +457,8 @@ export async function runDeploy({
   }
 
   console.log(`Connected to Chain ID: ${chainId}`);
-  if (chainId !== ARC_CHAIN_ID) {
-    throw new Error(`Unsupported chain ID ${chainId}. THELEMA operations are strictly restricted to chain ${ARC_CHAIN_ID} (Arc Testnet / local Arc fork).`);
+  if (chainId !== 5042 && chainId !== 5042002) {
+    throw new Error(`Unsupported chain ID ${chainId}. THELEMA operations are strictly restricted to chain 5042 (Arc Mainnet) or 5042002 (Arc Testnet / local Arc fork).`);
   }
 
   // Unified Market Specification & Small-Budget Fractional Profile
@@ -656,7 +659,7 @@ export async function runDeploy({
     const collateralSurplusOrShortfall6 = collateralBalance >= remainingCollateral6 ? collateralBalance - remainingCollateral6 : remainingCollateral6 - collateralBalance;
 
     console.log(`\n--- Preflight Summary for ${targetAddress} ---`);
-    console.log(`Selected Chain: ${chainId} (Arc Testnet)`);
+    console.log(`Selected Chain: ${chainId} (${chainId === 5042 ? 'Arc Mainnet' : 'Arc Testnet'})`);
     console.log(`Current Native Balance (USDC gas, 18-dec): ${formatUnits(nativeBalance, 18)} USDC`);
     console.log(`Current Collateral Balance (USDC ERC-20, 6-dec): ${formatUnits(collateralBalance, 6)} USDC`);
     console.log(`\n--- Remaining Requirements ---`);
@@ -742,10 +745,10 @@ export async function runDeploy({
       status: 'PENDING_APPROVAL',
       timestamp: new Date().toISOString(),
       network: {
-        name: isLocalDev ? 'Local EVM (Anvil)' : 'Arc Testnet',
-        chainId: ARC_CHAIN_ID,
+        name: isLocalDev ? 'Local EVM (Anvil)' : (chainId === 5042 ? 'Arc Mainnet' : 'Arc Testnet'),
+        chainId: chainId,
         rpcUrl: safeRpcUrl,
-        explorer: 'https://testnet.arcscan.app',
+        explorer: chainId === 5042 ? 'https://arcscan.app' : 'https://testnet.arcscan.app',
         usdcCollateralPrecompile: ARC_USDC,
         gasCurrency: 'USDC (gas) [18 decimals native]'
       },
@@ -1522,10 +1525,16 @@ export async function runDeploy({
 
   await executeWithJournal('oracle', 'Deploy DemoOracle', async (nonce, gasPrice, gasLimit) => {
     console.log('Deploying DemoOracle...');
+    const oracleOwner = chainId === 5042
+      ? (process.env.SAFE_ADDRESS || process.env.OWNER_ADDRESS)
+      : (process.env.OWNER_ADDRESS || account.address);
+    if (chainId === 5042 && (!oracleOwner || oracleOwner.toLowerCase() === account.address.toLowerCase())) {
+      throw new Error('C1 Security Requirement: Oracle owner on Arc Mainnet (chain 5042) must be a multisig Safe address specified via SAFE_ADDRESS or OWNER_ADDRESS, not deployer EOA.');
+    }
     return wallet.deployContract({
       abi: oracleArtifact.abi,
       bytecode: oracleArtifact.bytecode.object,
-      args: [account.address, binVaultAddress, shareVaultAddress],
+      args: [oracleOwner, binVaultAddress, shareVaultAddress],
       nonce,
       gasPrice,
       gas: gasLimit

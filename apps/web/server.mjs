@@ -400,7 +400,7 @@ var ARC_CHAINS = Object.freeze({
     chainId: 5042,
     chainName: "Arc Mainnet",
     collateral: typeof process !== "undefined" && process.env?.ARC_USDC || PRECOMPILE_USDC,
-    rpcUrl: typeof process !== "undefined" && process.env?.ARC_MAINNET_RPC_URL || "https://rpc.arc.io",
+    rpcUrl: typeof process !== "undefined" && process.env?.ARC_MAINNET_RPC_URL || "https://rpc.mainnet.arc.io",
     explorer: "https://arcscan.app",
     isTestnet: false
   }),
@@ -575,7 +575,8 @@ function createApp({ env = process.env, fetchImpl = fetch } = {}) {
   const effectiveEnv = { ...env };
   if (env === process.env || false || env.ARC_USE_SUBMISSION === "true") {
     try {
-      const subPath = path.resolve("deployments/submission-market.json");
+      const manifestRelative = effectiveEnv.ARC_MANIFEST_PATH || (effectiveEnv.ARC_CHAIN_ID === "5042" ? "deployments/mainnet-market.json" : "deployments/submission-market.json");
+      const subPath = path.resolve(manifestRelative);
       if (existsSync(subPath)) {
         const manifest = JSON.parse(readFileSync(subPath, "utf8"));
         if (manifest.contracts) {
