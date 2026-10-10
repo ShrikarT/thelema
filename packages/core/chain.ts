@@ -29,7 +29,7 @@ export const ARC_CHAINS: Record<number, ArcChainConfig> = Object.freeze({
     chainId: 5042,
     chainName: 'Arc Mainnet',
     collateral: (typeof process !== 'undefined' && process.env?.ARC_USDC) || PRECOMPILE_USDC,
-    rpcUrl: (typeof process !== 'undefined' && process.env?.ARC_MAINNET_RPC_URL) || 'https://rpc.arc.io',
+    rpcUrl: (typeof process !== 'undefined' && process.env?.ARC_MAINNET_RPC_URL) || 'https://rpc.mainnet.arc.io',
     explorer: 'https://arcscan.app',
     isTestnet: false
   }),

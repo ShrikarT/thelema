@@ -1,6 +1,6 @@
 {
   "status": "PENDING_APPROVAL",
-  "timestamp": "2026-09-08T06:04:59.099Z",
+  "timestamp": "2026-10-10T03:59:33.020Z",
   "network": {
     "name": "Arc Testnet",
     "chainId": 5042002,
@@ -9,7 +9,7 @@
     "usdcCollateralPrecompile": "0x3600000000000000000000000000000000000000",
     "gasCurrency": "USDC (gas) [18 decimals native]"
   },
-  "sourceCommit": "9e97e557b68fa313c2d5fb330f4b494731edc21e",
+  "sourceCommit": "646d090464c452472d811ea766a2c16aacb32e13",
   "marketSpecification": {
     "title": "NVDA US-China Semiconductor Export Restrictions (Synthetic Demo)",
     "description": "Will US export policy restrict advanced GPU shipments further before deadline?",
@@ -25,7 +25,7 @@
   "budgetRequirements": {
     "proposedCeiling": "100.00 USDC (proposed hard maximum ceiling for collateral + dynamic gas budget)",
     "totalCollateralRequired": "86.021 USDC (collateral)",
-    "dynamicGasBudgetEstimate": "0.34671 USDC (dynamic gas estimate with 30% safety reserve)",
+    "dynamicGasBudgetEstimate": "0.596375 USDC (dynamic gas estimate with 30% safety reserve)",
     "breakdown": {
       "binarySplit": "20.00 USDC (collateral) -> 20 YES + 20 NO; seeds pool with 10 YES + 10 NO",
       "shareSplit": "50.00 USDC (collateral) -> 0.1 complete sets (0.1 yes, 0.1 no, 0.1 residual)",
