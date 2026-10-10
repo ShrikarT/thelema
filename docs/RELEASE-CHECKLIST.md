@@ -1,6 +1,6 @@
 # THELEMA Release Checklist — Pre-Broadcast Audited Baseline
 
-This document tracks local verification status and remaining gates required before live broadcast and final hackathon submission. For operational credentials, ceilings, and separated owner vs agent responsibilities, consult the consolidated **[RUNBOOK.md](docs/RUNBOOK.md)**.
+This document tracks local verification status and remaining gates required before live broadcast and final microgrant submission. For operational credentials, ceilings, and separated owner vs agent responsibilities, consult the consolidated **[RUNBOOK.md](docs/RUNBOOK.md)**.
 
 ## 1. Verified Locally & Passing in CI
 
