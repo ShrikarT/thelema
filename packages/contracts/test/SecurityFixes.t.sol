@@ -369,4 +369,123 @@ contract SecurityFixesTest {
         vm.expectRevert(SafeTransferLib.TransferFailed.selector);
         this.externalSafeTransferFrom(emptyEoa, alice, address(this), 100);
     }
+
+    // =========================================================================
+    // Phase 8 — L1: Donation Immunity (Internal Reserve Tracking)
+    // =========================================================================
+
+    function test_L1_DonationDoesNotDistortBinaryPrice() public {
+        // Seed BinaryAMM liquidity (50 YES + 50 NO)
+        binary.split(50e6, address(this));
+        ImpactToken(binary.yesToken()).approve(address(binaryAmm), 50e18);
+        ImpactToken(binary.noToken()).approve(address(binaryAmm), 50e18);
+        binaryAmm.addLiquidity(50e18, 50e18, 50e18, block.timestamp);
+
+        uint256 priceBefore = binaryAmm.binaryPriceUSDC6(true);
+        require(priceBefore == 500_000, "initial price not 50%");
+
+        // Attacker mints and donates 500 YES tokens directly to BinaryAMM
+        binary.split(500e6, attacker);
+        vm.startPrank(attacker);
+        ImpactToken(binary.yesToken()).transfer(address(binaryAmm), 500e18);
+        vm.stopPrank();
+
+        // Price signal must remain strictly unaffected
+        uint256 priceAfter = binaryAmm.binaryPriceUSDC6(true);
+        require(priceAfter == priceBefore, "price signal distorted by donation");
+    }
+
+    function test_L1_DonationDoesNotDistortSharePrice() public {
+        // Seed YesAMM liquidity (100 USDC + 1 share)
+        shares.split(1e18, address(this));
+        usdc.approve(address(yesAmm), 100e6);
+        ImpactToken(shares.yesShare()).approve(address(yesAmm), 1e18);
+        yesAmm.addLiquidity(100e6, 1e18, 1, block.timestamp);
+
+        uint256 priceBefore = yesAmm.sharePriceUSDC6();
+        require(priceBefore == 100e6, "initial price not 100 USDC");
+
+        // Attacker donates 500 USDC directly to YesAMM
+        usdc.transfer(attacker, 500e6);
+        vm.startPrank(attacker);
+        usdc.transfer(address(yesAmm), 500e6);
+        vm.stopPrank();
+
+        // Price signal must remain strictly unaffected
+        uint256 priceAfter = yesAmm.sharePriceUSDC6();
+        require(priceAfter == priceBefore, "share price signal distorted by donation");
+    }
+
+    // =========================================================================
+    // Phase 9 — M3: Fee Accounting Consistency and Stray Token Sweep
+    // =========================================================================
+
+    function test_M3_SweepStrayCollateralAndTokens() public {
+        // Stray USDC sent to BinaryAMM
+        usdc.transfer(address(binaryAmm), 25e6);
+
+        // Attacker cannot sweep
+        vm.prank(attacker);
+        vm.expectRevert(BinaryAMM.Unauthorized.selector);
+        binaryAmm.sweep(address(usdc), attacker);
+
+        // Fee recipient sweeps stray USDC
+        uint256 carolBefore = usdc.balanceOf(carol);
+        uint256 swept = binaryAmm.sweep(address(usdc), carol);
+        require(swept == 25e6, "sweep amount incorrect");
+        require(usdc.balanceOf(carol) == carolBefore + 25e6, "carol balance incorrect");
+    }
+
+    // =========================================================================
+    // Phase 10 — L4: Pause Guardian Emergency Trade Halting
+    // =========================================================================
+
+    function test_L4_PauseGuardianHaltsTradingOnly() public {
+        // Non-guardian cannot pause
+        vm.prank(attacker);
+        vm.expectRevert(BinaryAMM.Unauthorized.selector);
+        binaryAmm.setPaused(true);
+
+        // Guardian pauses trading
+        binaryAmm.setPaused(true);
+        require(binaryAmm.paused(), "not paused");
+
+        // Buy outcome reverts
+        usdc.approve(address(binaryAmm), 10e6);
+        vm.expectRevert(BinaryAMM.Paused.selector);
+        binaryAmm.buyOutcome(true, 10e6, 1, block.timestamp);
+
+        // Add liquidity reverts
+        binary.split(10e6, address(this));
+        ImpactToken(binary.yesToken()).approve(address(binaryAmm), 10e18);
+        ImpactToken(binary.noToken()).approve(address(binaryAmm), 10e18);
+        vm.expectRevert(BinaryAMM.Paused.selector);
+        binaryAmm.addLiquidity(10e18, 10e18, 1, block.timestamp);
+
+        // Guardian unpauses
+        binaryAmm.setPaused(false);
+        require(!binaryAmm.paused(), "still paused");
+    }
+
+    // =========================================================================
+    // Phase 11 — C1: Dispute Guardian Timelock Cancellation
+    // =========================================================================
+
+    function test_C1_DisputeGuardianCanCancelSettlement() public {
+        oracle.setDisputeGuardian(carol);
+        require(oracle.disputeGuardian() == carol, "guardian not set");
+
+        oracle.queueSettlement(true, 300e6);
+        require(oracle.isSettlementPending(), "settlement not queued");
+
+        // Attacker cannot cancel
+        vm.prank(attacker);
+        vm.expectRevert(Ownable.Unauthorized.selector);
+        oracle.cancelSettlement();
+
+        // Dispute guardian successfully cancels within the 24-hour timelock window
+        vm.prank(carol);
+        oracle.cancelSettlement();
+        require(!oracle.isSettlementPending(), "settlement still pending after dispute");
+    }
 }

@@ -488,12 +488,14 @@ export async function runDeploy({
   };
 
   const ESTIMATED_GAS = {
-    oracle: 600_000n,
-    binaryVault: 2_000_000n,
-    shareVault: 3_200_000n,
-    binaryAmm: 1_800_000n,
-    yesShareAmm: 1_700_000n,
-    noShareAmm: 1_700_000n,
+    oracle: 800_000n,
+    binaryVault: 3_000_000n,
+    shareVault: 4_200_000n,
+    binaryAmm: 2_500_000n,
+    yesShareAmm: 2_500_000n,
+    noShareAmm: 2_500_000n,
+    setOracleBinary: 150_000n,
+    setOracleShare: 150_000n,
     approve_usdc_bin_split: 100_000n,
     binary_split: 350_000n,
     approve_yes_bin_amm: 100_000n,
