@@ -97,4 +97,61 @@ test('Arc client dynamically validates configured chain ID against RPC', async (
   assert.equal(s.mode, 'arc');
 });
 
+test('Seed budget scaling: parseSeedScale parses valid scales and rejects invalid formats', async () => {
+  const { parseSeedScale } = await import('../scripts/deploy-demo.mjs');
+  assert.deepEqual(parseSeedScale('1/1'), { num: 1n, den: 1n, raw: '1/1' });
+  assert.deepEqual(parseSeedScale('1/10'), { num: 1n, den: 10n, raw: '1/10' });
+  assert.deepEqual(parseSeedScale('1/20'), { num: 1n, den: 20n, raw: '1/20' });
+  assert.deepEqual(parseSeedScale(' 1/5 '), { num: 1n, den: 5n, raw: '1/5' });
+
+  assert.throws(() => parseSeedScale('invalid'), /Invalid SEED_SCALE format/);
+  assert.throws(() => parseSeedScale('10'), /Invalid SEED_SCALE format/);
+  assert.throws(() => parseSeedScale('0/10'), /must be positive/);
+  assert.throws(() => parseSeedScale('1/0'), /must be positive/);
+  assert.throws(() => parseSeedScale('-1/10'), /Invalid SEED_SCALE format/);
+});
+
+test('Seed budget scaling: createBudgetProfile scales proportionally and preserves dust guards & implied prices', async () => {
+  const { createBudgetProfile } = await import('../scripts/deploy-demo.mjs');
+
+  // Baseline 1/1
+  const b1 = createBudgetProfile('1/1');
+  assert.equal(b1.totalUSDCRequired6, 86_021_000n);
+  assert.equal(b1.binarySplit6, 20_000_000n);
+  assert.equal(b1.shareSplit6, 50_000_000n);
+  assert.equal(b1.yesShareSeed6, 11_655_000n);
+  assert.equal(b1.noShareSeed6, 4_366_000n);
+  assert.equal(b1.binarySeedTokens18, 10n * 10n**18n);
+  assert.equal(b1.shareSplitSets18, 100_000_000_000_000_000n);
+
+  // 1/10 scale: exactly 8.6021 USDC required
+  const b10 = createBudgetProfile('1/10');
+  assert.equal(b10.totalUSDCRequired6, 8_602_100n);
+  assert.equal(b10.totalUSDCRequired, '8.6021 USDC (collateral)');
+  assert.equal(b10.binarySplit6, 2_000_000n);
+  assert.equal(b10.shareSplit6, 5_000_000n);
+  assert.equal(b10.yesShareSeed6, 1_165_500n);
+  assert.equal(b10.noShareSeed6, 436_600n);
+  assert.equal(b10.binarySeedTokens18, 1n * 10n**18n);
+  assert.equal(b10.shareSplitSets18, 10_000_000_000_000_000n);
+  assert.equal(b10.yesShareSeedShares18, 10_000_000_000_000_000n);
+  assert.equal(b10.noShareSeedShares18, 10_000_000_000_000_000n);
+
+  // 1/20 scale: exactly 4.30105 USDC required
+  const b20 = createBudgetProfile('1/20');
+  assert.equal(b20.totalUSDCRequired6, 4_301_050n);
+  assert.equal(b20.totalUSDCRequired, '4.30105 USDC (collateral)');
+  assert.equal(b20.binarySplit6, 1_000_000n);
+  assert.equal(b20.shareSplit6, 2_500_000n);
+  assert.equal(b20.yesShareSeed6, 582_750n);
+  assert.equal(b20.noShareSeed6, 218_300n);
+  assert.equal(b20.binarySeedTokens18, 500_000_000_000_000_000n);
+  assert.equal(b20.shareSplitSets18, 5_000_000_000_000_000n);
+  assert.equal(b20.yesShareSeedShares18, 5_000_000_000_000_000n);
+  assert.equal(b20.noShareSeedShares18, 5_000_000_000_000_000n);
+
+  // Rejects dust-violating scale
+  assert.throws(() => createBudgetProfile('1/3'), /InexactAmount dust guard violation/);
+});
+
 

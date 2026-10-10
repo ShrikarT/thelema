@@ -411,6 +411,116 @@ export async function validateAndReconcileManifest({
   };
 }
 
+export function parseSeedScale(raw = process.env.SEED_SCALE || '1/1') {
+  const trimmed = String(raw).trim();
+  const match = trimmed.match(/^(\d+)\/(\d+)$/);
+  if (!match) {
+    throw new Error(`Invalid SEED_SCALE format: "${raw}". Expected format "num/den" (e.g. "1/10" or "1/1").`);
+  }
+  const num = BigInt(match[1]);
+  const den = BigInt(match[2]);
+  if (num <= 0n || den <= 0n) {
+    throw new Error(`Invalid SEED_SCALE values: "${raw}". Numerator and denominator must be positive.`);
+  }
+  return { num, den, raw: trimmed };
+}
+
+export function createBudgetProfile(scaleInput = process.env.SEED_SCALE || '1/1') {
+  const { num, den, raw: seedScaleStr } = parseSeedScale(scaleInput);
+
+  const cap6 = 500_000_000n; // $500.00
+  const ONE_SHARE_18 = 10n ** 18n;
+  const TOKEN_SCALE = 10n ** 12n;
+
+  // Unscaled baseline (at 1/1)
+  const BASELINE_BINARY_SPLIT_6 = 20_000_000n;
+  const BASELINE_BINARY_SEED_TOKENS_18 = 10n * ONE_SHARE_18;
+  const BASELINE_SHARE_SPLIT_6 = 50_000_000n;
+  const BASELINE_SHARE_SPLIT_SETS_18 = 100_000_000_000_000_000n;
+  const BASELINE_YES_SHARE_SEED_6 = 11_655_000n;
+  const BASELINE_YES_SHARE_SEED_SHARES_18 = 100_000_000_000_000_000n;
+  const BASELINE_NO_SHARE_SEED_6 = 4_366_000n;
+  const BASELINE_NO_SHARE_SEED_SHARES_18 = 100_000_000_000_000_000n;
+
+  // Proportionally scaled amounts using integer BigInt math (amount * num / den)
+  const binarySplit6 = (BASELINE_BINARY_SPLIT_6 * num) / den;
+  const binarySeedTokens18 = (BASELINE_BINARY_SEED_TOKENS_18 * num) / den;
+  const shareSplit6 = (BASELINE_SHARE_SPLIT_6 * num) / den;
+  const shareSplitSets18 = (BASELINE_SHARE_SPLIT_SETS_18 * num) / den;
+  const yesShareSeed6 = (BASELINE_YES_SHARE_SEED_6 * num) / den;
+  const yesShareSeedShares18 = (BASELINE_YES_SHARE_SEED_SHARES_18 * num) / den;
+  const noShareSeed6 = (BASELINE_NO_SHARE_SEED_6 * num) / den;
+  const noShareSeedShares18 = (BASELINE_NO_SHARE_SEED_SHARES_18 * num) / den;
+
+  if (
+    binarySplit6 <= 0n ||
+    binarySeedTokens18 <= 0n ||
+    shareSplit6 <= 0n ||
+    shareSplitSets18 <= 0n ||
+    yesShareSeed6 <= 0n ||
+    yesShareSeedShares18 <= 0n ||
+    noShareSeed6 <= 0n ||
+    noShareSeedShares18 <= 0n
+  ) {
+    throw new Error(`Scaled amounts must be strictly positive. Check SEED_SCALE="${seedScaleStr}".`);
+  }
+
+  // Assertion: InexactAmount dust guards
+  // Binary: amount18 % 1e12 == 0
+  if (binarySeedTokens18 % TOKEN_SCALE !== 0n) {
+    throw new Error(`InexactAmount dust guard violation: binarySeedTokens18 (${binarySeedTokens18}) % 1e12 != 0`);
+  }
+  const binaryMinted18 = binarySplit6 * TOKEN_SCALE;
+  if (binaryMinted18 % TOKEN_SCALE !== 0n) {
+    throw new Error(`InexactAmount dust guard violation: binaryMinted18 (${binaryMinted18}) % 1e12 != 0`);
+  }
+
+  // Share: (pairs18 * cap6) % 1e18 == 0
+  if ((shareSplitSets18 * cap6) % ONE_SHARE_18 !== 0n) {
+    throw new Error(`InexactAmount dust guard violation: (shareSplitSets18 * cap6) % 1e18 != 0`);
+  }
+  if ((shareSplitSets18 * cap6) / ONE_SHARE_18 !== shareSplit6) {
+    throw new Error(`Collateral inconsistency: shareSplitSets collateral does not match shareSplit6`);
+  }
+
+  // Assertion: Ratios and implied initial prices must stay identical
+  if (binaryMinted18 !== binarySeedTokens18 * 2n) {
+    throw new Error(`Binary seed ratio violation: binarySplit must equal 2 * binarySeedTokens`);
+  }
+  const impliedYesPrice6 = (yesShareSeed6 * ONE_SHARE_18) / yesShareSeedShares18;
+  if (impliedYesPrice6 !== 116_550_000n) {
+    throw new Error(`Implied YES price ratio shifted: got ${impliedYesPrice6}, expected 116550000`);
+  }
+  const impliedNoPrice6 = (noShareSeed6 * ONE_SHARE_18) / noShareSeedShares18;
+  if (impliedNoPrice6 !== 43_660_000n) {
+    throw new Error(`Implied NO price ratio shifted: got ${impliedNoPrice6}, expected 43660000`);
+  }
+
+  const totalUSDCRequired6 = binarySplit6 + shareSplit6 + yesShareSeed6 + noShareSeed6;
+
+  return {
+    seedScale: seedScaleStr,
+    capUSD: '$500.00',
+    cap6: 500_000_000,
+    binarySplitUSDC: `${formatUnits(binarySplit6, 6)} USDC (collateral)`,
+    binarySplit6,
+    binarySeedTokens18,
+    shareSplitUSDC: `${formatUnits(shareSplit6, 6)} USDC (collateral)`,
+    shareSplit6,
+    shareSplitSets18,
+    yesShareSeedUSDC: `${formatUnits(yesShareSeed6, 6)} USDC (collateral)`,
+    yesShareSeed6,
+    yesShareSeedShares18,
+    noShareSeedUSDC: `${formatUnits(noShareSeed6, 6)} USDC (collateral)`,
+    noShareSeed6,
+    noShareSeedShares18,
+    totalUSDCRequired: `${formatUnits(totalUSDCRequired6, 6)} USDC (collateral)`,
+    totalUSDCRequired6,
+    proposedCeilingUSDC: `${process.env.PROPOSED_CEILING_USDC || '100'}.00 USDC (total collateral + dynamic gas budget)`,
+    deployerRetains: `${formatUnits(binarySeedTokens18, 18)} YES, ${formatUnits(binarySeedTokens18, 18)} NO, ${formatUnits(shareSplitSets18, 18)} residualShare (R max payout $${formatUnits(shareSplit6, 6)}: R <= q * cap), LP tokens`
+  };
+}
+
 export async function runDeploy({
   rpcUrl = process.env.ARC_RPC_URL || process.env.RPC_URL || ARC_TESTNET_RPC,
   privateKey = null,
@@ -421,7 +531,8 @@ export async function runDeploy({
   autoFund = true,
   manifestPath = path.resolve(ARC_CHAIN_ID === 5042 ? 'deployments/mainnet-market.json' : 'deployments/demo-manifest.json'),
   planPath = path.resolve('deployments/unsigned-launch-plan.json'),
-  testFailureHook = null
+  testFailureHook = null,
+  seedScale = process.env.SEED_SCALE || '1/1'
 } = {}) {
   const safeRpcUrl = redactRpcUrl(rpcUrl);
   console.log('--- THELEMA Demo Deployment & Seeding Preflight ---');
@@ -469,26 +580,7 @@ export async function runDeploy({
   const cutoffOffset = Number(process.env.DEMO_CALENDAR_CUTOFF_OFFSET || defaultCutoffOffset);
   const earliestPriceFixOffset = Number(process.env.DEMO_CALENDAR_PRICE_FIX_OFFSET || cutoffOffset);
 
-  const budgetProfile = {
-    capUSD: '$500.00',
-    cap6: 500_000_000,
-    binarySplitUSDC: '20.00 USDC (collateral)',
-    binarySplit6: 20_000_000n,
-    binarySeedTokens18: 10n * 10n ** 18n, // 10 YES + 10 NO into pool
-    shareSplitUSDC: '50.00 USDC (collateral)',
-    shareSplit6: 50_000_000n,
-    shareSplitSets18: 100_000_000_000_000_000n, // 0.1 complete sets
-    yesShareSeedUSDC: '11.655 USDC (collateral)',
-    yesShareSeed6: 11_655_000n,
-    yesShareSeedShares18: 100_000_000_000_000_000n, // 0.1 yesShare ($116.55 implied initial price)
-    noShareSeedUSDC: '4.366 USDC (collateral)',
-    noShareSeed6: 4_366_000n,
-    noShareSeedShares18: 100_000_000_000_000_000n, // 0.1 noShare ($43.66 implied initial price)
-    totalUSDCRequired: '86.021 USDC (collateral)',
-    totalUSDCRequired6: 86_021_000n,
-    proposedCeilingUSDC: `${process.env.PROPOSED_CEILING_USDC || '100'}.00 USDC (total collateral + dynamic gas budget)`,
-    deployerRetains: '10 YES, 10 NO, 0.1 residualShare (R max payout $50.00: R <= q * cap), LP tokens'
-  };
+  const budgetProfile = createBudgetProfile(seedScale);
 
   const ESTIMATED_GAS = {
     oracle: 800_000n,
@@ -660,6 +752,7 @@ export async function runDeploy({
 
     console.log(`\n--- Preflight Summary for ${targetAddress} ---`);
     console.log(`Selected Chain: ${chainId} (${chainId === 5042 ? 'Arc Mainnet' : 'Arc Testnet'})`);
+    console.log(`Seed Budget Scale: ${budgetProfile.seedScale}`);
     console.log(`Current Native Balance (USDC gas, 18-dec): ${formatUnits(nativeBalance, 18)} USDC`);
     console.log(`Current Collateral Balance (USDC ERC-20, 6-dec): ${formatUnits(collateralBalance, 6)} USDC`);
     console.log(`\n--- Remaining Requirements ---`);
@@ -770,10 +863,11 @@ export async function runDeploy({
         totalCollateralRequired: budgetProfile.totalUSDCRequired,
         dynamicGasBudgetEstimate: planGasBudgetWei > 0n ? `${formatUnits(planGasBudgetWei, 18)} USDC (dynamic gas estimate with 30% safety reserve)` : 'Calculated dynamically via preflight based on active RPC gas price and 30% safety reserve',
         breakdown: {
-          binarySplit: '20.00 USDC (collateral) -> 20 YES + 20 NO; seeds pool with 10 YES + 10 NO',
-          shareSplit: '50.00 USDC (collateral) -> 0.1 complete sets (0.1 yes, 0.1 no, 0.1 residual)',
-          yesSharePool: '11.655 USDC (collateral) + 0.1 yesShare ($116.55 initial implied price)',
-          noSharePool: '4.366 USDC (collateral) + 0.1 noShare ($43.66 initial implied price)',
+          seedScale: budgetProfile.seedScale,
+          binarySplit: `${formatUnits(budgetProfile.binarySplit6, 6)} USDC (collateral) -> ${formatUnits(budgetProfile.binarySplit6 * 10n ** 12n, 18)} YES + ${formatUnits(budgetProfile.binarySplit6 * 10n ** 12n, 18)} NO; seeds pool with ${formatUnits(budgetProfile.binarySeedTokens18, 18)} YES + ${formatUnits(budgetProfile.binarySeedTokens18, 18)} NO`,
+          shareSplit: `${formatUnits(budgetProfile.shareSplit6, 6)} USDC (collateral) -> ${formatUnits(budgetProfile.shareSplitSets18, 18)} complete sets (${formatUnits(budgetProfile.shareSplitSets18, 18)} yes, ${formatUnits(budgetProfile.shareSplitSets18, 18)} no, ${formatUnits(budgetProfile.shareSplitSets18, 18)} residual)`,
+          yesSharePool: `${formatUnits(budgetProfile.yesShareSeed6, 6)} USDC (collateral) + ${formatUnits(budgetProfile.yesShareSeedShares18, 18)} yesShare ($116.55 initial implied price)`,
+          noSharePool: `${formatUnits(budgetProfile.noShareSeed6, 6)} USDC (collateral) + ${formatUnits(budgetProfile.noShareSeedShares18, 18)} noShare ($43.66 initial implied price)`,
           ownerReserve: budgetProfile.deployerRetains
         }
       },
@@ -1933,12 +2027,22 @@ if (isDirectExecution()) {
     if (eqArg) manifestArg = eqArg.split('=')[1];
   }
 
+  let seedScaleArg = process.env.SEED_SCALE;
+  const scaleIdx = process.argv.indexOf('--seed-scale');
+  if (scaleIdx !== -1 && process.argv[scaleIdx + 1]) {
+    seedScaleArg = process.argv[scaleIdx + 1];
+  } else {
+    const eqArg = process.argv.find(a => a.startsWith('--seed-scale='));
+    if (eqArg) seedScaleArg = eqArg.split('=')[1];
+  }
+
   runDeploy({
     dryRun: isDryRun,
     isLocal: isLocalArg,
     address: addressArg,
     manifestPath: manifestArg ? path.resolve(manifestArg) : undefined,
-    preflightOnly: isPreflightArg
+    preflightOnly: isPreflightArg,
+    seedScale: seedScaleArg
   })
     .then((result) => {
       if (result && result.mode === 'ADDRESS_ONLY_PREFLIGHT') {
